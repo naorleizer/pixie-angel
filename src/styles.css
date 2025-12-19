@@ -43,3 +43,56 @@
     .loading-dot:nth-child(3) {
       animation-delay: 0.4s;
     }
+
+/* App color palette variables (from user):
+   ff9f1c - ffbf69 - ffffff - cbf3f0 - 2ec4b6
+*/
+:root {
+  --color-primary: #ff9f1c; /* ff9f1c */
+  --color-accent: #ffbf69;  /* ffbf69 */
+  --color-white: #ffffff;   /* ffffff */
+  --color-pale: #cbf3f0;    /* cbf3f0 */
+  --color-teal: #2ec4b6;    /* 2ec4b6 */
+
+  /* RGB fallbacks for alpha variants */
+  --color-primary-rgb: 255,159,28;
+  --color-accent-rgb: 255,191,105;
+  --color-pale-rgb: 203,243,240;
+  --color-teal-rgb: 46,196,182;
+}
+
+/* Utility overrides to map a few frequently used Tailwind color classes
+   to the new app palette without rewriting all HTML. Add more mappings
+   as needed. */
+
+/* Primary (maps from indigo utilities used in the markup) */
+.text-indigo-600 { color: var(--color-primary) !important; }
+.bg-indigo-600 { background-color: var(--color-primary) !important; }
+.bg-indigo-500 { background-color: var(--color-primary) !important; }
+.bg-indigo-100 { background-color: rgba(var(--color-primary-rgb), 0.12) !important; }
+.bg-indigo-50 { background-color: rgba(var(--color-primary-rgb), 0.06) !important; }
+.text-indigo-700 { color: rgba(var(--color-primary-rgb), 0.9) !important; }
+.text-indigo-900 { color: rgba(var(--color-primary-rgb), 0.98) !important; }
+.border-indigo-100 { border-color: rgba(var(--color-primary-rgb), 0.12) !important; }
+
+/* Accent (used for gradients / lighter highlights) */
+.via-sky-500 { background-image: linear-gradient(var(--color-accent), var(--color-accent)) !important; }
+
+/* Teal (maps from emerald utilities) */
+.bg-emerald-50 { background-color: rgba(var(--color-teal-rgb), 0.06) !important; }
+.bg-emerald-100 { background-color: rgba(var(--color-teal-rgb), 0.12) !important; }
+.bg-emerald-500 { background-color: var(--color-teal) !important; }
+.text-emerald-900 { color: var(--color-teal) !important; }
+.text-emerald-700 { color: rgba(var(--color-teal-rgb), 0.9) !important; }
+.border-emerald-100 { border-color: rgba(var(--color-teal-rgb), 0.12) !important; }
+.text-emerald-800 { color: rgba(var(--color-teal-rgb), 0.85) !important; }
+
+/* Small helpers to use palette directly in markup */
+.text-primary { color: var(--color-primary) !important; }
+.bg-primary { background-color: var(--color-primary) !important; }
+.bg-primary-10 { background-color: rgba(var(--color-primary-rgb), 0.06) !important; }
+.bg-accent { background-color: var(--color-accent) !important; }
+.bg-pale { background-color: var(--color-pale) !important; }
+.text-teal { color: var(--color-teal) !important; }
+.bg-teal { background-color: var(--color-teal) !important; }
+

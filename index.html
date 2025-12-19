@@ -15,7 +15,8 @@
 
     <!-- ONBOARDING SCREEN -->
     <section id="screen-onboarding"
-      class="flex flex-col flex-1 px-6 py-6 bg-gradient-to-b from-indigo-600 via-sky-500 to-emerald-500 text-white">
+      class="flex flex-col flex-1 px-6 py-6 text-white"
+      style="background: linear-gradient(to bottom, #ffbf69, #cbf3f0, #2ec4b6);">
       <!-- Top bar: logo  skip -->
       <div class="flex items-center justify-between">
         <!-- Replace this logo with a Flaticon SVG later if you want -->
@@ -38,7 +39,7 @@
       <div class="flex-1 flex flex-col justify-center gap-10">
         <!-- Slide 1 -->
         <div data-onboarding-slide="0" class="flex flex-col items-center text-center gap-4">
-          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center">
+          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
             <span class="text-4xl">🪄</span>
           </div>
           <h1 class="text-3xl font-semibold leading-tight">Your money coach, in your pocket</h1>
@@ -49,7 +50,7 @@
 
         <!-- Slide 2 -->
         <div data-onboarding-slide="1" class="hidden flex-col items-center text-center gap-4">
-          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center">
+          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
             <span class="text-4xl">🍽️</span>
           </div>
           <h2 class="text-3xl font-semibold leading-tight">Ask in real time</h2>
@@ -61,7 +62,7 @@
 
         <!-- Slide 3 -->
         <div data-onboarding-slide="2" class="hidden flex-col items-center text-center gap-4">
-          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center">
+          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
             <span class="text-4xl">🎯</span>
           </div>
           <h2 class="text-3xl font-semibold leading-tight">Turn goals into challenges</h2>
@@ -73,7 +74,7 @@
 
         <!-- Slide 4 -->
         <div data-onboarding-slide="3" class="hidden flex-col items-center text-center gap-4">
-          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center">
+          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
             <!-- Replaced the old magnifying-glass with a sparkle/wand theme -->
             <span class="text-4xl">✨</span>
           </div>
@@ -436,7 +437,7 @@
                 <a href="https://example.com/falafelcarmel-menu" target="_blank" rel="noreferrer"
                   class="block rounded-xl bg-slate-50 border border-slate-200 px-3 py-2">
                   <p class="text-xs font-semibold text-slate-800">View menu</p>
-                  <p class="text-[11px] text-indigo-600 break-all">https://example.com/falafelcarmel-menu</p>
+                  <p class="text-[11px] text-primary break-all">https://example.com/falafelcarmel-menu</p>
                 </a>
               </div>
             </div>
@@ -454,14 +455,14 @@
 
         <!-- User confirms -->
         <div id="chat-step-9" class="hidden chat-anim flex justify-end">
-          <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
+          <div class="max-w-[82%] rounded-2xl bg-primary text-white px-3 py-2 shadow">
             Let’s go with Falafel Carmel.
           </div>
         </div>
 
         <!-- AI confirms -->
         <div id="chat-step-10" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
+          <div class="w-8 h-8 rounded-2xl bg-primary/20 flex items-center justify-center text-xs">
             ✨
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
@@ -478,7 +479,7 @@
 
         <!-- Loading indicator (shown while waiting for AI response) -->
         <div id="chat-loading" class="hidden flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
+          <div class="w-8 h-8 rounded-2xl bg-primary/20 flex items-center justify-center text-xs">
             ✨
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
@@ -496,7 +497,7 @@
         <div class="flex items-center gap-2 bg-slate-50 rounded-full px-4 py-3 border border-slate-200">
           <input type="text" class="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
             placeholder="Ask Pixie anything… (mockup)" disabled />
-          <button class="text-indigo-600 text-base font-semibold" disabled>➤</button>
+          <button class="text-primary text-base font-semibold" disabled>➤</button>
         </div>
       </div>
     </section>

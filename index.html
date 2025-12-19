@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <title>Naor – Money Coach Mockup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind CDN (fine for mockups) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full bg-slate-900 text-slate-100 flex justify-center">
+
+  <!-- App container, mobile width -->
+  <div class="w-full max-w-md h-full min-h-screen bg-slate-950 flex flex-col">
+
+    <!-- ONBOARDING SCREEN -->
+    <section id="screen-onboarding" class="flex flex-col flex-1 px-6 py-6">
+      <div class="flex justify-between items-center mb-6">
+        <span class="text-sm text-slate-400 font-medium">Welcome</span>
+        <button class="text-sm text-slate-300 underline" onclick="goToScreen('screen-dashboard')">
+          Skip
+        </button>
+      </div>
+
+      <div id="onboarding-slides" class="flex-1 flex flex-col justify-center gap-8">
+        <!-- Slide 1 -->
+        <div data-onboarding-slide="0" class="flex flex-col items-center text-center gap-4">
+          <div class="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <span class="text-3xl">💬</span>
+          </div>
+          <h1 class="text-2xl font-semibold">Meet your money coach</h1>
+          <p class="text-slate-300">
+            Naor helps you with small daily decisions so you can reach big goals.
+          </p>
+        </div>
+
+        <!-- Slide 2 -->
+        <div data-onboarding-slide="1" class="hidden flex-col items-center text-center gap-4">
+          <div class="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center">
+            <span class="text-3xl">🤝</span>
+          </div>
+          <h2 class="text-2xl font-semibold">Chat with Naor</h2>
+          <p class="text-slate-300">
+            Ask questions like “Can I afford dinner out?” or “How much should I save?”.
+          </p>
+        </div>
+
+        <!-- Slide 3 -->
+        <div data-onboarding-slide="2" class="hidden flex-col items-center text-center gap-4">
+          <div class="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <span class="text-3xl">🎯</span>
+          </div>
+          <h2 class="text-2xl font-semibold">Turn goals into challenges</h2>
+          <p class="text-slate-300">
+            Set missions like “Save 500₪” or “Spend less on eating out” and track your progress.
+          </p>
+        </div>
+
+        <!-- Slide 4 -->
+        <div data-onboarding-slide="3" class="hidden flex-col items-center text-center gap-4">
+          <div class="w-20 h-20 rounded-full bg-sky-500/20 flex items-center justify-center">
+            <span class="text-3xl">🔍</span>
+          </div>
+          <h2 class="text-2xl font-semibold">Your data, your control</h2>
+          <p class="text-slate-300">
+            Naor reads patterns, explains suggestions, and never moves money on its own.
+          </p>
+        </div>
+      </div>
+
+      <!-- Dots + Next button -->
+      <div class="mt-8 flex items-center justify-between">
+        <div class="flex gap-2" id="onboarding-dots">
+          <span data-onboarding-dot="0" class="h-2 w-2 rounded-full bg-emerald-400"></span>
+          <span data-onboarding-dot="1" class="h-2 w-2 rounded-full bg-slate-600"></span>
+          <span data-onboarding-dot="2" class="h-2 w-2 rounded-full bg-slate-600"></span>
+          <span data-onboarding-dot="3" class="h-2 w-2 rounded-full bg-slate-600"></span>
+        </div>
+        <button
+          class="px-4 py-2 rounded-full bg-emerald-500 text-slate-950 font-semibold text-sm"
+          onclick="nextOnboardingSlide()"
+        >
+          Next
+        </button>
+      </div>
+    </section>
+
+    <!-- DASHBOARD SCREEN -->
+    <section id="screen-dashboard" class="hidden flex-1 flex flex-col px-4 pb-4 pt-4">
+      <!-- Header -->
+      <header class="flex items-center justify-between mb-4">
+        <h1 class="text-lg font-semibold">Naor</h1>
+        <span class="text-xs text-slate-400">Prototype</span>
+      </header>
+
+      <!-- Scrollable content -->
+      <div class="flex-1 overflow-y-auto space-y-4 pb-4">
+        <!-- Welcome card -->
+        <button
+          class="w-full text-left rounded-2xl bg-slate-800 px-4 py-3 flex justify-between items-center"
+          title="Profile (not implemented)"
+        >
+          <div>
+            <p class="text-sm text-slate-300">Hi, Naor 👋</p>
+            <p class="text-xs text-slate-400">Here’s your money snapshot.</p>
+          </div>
+          <span class="text-xs text-slate-500 underline">Profile</span>
+        </button>
+
+        <!-- Challenges carousel -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <p class="text-sm font-medium text-slate-200">Your challenges</p>
+          </div>
+          <div class="flex gap-3 overflow-x-auto pb-2">
+            <!-- Empty state card (hidden once challenge is created) -->
+            <div
+              id="empty-challenges-card"
+              class="min-w-[240px] rounded-2xl bg-slate-800 px-4 py-4 flex flex-col justify-between"
+            >
+              <div>
+                <p class="text-sm font-semibold text-slate-100">No challenges yet</p>
+                <p class="text-xs text-slate-400 mt-1">
+                  Start with one small mission to see your progress here.
+                </p>
+              </div>
+              <button
+                class="mt-4 text-xs font-semibold text-emerald-400 underline"
+                onclick="openChat()"
+              >
+                Create your first challenge with Naor
+              </button>
+            </div>
+
+            <!-- Real challenge card (shown after creation) -->
+            <div
+              id="challenge-card"
+              class="hidden min-w-[240px] rounded-2xl bg-emerald-500/10 border border-emerald-500/40 px-4 py-4 flex flex-col justify-between"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <p class="text-sm font-semibold text-emerald-200">
+                    Save 500₪ for vacation
+                  </p>
+                  <p class="text-xs text-emerald-100/80 mt-1">
+                    Reduce eating out by 150₪/month
+                  </p>
+                </div>
+                <span class="text-[10px] text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded-full">
+                  Active
+                </span>
+              </div>
+              <div class="mt-3 space-y-1">
+                <div class="flex justify-between text-[11px] text-slate-300">
+                  <span>Progress</span>
+                  <span>0 / 500₪</span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-slate-700">
+                  <div class="h-1.5 rounded-full bg-emerald-400" style="width: 0%"></div>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">
+                  Ends in 2 months
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Finance status -->
+        <div class="space-y-2">
+          <p class="text-sm font-medium text-slate-200">Current finances</p>
+          <div class="rounded-2xl bg-slate-800 px-4 py-4 space-y-3">
+            <div class="flex justify-between items-end">
+              <div>
+                <p class="text-xs text-slate-400">Available balance</p>
+                <p class="text-xl font-semibold text-slate-100 mt-1">₪ 5,230</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-slate-400">This week’s spending</p>
+                <p class="text-sm text-slate-100 mt-1">₪ 760 / 1,000₪</p>
+              </div>
+            </div>
+            <div class="border-t border-slate-700/80 pt-3">
+              <p class="text-[11px] text-slate-400 mb-2">Latest transactions</p>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-emerald-300">+ 3,500₪ Salary</span>
+                  <span class="text-slate-400">Yesterday</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-rose-300">- 110₪ Restaurant</span>
+                  <span class="text-slate-400">Today</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-rose-300">- 45₪ Coffee</span>
+                  <span class="text-slate-400">Today</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Chat CTA -->
+      <button
+        class="mt-2 flex items-center gap-2 rounded-full bg-slate-800 px-4 py-3 text-sm text-slate-300"
+        onclick="openChat()"
+      >
+        <div class="flex-1 text-left">
+          <span class="text-xs text-slate-500 block mb-0.5">Ask your coach</span>
+          <span>Ask your money coach anything…</span>
+        </div>
+        <span class="text-lg">➤</span>
+      </button>
+    </section>
+
+    <!-- CHAT SCREEN -->
+    <section id="screen-chat" class="hidden flex-1 flex flex-col bg-slate-950">
+      <!-- Header -->
+      <header class="flex items-center gap-3 px-4 py-3 border-b border-slate-800">
+        <button class="text-slate-300" onclick="goBack()">
+          ←
+        </button>
+        <div class="flex flex-col">
+          <span class="text-sm font-semibold">Naor Coach</span>
+          <span class="text-[11px] text-slate-400">AI money companion</span>
+        </div>
+      </header>
+
+      <!-- Conversation -->
+      <div id="chat-scroll" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 text-sm">
+
+        <!-- AI greeting -->
+        <div class="flex items-start gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+            🤖
+          </div>
+          <div class="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2">
+            <p>Hi Naor 👋 I’m your money coach.</p>
+            <p class="mt-1 text-slate-300">
+              Tell me what you’d like to change or achieve, and we’ll turn it into a concrete challenge.
+            </p>
+          </div>
+        </div>
+
+        <!-- User message about vacation -->
+        <div class="flex justify-end">
+          <div class="max-w-[80%] rounded-2xl bg-emerald-500 text-slate-950 px-3 py-2">
+            I want to save 500₪ for a short vacation, but I always spend too much on eating out.
+          </div>
+        </div>
+
+        <!-- AI clarifies -->
+        <div class="flex items-start gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+            🤖
+          </div>
+          <div class="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2 space-y-1">
+            <p>Great goal. Let’s make it concrete.</p>
+            <p class="text-slate-300">
+              1️⃣ When would you like to reach 500₪?<br/>
+              2️⃣ About how much do you spend on eating out in a month?
+            </p>
+          </div>
+        </div>
+
+        <!-- User clarifying -->
+        <div class="flex justify-end flex-col items-end gap-1">
+          <div class="max-w-[80%] rounded-2xl bg-emerald-500 text-slate-950 px-3 py-2">
+            In 2 months.
+          </div>
+          <div class="max-w-[80%] rounded-2xl bg-emerald-500 text-slate-950 px-3 py-2">
+            I think around 800₪ a month.
+          </div>
+        </div>
+
+        <!-- AI challenge proposal with card -->
+        <div class="flex items-start gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+            🤖
+          </div>
+          <div class="max-w-[80%] space-y-2">
+            <div class="rounded-2xl bg-slate-800 px-3 py-2">
+              <p>
+                Here’s a challenge that could work:<br/>
+                <span class="font-semibold">
+                  “Reduce eating out by 150₪ per month for 2 months”
+                </span>
+                so you can build up about 300₪. With a bit of extra saving, you’ll reach 500₪.
+              </p>
+            </div>
+            <div class="rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 space-y-1">
+              <p class="text-xs text-slate-400 mb-1">Challenge preview</p>
+              <p class="text-sm font-semibold text-emerald-200">
+                Save 500₪ for vacation
+              </p>
+              <p class="text-xs text-slate-300">
+                Periodic · Reduce eating out by 150₪/month
+              </p>
+              <p class="text-[11px] text-slate-400 mt-1">
+                Duration: 2 months (until 30 June 2025)
+              </p>
+              <div class="mt-2 flex gap-2">
+                <button
+                  class="px-3 py-1.5 rounded-full bg-emerald-500 text-slate-950 text-xs font-semibold"
+                  onclick="goToChallengeForm()"
+                >
+                  Create this challenge
+                </button>
+                <button class="px-3 py-1.5 rounded-full bg-slate-800 text-xs text-slate-200" disabled>
+                  Edit details first
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AFTER CREATION: confirmation & challenge card (initially hidden) -->
+        <div id="chat-challenge-created" class="hidden space-y-2">
+          <!-- AI confirmation bubble -->
+          <div class="flex items-start gap-2">
+            <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+              🤖
+            </div>
+            <div class="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2">
+              <p>
+                Your challenge <span class="font-semibold">“Save 500₪ for vacation”</span> is now active ✅
+              </p>
+              <p class="mt-1 text-slate-300 text-xs">
+                You can edit or delete it anytime. Nothing is locked in.
+              </p>
+            </div>
+          </div>
+
+          <!-- Challenge card with edit/delete/view -->
+          <div class="flex items-start gap-2">
+            <div class="w-7 h-7"></div>
+            <div class="max-w-[80%] rounded-2xl bg-emerald-500/10 border border-emerald-500/40 px-3 py-2 space-y-1">
+              <div class="flex justify-between items-center">
+                <p class="text-sm font-semibold text-emerald-100">
+                  Save 500₪ for vacation
+                </p>
+                <span class="text-[10px] text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full">
+                  Active
+                </span>
+              </div>
+              <p class="text-[11px] text-slate-300">
+                0 / 500₪ saved · Ends in 2 months
+              </p>
+              <p class="text-[10px] text-slate-400">
+                Created just now
+              </p>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <button
+                  class="px-3 py-1.5 rounded-full bg-slate-900 text-xs text-slate-100"
+                  onclick="goToChallengeForm(true)"
+                >
+                  Edit challenge
+                </button>
+                <button
+                  class="px-3 py-1.5 rounded-full bg-slate-900 text-xs text-rose-300"
+                  onclick="deleteChallengeFromChat()"
+                >
+                  Delete challenge
+                </button>
+                <button
+                  class="px-3 py-1.5 rounded-full bg-emerald-500 text-xs text-slate-950 font-semibold"
+                  onclick="viewChallengeOnDashboard()"
+                >
+                  View on dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AFTER DELETE: deleted + undo (initially hidden) -->
+        <div id="chat-challenge-deleted" class="hidden space-y-2">
+          <div class="flex items-start gap-2">
+            <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+              🤖
+            </div>
+            <div class="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2">
+              <p>
+                Challenge <span class="font-semibold">“Save 500₪ for vacation”</span> deleted.
+              </p>
+              <button
+                class="mt-2 text-xs text-emerald-300 underline"
+                onclick="undoDeleteChallenge()"
+              >
+                Undo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- REAL-TIME DECISION PART – restaurant suggestions + menu link -->
+        <!-- User asks about dinner -->
+        <div class="mt-6 flex justify-end">
+          <div class="max-w-[80%] rounded-2xl bg-emerald-500 text-slate-950 px-3 py-2">
+            I’m meeting friends tonight in the city center. Budget around 60₪ per person.
+            Will that hurt my eating out challenge?
+          </div>
+        </div>
+
+        <!-- AI explains situation -->
+        <div class="flex items-start gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+            🤖
+          </div>
+          <div class="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2 space-y-2">
+            <p>
+              Let’s see… Based on your goal to
+              <span class="font-semibold">reduce eating out by 150₪ this month</span>,
+              you have about <span class="font-semibold">120₪</span> left in your comfortable zone.
+            </p>
+            <p class="text-slate-300 text-xs">
+              A 60₪ dinner tonight is possible, but it will leave you with less room later this month.
+            </p>
+            <!-- mini bar -->
+            <div class="mt-2">
+              <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                <span>Eating out this month</span>
+                <span>280₪ used · 60₪ tonight · 60₪ left</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-slate-700 overflow-hidden">
+                <div class="h-1.5 bg-rose-400 inline-block" style="width: 50%"></div>
+                <div class="h-1.5 bg-amber-400 inline-block" style="width: 15%"></div>
+                <div class="h-1.5 bg-emerald-400 inline-block" style="width: 35%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI restaurant suggestions -->
+        <div class="flex items-start gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+            🤖
+          </div>
+          <div class="max-w-[80%] space-y-2">
+            <div class="rounded-2xl bg-slate-800 px-3 py-2">
+              <p>Here are a few places that keep you close to your goal:</p>
+            </div>
+
+            <!-- Cards carousel (static, vertical in mockup) -->
+            <div class="space-y-2">
+              <div class="rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2">
+                <div class="flex justify-between items-center">
+                  <p class="text-sm font-semibold">Falafel Carmel</p>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">
+                    ✅ Fits challenge
+                  </span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1">~40–55₪ per person</p>
+                <p class="text-[11px] text-slate-400 mt-1">
+                  Simple menu, cheaper than your usual choices.
+                </p>
+                <button
+                  class="mt-2 text-xs text-emerald-300 underline"
+                  onclick="scrollToMenuCard()"
+                >
+                  Show menu
+                </button>
+              </div>
+
+              <div class="rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2">
+                <div class="flex justify-between items-center">
+                  <p class="text-sm font-semibold">Shawarma Corner</p>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
+                    ⚠️ Close to limit
+                  </span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1">~45–60₪ per person</p>
+                <p class="text-[11px] text-slate-400 mt-1">
+                  OK once, but a few more like this and you’ll likely miss the goal.
+                </p>
+              </div>
+
+              <div class="rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2">
+                <div class="flex justify-between items-center">
+                  <p class="text-sm font-semibold">Veggie Bowl Bar</p>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">
+                    ✅ Budget & healthier
+                  </span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1">~35–50₪ per person</p>
+                <p class="text-[11px] text-slate-400 mt-1">
+                  Good for both budget and health priorities.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Menu link card for Falafel Carmel -->
+        <div id="menu-card" class="mt-2 flex items-start gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+            🤖
+          </div>
+          <div class="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2 space-y-1">
+            <p>
+              Here’s the menu for <span class="font-semibold">Falafel Carmel</span>.  
+              Prices can change, so it’s good to double-check.
+            </p>
+            <a
+              href="#"
+              class="mt-1 block rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs"
+            >
+              <p class="font-semibold text-slate-100">
+                Falafel Carmel – Menu
+              </p>
+              <p class="text-[11px] text-slate-400">
+                Opens in your browser
+              </p>
+              <p class="text-[11px] text-emerald-300 mt-1">
+                falafelcarmel.example/menu
+              </p>
+            </a>
+          </div>
+        </div>
+
+        <!-- User confirms choice -->
+        <div class="mt-3 flex justify-end">
+          <div class="max-w-[80%] rounded-2xl bg-emerald-500 text-slate-950 px-3 py-2">
+            Looks good, I’ll go with Falafel Carmel.
+          </div>
+        </div>
+
+        <!-- AI confirms impact -->
+        <div class="flex items-start gap-2">
+          <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">
+            🤖
+          </div>
+          <div class="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2">
+            <p>
+              Nice choice 🎉 If you keep it around <span class="font-semibold">50₪ per person</span>,
+              you’ll still have about <span class="font-semibold">70₪</span> left in your eating-out
+              challenge for the rest of the month.
+            </p>
+            <p class="mt-1 text-xs text-slate-300">
+              You can always adjust or delete the challenge later if things change.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Chat input (non-functional, just UI) -->
+      <div class="border-t border-slate-800 px-3 py-2">
+        <div class="flex items-center gap-2 bg-slate-900 rounded-full px-3 py-2">
+          <input
+            type="text"
+            class="flex-1 bg-transparent text-xs outline-none placeholder:text-slate-500"
+            placeholder="Type a message (mockup only)…"
+            disabled
+          />
+          <button class="text-slate-500 text-sm" disabled>➤</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW CHALLENGE FORM SCREEN -->
+    <section id="screen-challenge" class="hidden flex-1 flex flex-col bg-slate-950">
+      <!-- Header -->
+      <header class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <button class="text-slate-300" onclick="goBack()">
+            ←
+          </button>
+          <span class="text-sm font-semibold">New Challenge</span>
+        </div>
+        <button class="text-xs text-slate-400 underline" onclick="goBack()">
+          Cancel
+        </button>
+      </header>
+
+      <!-- Form -->
+      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 text-sm">
+        <div class="rounded-2xl bg-slate-900 px-4 py-3">
+          <p class="text-xs text-emerald-300">
+            “Small steps today, big freedom tomorrow 💸”
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Title *</label>
+            <input
+              id="challenge-title"
+              type="text"
+              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm outline-none"
+              value="Save 500₪ for vacation"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Type *</label>
+            <div class="inline-flex rounded-full bg-slate-900 border border-slate-700 p-1 text-xs">
+              <button
+                class="px-3 py-1.5 rounded-full bg-emerald-500 text-slate-950 font-semibold"
+              >
+                Periodic
+              </button>
+              <button
+                class="px-3 py-1.5 rounded-full text-slate-300"
+              >
+                One-time
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Amount (₪) *</label>
+            <input
+              id="challenge-amount"
+              type="number"
+              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm outline-none"
+              value="500"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-xs text-slate-400 mb-1">Duration *</label>
+
+            <!-- Mode selector -->
+            <div class="flex gap-2 text-xs">
+              <button
+                class="flex-1 rounded-full bg-emerald-500 text-slate-950 py-1.5 font-semibold"
+              >
+                For X months
+              </button>
+              <button
+                class="flex-1 rounded-full bg-slate-900 text-slate-300 border border-slate-700 py-1.5"
+              >
+                Until date
+              </button>
+            </div>
+
+            <!-- Duration input -->
+            <div class="flex items-center gap-2">
+              <input
+                id="challenge-duration-value"
+                type="number"
+                class="w-16 rounded-xl bg-slate-900 border border-slate-700 px-2 py-2 text-sm outline-none"
+                value="2"
+              />
+              <select
+                id="challenge-duration-unit"
+                class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs outline-none"
+              >
+                <option value="months" selected>months</option>
+                <option value="weeks">weeks</option>
+                <option value="days">days</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create button -->
+      <div class="px-4 pb-4 pt-2">
+        <button
+          class="w-full rounded-full bg-emerald-500 text-slate-950 py-3 text-sm font-semibold"
+          onclick="createChallenge()"
+        >
+          Create Challenge
+        </button>
+        <p class="mt-2 text-[11px] text-slate-500 text-center">
+          All fields are required. You can edit or delete this challenge later.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Simple navigation & state JS -->
+  <script>
+    // Screen stack for back navigation
+    const screenStack = ["screen-onboarding"];
+    let currentScreen = "screen-onboarding";
+
+    function showScreen(id, push = true) {
+      if (id === currentScreen) return;
+      // hide all
+      ["screen-onboarding", "screen-dashboard", "screen-chat", "screen-challenge"].forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.classList.add("hidden");
+      });
+      // show target
+      const target = document.getElementById(id);
+      if (target) target.classList.remove("hidden");
+      if (push) screenStack.push(id);
+      currentScreen = id;
+    }
+
+    function goToScreen(id) {
+      showScreen(id, true);
+    }
+
+    function goBack() {
+      if (screenStack.length <= 1) return;
+      // pop current
+      screenStack.pop();
+      const prev = screenStack[screenStack.length - 1];
+      showScreen(prev, false);
+    }
+
+    // Onboarding logic
+    let onboardingIndex = 0;
+    const totalOnboardingSlides = 4;
+
+    function showOnboardingSlide(index) {
+      onboardingIndex = index;
+      const slides = document.querySelectorAll("[data-onboarding-slide]");
+      const dots = document.querySelectorAll("[data-onboarding-dot]");
+      slides.forEach(slide => {
+        const idx = parseInt(slide.getAttribute("data-onboarding-slide"), 10);
+        slide.classList.toggle("hidden", idx !== index);
+      });
+      dots.forEach(dot => {
+        const idx = parseInt(dot.getAttribute("data-onboarding-dot"), 10);
+        dot.classList.toggle("bg-emerald-400", idx === index);
+        dot.classList.toggle("bg-slate-600", idx !== index);
+      });
+    }
+
+    function nextOnboardingSlide() {
+      if (onboardingIndex < totalOnboardingSlides - 1) {
+        showOnboardingSlide(onboardingIndex + 1);
+      } else {
+        goToScreen("screen-dashboard");
+      }
+    }
+
+    // Shortcut for dashboard → chat
+    function openChat() {
+      goToScreen("screen-chat");
+      // optionally scroll to top
+      const chatScroll = document.getElementById("chat-scroll");
+      if (chatScroll) chatScroll.scrollTop = 0;
+    }
+
+    // Challenge state
+    let challengeCreated = false;
+
+    function goToChallengeForm(editMode = false) {
+      // for mockup, we don't differentiate edit/add much
+      goToScreen("screen-challenge");
+    }
+
+    function createChallenge() {
+      challengeCreated = true;
+      // update dashboard cards
+      const empty = document.getElementById("empty-challenges-card");
+      const card = document.getElementById("challenge-card");
+      if (empty) empty.classList.add("hidden");
+      if (card) card.classList.remove("hidden");
+
+      // show confirmation block in chat
+      const createdBlock = document.getElementById("chat-challenge-created");
+      const deletedBlock = document.getElementById("chat-challenge-deleted");
+      if (createdBlock) createdBlock.classList.remove("hidden");
+      if (deletedBlock) deletedBlock.classList.add("hidden");
+
+      // return to chat
+      goToScreen("screen-chat");
+      const chatScroll = document.getElementById("chat-scroll");
+      if (chatScroll) chatScroll.scrollTop = chatScroll.scrollHeight;
+    }
+
+    function viewChallengeOnDashboard() {
+      goToScreen("screen-dashboard");
+    }
+
+    function deleteChallengeFromChat() {
+      const card = document.getElementById("challenge-card");
+      const createdBlock = document.getElementById("chat-challenge-created");
+      const deletedBlock = document.getElementById("chat-challenge-deleted");
+      if (card) card.classList.add("hidden");
+      if (createdBlock) createdBlock.classList.add("hidden");
+      if (deletedBlock) deletedBlock.classList.remove("hidden");
+      challengeCreated = false;
+    }
+
+    function undoDeleteChallenge() {
+      const card = document.getElementById("challenge-card");
+      const createdBlock = document.getElementById("chat-challenge-created");
+      const deletedBlock = document.getElementById("chat-challenge-deleted");
+      if (card) card.classList.remove("hidden");
+      if (createdBlock) createdBlock.classList.remove("hidden");
+      if (deletedBlock) deletedBlock.classList.add("hidden");
+      challengeCreated = true;
+    }
+
+    function scrollToMenuCard() {
+      const menuCard = document.getElementById("menu-card");
+      if (menuCard) {
+        menuCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    // Init
+    showOnboardingSlide(0);
+    showScreen("screen-onboarding", false);
+  </script>
+</body>
+</html>

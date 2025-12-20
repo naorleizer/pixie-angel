@@ -324,44 +324,46 @@
         </div>
 
                 <!-- AI: clarifying questions -->
-        <div id="chat-step-4" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
-          </div>
-          <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
-            <p> Excellent. Based on your history, It's seems like something you are definatly able to stick to.</p>
-          </div>
-          
-        </div>
-
-        <!-- AI: proposal  card -->
-        <div id="chat-step-5" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
-          </div>
-          <div class="max-w-[82%] space-y-2">
-            <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-              <p>
-                Here’s a friendly plan: reduce eating out by <span class="font-semibold">150₪ per month</span>
-                for <span class="font-semibold">2 months</span>. That creates room for your vacation savings.
-              </p>
+        <div id="chat-step-4" class="hidden">
+          <div class="chat-anim flex items-start gap-2">
+            <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
+              ✨
             </div>
+            <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
+              <p> Excellent. Based on your history, It's seems like something you are definatly able to stick to.</p>
+            </div>
+            
+          </div>
 
-            <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-              <p class="text-xs text-slate-500 mb-1">Challenge preview</p>
-              <p class="text-sm font-semibold text-slate-900">Save 500₪ for a vacation</p>
-              <p class="text-xs text-slate-600 mt-1">Type: Periodic</p>
-              <p class="text-xs text-slate-600">Amount: 500₪</p>
-              <p class="text-[11px] text-slate-500 mt-1">Duration: 2 months</p>
-              <div class="mt-2 flex gap-2">
-                <button class="px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-semibold shadow"
-                  onclick="goToChallengeFormFromChat(event)">
-                  Create challenge
-                </button>
-                <button class="px-3 py-1.5 rounded-full bg-slate-100 text-xs text-slate-500 border border-slate-200"
-                  disabled>
-                  Edit details
-                </button>
+          <!-- AI: proposal  card -->
+          <div class="chat-anim flex items-start gap-2">
+            <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
+              ✨
+            </div>
+            <div class="max-w-[82%] space-y-2">
+              <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+                <p>
+                  Here’s a friendly plan: reduce eating out by <span class="font-semibold">150₪ per month</span>
+                  for <span class="font-semibold">2 months</span>. That creates room for your vacation savings.
+                </p>
+              </div>
+
+              <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+                <p class="text-xs text-slate-500 mb-1">Challenge preview</p>
+                <p class="text-sm font-semibold text-slate-900">Save 500₪ for a vacation</p>
+                <p class="text-xs text-slate-600 mt-1">Type: Periodic</p>
+                <p class="text-xs text-slate-600">Amount: 500₪</p>
+                <p class="text-[11px] text-slate-500 mt-1">Duration: 2 months</p>
+                <div class="mt-2 flex gap-2">
+                  <button class="px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-semibold shadow"
+                    onclick="goToChallengeFormFromChat(event)">
+                    Create challenge
+                  </button>
+                  <button class="px-3 py-1.5 rounded-full bg-slate-100 text-xs text-slate-500 border border-slate-200"
+                    disabled>
+                    Edit details
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -644,13 +646,13 @@
 
       // Make tapping anywhere in the conversation advance the demo,
       // but ignore clicks on interactive controls like buttons/links/inputs.
-      function chatAreaTapHandler(e){
-        const ignoreSelectors = 'button, a, input, textarea, select, [data-no-advance]';
-        if(e.target.closest && e.target.closest(ignoreSelectors)) return;
-        if(typeof window.advanceChatDemo === 'function'){
-          window.advanceChatDemo();
-        }
-      }
+      // function chatAreaTapHandler(e){
+      //   const ignoreSelectors = 'button, a, input, textarea, select, [data-no-advance]';
+      //   if(e.target.closest && e.target.closest(ignoreSelectors)) return;
+      //   if(typeof window.advanceChatDemo === 'function'){
+      //     window.advanceChatDemo();
+      //   }
+      // }
 
       const chatScroll = document.getElementById('chat-scroll');
       if(chatScroll){

@@ -20,4 +20,6 @@ export const chatSequence = [
   { id: "chat-step-6", delay: 0, requiresDelete: true },
   { id: "chat-step-7", delay: 0 },
   { id: "chat-step-8", delay: 0 },
+  { id: "chat-step-9", delay: 0 },
+  { id: "chat-step-10", delay: 0 },
 ];

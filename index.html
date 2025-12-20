@@ -165,7 +165,7 @@
         <div class="rounded-3xl bg-white shadow-sm border border-slate-200 px-5 py-4">
           <div class="flex items-center justify-between mb-3">
             <p class="text-sm font-semibold text-slate-800">Your challenges</p>
-            <button class="text-xs text-indigo-600 font-semibold" onclick="openChat()">New via chat</button>
+            <button class="text-xs text-indigo-600 font-semibold" onclick="openChat('challenge', true)">New via chat</button>
           </div>
 
           <div class="overflow-hidden">
@@ -261,7 +261,7 @@
       <!-- Chat CTA (single-line placeholder only) -->
       <button
         class="mt-2 flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-4 py-3 text-sm text-slate-500"
-        onclick="openChat(true)">
+        onclick="openChat('decision', true)">
         <span class="flex-1 text-left">Ask your money coach anything...</span>
         <span class="text-lg text-indigo-600">➤</span>
       </button>

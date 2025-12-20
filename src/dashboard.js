@@ -1,6 +1,6 @@
 import { state } from "./state.js";
 import { showScreen } from "./navigation.js";
-import { resetChatDemo, openChat } from "./chat.js";
+import { openChat } from "./chat.js";
 
 export function setChallengeSlide(i) {
   state.challengeCarouselIndex = i;
@@ -22,9 +22,8 @@ export function setChallengeSlide(i) {
   }
 }
 
-export function openChatFromDashboard(forceReset = false) {
-  if (forceReset) resetChatDemo();
-  openChat(forceReset);
+export function openChatFromDashboard(story = "challenge", reset = false) {
+  openChat(story, reset);
 }
 
 export function viewChallengeOnDashboard(event) {

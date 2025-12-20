@@ -6,6 +6,8 @@ export function createChallenge() {
   state.challengeCreated = true;
 
   // In the original, creating a challenge returns you to chat and unlocks chat-step-5
+  // Reset stack so back from chat returns to dashboard (not to the form)
+  state.screenStack = ["screen-dashboard"];
   showScreen("screen-chat", true);
 
   // Reveal the "created" UI if present

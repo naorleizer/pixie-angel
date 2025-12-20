@@ -1,8 +1,33 @@
-import { state, chatSequence } from "./state.js";
+import { state, chatStories } from "./state.js";
 import { showScreen } from "./navigation.js";
 import { setChallengeSlide } from "./dashboard.js";
 
-export function openChat(reset = false) {
+const defaultStory = "challenge";
+
+function getActiveChatSequence() {
+  return chatStories[state.activeChatStory] || chatStories[defaultStory];
+}
+
+function getAllChatSteps() {
+  return Object.values(chatStories).flat();
+}
+
+export function openChat(arg, maybeReset = false) {
+  let story = state.activeChatStory || defaultStory;
+  let reset = false;
+
+  if (typeof arg === "string") {
+    story = chatStories[arg] ? arg : defaultStory;
+    reset = !!maybeReset;
+  } else if (typeof arg === "boolean") {
+    reset = arg;
+  } else if (arg && typeof arg === "object") {
+    story = chatStories[arg.story] ? arg.story : story;
+    reset = !!arg.reset;
+  }
+
+  state.activeChatStory = story;
+
   showScreen("screen-chat", true);
   if (reset) resetChatDemo();
   scrollChatToBottom();
@@ -10,9 +35,10 @@ export function openChat(reset = false) {
 
 export function resetChatDemo() {
   state.chatStepIndex = -1;
+  state.challengeCreated = false;
 
   // Hide all chat steps
-  chatSequence.forEach(({ id }) => {
+  getAllChatSteps().forEach(({ id }) => {
     const el = document.getElementById(id);
     if (el) el.classList.add("hidden");
   });
@@ -39,13 +65,16 @@ function revealWithAnim(el) {
 
 export function advanceChatDemo() {
   // Advance to next chat bubble in the sequence.
-  const maxIdx = chatSequence.length - 1;
+  const sequence = getActiveChatSequence();
+  const maxIdx = sequence.length - 1;
+
+  if (maxIdx < 0) return;
 
   // If current is beyond last, do nothing
   if (state.chatStepIndex >= maxIdx) return;
 
   let nextIdx = state.chatStepIndex + 1;
-  let next = chatSequence[nextIdx];
+  let next = sequence[nextIdx];
   
   // If next message is gated by challenge and challenge not created, block advancement
   if (next?.gatedByChallenge && !state.challengeCreated) {
@@ -56,7 +85,7 @@ export function advanceChatDemo() {
   if (next?.requiresDelete) {
     nextIdx++;
     if (nextIdx > maxIdx) return;
-    next = chatSequence[nextIdx];
+    next = sequence[nextIdx];
   }
 
   const nextEl = document.getElementById(next.id);
@@ -90,6 +119,8 @@ export function advanceChatDemo() {
 
 export function goToChallengeFormFromChat(event, toEdit = false) {
   if (event) event.preventDefault?.();
+  // Reset stack so back from the form returns to the dashboard
+  state.screenStack = ["screen-dashboard"];
   showScreen("screen-challenge", true);
 
   // If editing, show second card (index 1) if it exists

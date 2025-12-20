@@ -47,6 +47,6 @@ Chat Demo A - Create a challenge:
 
 
 Chat Demo B - Discusse where to eat:
-* copy paste the logic of chat demo A
-* Natural lang style with theoretical bacground
-* Create a converestation  (more than 2 msgs)
+* V copy paste the logic of chat demo A
+* ?V Natural lang style with theoretical bacground (need a review)
+* V Create a converestation  (more than 2 msgs)

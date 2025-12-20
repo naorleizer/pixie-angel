@@ -5,6 +5,9 @@ import { resetChatDemo, scrollChatToBottom, advanceChatDemo } from "./chat.js";
 export function createChallenge() {
   state.challengeCreated = true;
 
+  // Reveal the vacation challenge card on the dashboard
+  revealVacationChallenge();
+
   // In the original, creating a challenge returns you to chat and unlocks chat-step-5
   // Reset stack so back from chat returns to dashboard (not to the form)
   state.screenStack = ["screen-dashboard"];
@@ -26,6 +29,16 @@ export function createChallenge() {
     state.chatStepIndex = 4;
     scrollChatToBottom();
   }, 100);
+}
+
+function revealVacationChallenge() {
+  // Hide empty state
+  const emptyCard = document.getElementById("challenge-card-empty");
+  if (emptyCard) emptyCard.classList.add("hidden");
+
+  // Show vacation challenge card
+  const vacationCard = document.getElementById("challenge-card-0");
+  if (vacationCard) vacationCard.classList.remove("hidden");
 }
 
 export function deleteChallengeFromChat(event) {

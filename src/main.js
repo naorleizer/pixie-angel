@@ -5,6 +5,7 @@ import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from ".
 import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat } from "./chat.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
+import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
 
 // Expose functions for existing inline onclick="" handlers in the HTML.
 // This keeps the markup unchanged while allowing modular JS.
@@ -26,6 +27,8 @@ window.createChallenge = createChallenge;
 window.deleteChallengeFromChat = deleteChallengeFromChat;
 window.undoDeleteChallenge = undoDeleteChallenge;
 window.viewChallengeOnDashboard = viewChallengeOnDashboard;
+window.acceptBudgetAdjustment = acceptBudgetAdjustment;
+window.declineBudgetAdjustment = declineBudgetAdjustment;
 
 // Toggle the dashboard hamburger menu visibility
 export function toggleDashboardMenu() {
@@ -51,8 +54,10 @@ window.showPrivacy = showPrivacy;
 window.addEventListener("DOMContentLoaded", () => {
   showOnboardingSlide(1);
   showScreen("screen-onboarding", false);
-  setChallengeSlide(0);
+  setChallengeSlide(1); // Start at eating out challenge (index 1)
   resetChatDemo();
-    // Enable swipe on challenges carousel (mobile-like)
-    initChallengeSwipe();
+  // Enable swipe on challenges carousel (mobile-like)
+  initChallengeSwipe();
+  // Initialize challenge balance widget
+  updateChallengeBalance();
 });

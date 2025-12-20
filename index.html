@@ -14,8 +14,7 @@
   <div class="w-full max-w-md h-full min-h-screen bg-white flex flex-col shadow-xl">
 
     <!-- ONBOARDING SCREEN -->
-    <section id="screen-onboarding"
-      class="flex flex-col flex-1 px-6 py-6 text-white"
+    <section id="screen-onboarding" class="flex flex-col flex-1 px-6 py-6 text-white"
       style="background: linear-gradient(to bottom, #ffbf69, #cbf3f0, #2ec4b6);">
       <!-- Top bar: logo  skip -->
       <div class="flex items-center justify-between">
@@ -101,7 +100,8 @@
             <span data-onboarding-dot="3" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
           </div>
 
-          <button id="onboarding-next-bottom" class="px-4 py-2 rounded-full bg-white text-slate-900 font-semibold text-sm shadow"
+          <button id="onboarding-next-bottom"
+            class="px-4 py-2 rounded-full bg-white text-slate-900 font-semibold text-sm shadow"
             onclick="nextOnboardingSlide()" aria-label="Next">
             Next
           </button>
@@ -120,14 +120,21 @@
               class="p-2 rounded-md hover:bg-slate-100">
               ☰
             </button>
-            <div id="dashboard-menu" class="hidden absolute left-0 top-12 w-56 bg-white border border-slate-200 rounded-lg shadow-md z-30">
+            <div id="dashboard-menu"
+              class="hidden absolute left-0 top-12 w-56 bg-white border border-slate-200 rounded-lg shadow-md z-30">
               <div class="flex flex-col py-2">
-                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="goToScreen('screen-dashboard'); toggleDashboardMenu()">Profile</button>
-                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="goToScreen('screen-challenge'); toggleDashboardMenu()">New challenge</button>
-                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="openChat(); toggleDashboardMenu()">New chat</button>
-                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="showOnboardingSlide(1); goToScreen('screen-onboarding'); toggleDashboardMenu()">Tutorial</button>
-                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="showAbout(); toggleDashboardMenu()">About</button>
-                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="showPrivacy(); toggleDashboardMenu()">Privacy policy</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50"
+                  onclick="goToScreen('screen-dashboard'); toggleDashboardMenu()">Profile</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50"
+                  onclick="goToScreen('screen-challenge'); toggleDashboardMenu()">New challenge</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="openChat(); toggleDashboardMenu()">New
+                  chat</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50"
+                  onclick="showOnboardingSlide(1); goToScreen('screen-onboarding'); toggleDashboardMenu()">Tutorial</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50"
+                  onclick="showAbout(); toggleDashboardMenu()">About</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50"
+                  onclick="showPrivacy(); toggleDashboardMenu()">Privacy policy</button>
               </div>
             </div>
           </div>
@@ -165,13 +172,22 @@
         <div class="rounded-3xl bg-white shadow-sm border border-slate-200 px-5 py-4">
           <div class="flex items-center justify-between mb-3">
             <p class="text-sm font-semibold text-slate-800">Your challenges</p>
-            <button class="text-xs text-indigo-600 font-semibold" onclick="openChat('challenge', true)">New via chat</button>
+            <button class="text-xs text-indigo-600 font-semibold" onclick="openChat('challenge', true)">New via
+              chat</button>
           </div>
 
           <div class="overflow-hidden">
             <div id="challenge-track" class="flex transition-transform duration-300 ease-out">
+              <!-- Empty state placeholder -->
+              <div class="min-w-full pr-2" id="challenge-card-empty">
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-8 text-center">
+                  <p class="text-sm text-slate-600">No challenges yet</p>
+                  <p class="text-xs text-slate-500 mt-1">Tap "New via chat" to create your first challenge!</p>
+                </div>
+              </div>
+
               <!-- Card 1 -->
-              <div class="min-w-full pr-2" id="challenge-card-0">
+              <div class="min-w-full pr-2 hidden" id="challenge-card-0">
                 <div class="rounded-2xl bg-indigo-50 border border-indigo-100 px-4 py-4">
                   <div class="flex items-start justify-between gap-2">
                     <div>
@@ -223,9 +239,9 @@
 
           <!-- Carousel dots -->
           <div class="mt-4 flex items-center justify-center gap-2" id="challenge-dots">
-            <button data-challenge-dot class="h-2.5 w-2.5 rounded-full bg-indigo-600" onclick="setChallengeSlide(0)"
+            <button data-challenge-dot class="h-2.5 w-2.5 rounded-full bg-slate-300" onclick="setChallengeSlide(0)"
               aria-label="Challenge slide 1"></button>
-            <button data-challenge-dot class="h-2.5 w-2.5 rounded-full bg-slate-300" onclick="setChallengeSlide(1)"
+            <button data-challenge-dot class="h-2.5 w-2.5 rounded-full bg-indigo-600" onclick="setChallengeSlide(1)"
               aria-label="Challenge slide 2"></button>
           </div>
         </div>
@@ -239,19 +255,20 @@
 
           <div class="mt-4 space-y-3">
             <div class="flex justify-between text-xs text-slate-600">
-              <span class="font-semibold text-emerald-700">Saved: 60₪</span>
-              <span class="font-semibold text-rose-700">Overspent: 110₪</span>
+              <span id="balance-saved" class="font-semibold text-emerald-700">Saved: 0₪</span>
+              <span id="balance-overspent" class="font-semibold text-rose-700">Overspent: 165₪</span>
             </div>
 
             <!-- Green/Red balance bar -->
             <div class="w-full h-3 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
-              <!-- Example: 35% saved, 65% overspent -->
-              <div class="h-3 bg-emerald-500 inline-block" style="width: 35%"></div>
-              <div class="h-3 bg-rose-500 inline-block" style="width: 65%"></div>
+              <div class="flex h-full">
+                <div id="balance-bar-saved" class="h-3 bg-emerald-500" style="width: 0%"></div>
+                <div id="balance-bar-overspent" class="h-3 bg-rose-500" style="width: 100%"></div>
+              </div>
             </div>
 
-            <div class="text-[11px] text-slate-500">
-              Pixie summary: you’re <span class="font-semibold text-rose-700">slightly off-track</span>.
+            <div id="balance-summary" class="text-[11px] text-slate-500">
+              Pixie summary: you're <span class="font-semibold text-rose-700">off-track</span>.
               Want help turning this into a plan? Tap the chat bar below.
             </div>
           </div>
@@ -291,9 +308,9 @@
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <p class="font-semibold">Hi! I’m Pixie.</p>
             <p id="chat-greeting" class="mt-1 text-slate-600">
-                What would you like to ask your financial angel?
-              </p>
-           
+              What would you like to ask your financial angel?
+            </p>
+
           </div>
         </div>
 
@@ -323,7 +340,7 @@
           </div>
         </div>
 
-                <!-- AI: clarifying questions -->
+        <!-- AI: clarifying questions -->
         <div id="chat-step-4" class="hidden">
           <div class="chat-anim flex items-start gap-2">
             <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
@@ -332,7 +349,7 @@
             <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
               <p> Excellent. Based on your history, It's seems like something you are definatly able to stick to.</p>
             </div>
-            
+
           </div>
 
           <!-- AI: proposal  card -->
@@ -431,66 +448,80 @@
         <!-- Real-time decision: user asks -->
         <div id="chat-step-7" class="hidden chat-anim flex justify-end">
           <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
-            I’m meeting friends tonight in the city center. Budget around 60₪ per person — where should we eat?
+            I'm going out with friends tonight, any suggestions?
           </div>
         </div>
 
-        <!-- AI: suggestions  menu -->
+        <!-- AI: budget check and encouragement -->
         <div id="chat-step-8" class="hidden chat-anim flex items-start gap-2">
           <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
             ✨
           </div>
-          <div class="max-w-[82%] space-y-2">
-            <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-              <p>
-                Here are options that fit your budget goal:
-              </p>
-            </div>
-
-            <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-              <div class="flex justify-between items-center">
-                <p class="font-semibold">Falafel Carmel</p>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">✅ On track</span>
-              </div>
-              <p class="text-xs text-slate-600 mt-1">~40–55₪ per person</p>
-              <div class="mt-2">
-                <a href="https://example.com/falafelcarmel-menu" target="_blank" rel="noreferrer"
-                  class="block rounded-xl bg-slate-50 border border-slate-200 px-3 py-2">
-                  <p class="text-xs font-semibold text-slate-800">View menu</p>
-                  <p class="text-[11px] text-primary break-all">https://example.com/falafelcarmel-menu</p>
-                </a>
-              </div>
-            </div>
-
-            <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-              <div class="flex justify-between items-center">
-                <p class="font-semibold">Veggie Bowl Bar</p>
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">✅ Budget &
-                  healthy</span>
-              </div>
-              <p class="text-xs text-slate-600 mt-1">~35–50₪ per person</p>
-            </div>
+          <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+            <p>
+              Great to hear you're spending time with friends! 🎉
+            </p>
+            <p class="mt-2 text-slate-600 text-xs">
+              Looking at your "Eating out" challenge, you've used <span class="font-semibold text-slate-900">250₪ of your 300₪</span> weekly budget.
+              That leaves you with <span class="font-semibold text-emerald-700">50₪</span> for the rest of the week.
+            </p>
+            <p class="mt-2 text-slate-600 text-xs">
+              Tell me where you're planning to go and I'll help you find options that fit your budget!
+            </p>
           </div>
         </div>
 
-        <!-- User confirms -->
+        <!-- User reports spending -->
         <div id="chat-step-9" class="hidden chat-anim flex justify-end">
-          <div class="max-w-[82%] rounded-2xl bg-primary text-white px-3 py-2 shadow">
-            Let’s go with Falafel Carmel.
+          <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
+            I ended up spending 215₪.
           </div>
         </div>
 
-        <!-- AI confirms -->
+        <!-- AI reassures and offers budget adjustment -->
         <div id="chat-step-10" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-primary/20 flex items-center justify-center text-xs">
+          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
             ✨
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <p>
-              Great pick 🎉 That should keep you on track.
+              Good job tracking that! 💪
             </p>
-            <p class="mt-1 text-xs text-slate-600">
-              If plans change, you can adjust your challenge later — no harm done.
+            <p class="mt-2 text-slate-600 text-xs">
+              I see you went a bit over your weekly 300₪ limit (now at <span class="font-semibold text-slate-900">465₪</span>), but that's completely okay — life happens!
+            </p>
+            <p class="mt-2 text-slate-600 text-xs">
+              Would you like me to adjust next week's eating out budget to help you get back on track with your savings goal?
+            </p>
+            <div class="mt-3 flex gap-2">
+              <button class="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow" onclick="acceptBudgetAdjustment(event)">
+                Yes, adjust it
+              </button>
+              <button class="px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs border border-slate-200" onclick="declineBudgetAdjustment(event)">
+                No, keep as is
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- User accepts (triggered by button) -->
+        <div id="chat-step-11" class="hidden chat-anim flex justify-end">
+          <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
+            Yes
+          </div>
+        </div>
+
+        <!-- AI confirms adjustment -->
+        <div id="chat-step-12" class="hidden chat-anim flex items-start gap-2">
+          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
+            ✨
+          </div>
+          <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+            <p>
+              Done! ✅ I've adjusted your eating out budget to <span class="font-semibold text-emerald-700">250₪ per week</span> for next week.
+            </p>
+            <p class="mt-2 text-slate-600 text-xs">
+              This will help you stay on track with your vacation savings goal. You can always adjust it again if needed!
             </p>
           </div>
         </div>
@@ -516,7 +547,7 @@
       <div class="border-t border-slate-200 px-3 py-3 bg-white sticky bottom-0">
         <div class="flex items-center gap-2 bg-slate-50 rounded-full px-4 py-3 border border-slate-200">
           <input type="text" class="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
-            placeholder="Ask Pixie anything… (mockup)" disabled />
+            placeholder="Ask Pixie anything…" disabled />
           <button class="text-primary text-base font-semibold" disabled>➤</button>
         </div>
       </div>
@@ -604,17 +635,17 @@
   <!-- JS: navigation, onboarding, carousel, chat demo (tap-to-reveal), create/delete/undo -->
   <script type="module" src="/src/main.js"></script>
   <script>
-    (function(){
+    (function () {
       const greetings = [
         "Let’s protect those goals! How can I help you?",
         "Help me help your wallet. What are we looking at today?",
         "Found something tempting? Let's see how it fits into your big picture"
       ];
 
-      function randomizeChatGreeting(){
+      function randomizeChatGreeting() {
         const el = document.getElementById('chat-greeting');
-        if(!el) return;
-        const pick = greetings[Math.floor(Math.random()*greetings.length)];
+        if (!el) return;
+        const pick = greetings[Math.floor(Math.random() * greetings.length)];
         el.textContent = pick;
       }
 
@@ -627,12 +658,12 @@
 
       // Re-randomize when the chat screen becomes visible (class toggle on #screen-chat)
       const chatScreen = document.getElementById('screen-chat');
-      if(chatScreen && window.MutationObserver){
-        const obs = new MutationObserver((mutations)=>{
-          for(const m of mutations){
-            if(m.attributeName === 'class'){
+      if (chatScreen && window.MutationObserver) {
+        const obs = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            if (m.attributeName === 'class') {
               const cls = chatScreen.className || '';
-              if(!cls.split(/\s+/).includes('hidden')){
+              if (!cls.split(/\s+/).includes('hidden')) {
                 randomizeChatGreeting();
               }
             }
@@ -643,21 +674,6 @@
 
       // Expose for manual calls/testing if desired
       window.randomizeChatGreeting = randomizeChatGreeting;
-
-      // Make tapping anywhere in the conversation advance the demo,
-      // but ignore clicks on interactive controls like buttons/links/inputs.
-      // function chatAreaTapHandler(e){
-      //   const ignoreSelectors = 'button, a, input, textarea, select, [data-no-advance]';
-      //   if(e.target.closest && e.target.closest(ignoreSelectors)) return;
-      //   if(typeof window.advanceChatDemo === 'function'){
-      //     window.advanceChatDemo();
-      //   }
-      // }
-
-      const chatScroll = document.getElementById('chat-scroll');
-      if(chatScroll){
-        chatScroll.addEventListener('click', chatAreaTapHandler);
-      }
     })();
   </script>
 </body>

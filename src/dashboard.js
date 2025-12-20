@@ -29,6 +29,24 @@ export function setChallengeSlide(i) {
   }
 }
 
+export function updateChallengeCarousel() {
+  // Check if vacation challenge is created and update carousel accordingly
+  const vacationCard = document.getElementById("challenge-card-0");
+  const emptyCard = document.getElementById("challenge-card-empty");
+  
+  if (!state.challengeCreated) {
+    // Show empty state, start at eating out challenge (slide 1)
+    if (emptyCard) emptyCard.classList.remove("hidden");
+    if (vacationCard) vacationCard.classList.add("hidden");
+    setChallengeSlide(1);
+  } else {
+    // Hide empty state, show vacation challenge
+    if (emptyCard) emptyCard.classList.add("hidden");
+    if (vacationCard) vacationCard.classList.remove("hidden");
+    // Can keep current slide or default to first
+  }
+}
+
 export function initChallengeSwipe() {
   const track = document.getElementById("challenge-track");
   if (!track) return;

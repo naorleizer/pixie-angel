@@ -82,7 +82,7 @@ export function advanceChatDemo() {
   }
   
   // Skip messages that require manual triggers (like delete button)
-  if (next?.requiresDelete) {
+  if (next?.requiresDelete || next?.requiresButton) {
     nextIdx++;
     if (nextIdx > maxIdx) return;
     next = sequence[nextIdx];
@@ -103,6 +103,7 @@ export function advanceChatDemo() {
       scrollChatToBottom();
     }
     
+    const delayMs = (next?.delayMultiplier || 1) * 1200;
     setTimeout(() => {
       if (state.chatStepIndex === nextIdx) {
         // Hide loading indicator
@@ -111,7 +112,7 @@ export function advanceChatDemo() {
         }
         advanceChatDemo();
       }
-    }, 1200);
+    }, delayMs);
   }
   
   scrollChatToBottom();

@@ -42,7 +42,7 @@
           <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
             <span class="text-4xl">🪄</span>
           </div>
-          <h1 class="text-3xl font-semibold leading-tight">Your money coach, in your pocket</h1>
+          <h1 class="text-3xl font-semibold leading-tight">Budgeting, with wings</h1>
           <p class="text-white/90">
             Pixie helps you make confident daily choices while staying aligned with your goals.
           </p>
@@ -101,9 +101,9 @@
             <span data-onboarding-dot="3" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
           </div>
 
-          <button class="px-4 py-2 rounded-full bg-white text-slate-900 font-semibold text-sm shadow"
+          <button id="onboarding-next-bottom" class="px-4 py-2 rounded-full bg-white text-slate-900 font-semibold text-sm shadow"
             onclick="nextOnboardingSlide()" aria-label="Next">
-            Next ›
+            Next
           </button>
         </div>
       </div>
@@ -112,8 +112,25 @@
     <!-- DASHBOARD SCREEN -->
     <section id="screen-dashboard" class="hidden flex-1 flex flex-col px-4 pb-4 pt-4 bg-slate-50">
       <!-- Header -->
-      <header class="flex items-center justify-between mb-4">
+      <header class="relative flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
+          <!-- Hamburger menu (dashboard only) -->
+          <div class="relative">
+            <button id="hamburger-btn" onclick="toggleDashboardMenu()" aria-label="Menu"
+              class="p-2 rounded-md hover:bg-slate-100">
+              ☰
+            </button>
+            <div id="dashboard-menu" class="hidden absolute left-0 top-12 w-56 bg-white border border-slate-200 rounded-lg shadow-md z-30">
+              <div class="flex flex-col py-2">
+                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="goToScreen('screen-dashboard'); toggleDashboardMenu()">Profile</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="goToScreen('screen-challenge'); toggleDashboardMenu()">New challenge</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="openChat(); toggleDashboardMenu()">New chat</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="showOnboardingSlide(1); goToScreen('screen-onboarding'); toggleDashboardMenu()">Tutorial</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="showAbout(); toggleDashboardMenu()">About</button>
+                <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="showPrivacy(); toggleDashboardMenu()">Privacy policy</button>
+              </div>
+            </div>
+          </div>
           <!-- App icon on top-left -->
           <div class="w-9 h-9 rounded-2xl bg-white shadow flex items-center justify-center">
             <!-- Placeholder Pixie icon; replace with Flaticon SVG later -->
@@ -273,13 +290,10 @@
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <p class="font-semibold">Hi! I’m Pixie.</p>
-            <p class="mt-1 text-slate-600">
-              Ask me about goals, spending choices, or quick decisions — and feel free to experiment.
-              You can always go back, cancel, or undo.
-            </p>
-            <p class="mt-2 text-[11px] text-slate-500">
-              Tip: tap anywhere in the chat to reveal the next step of the demo.
-            </p>
+            <p id="chat-greeting" class="mt-1 text-slate-600">
+                What would you like to ask your financial angel?
+              </p>
+           
           </div>
         </div>
 
@@ -288,7 +302,7 @@
         <!-- User: vacation goal -->
         <div id="chat-step-1" class="hidden chat-anim flex justify-end">
           <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
-            I want to save 500₪ for a short vacation, but I always spend too much on eating out.
+            I want to save 500₪ for a short vacation.
           </div>
         </div>
 
@@ -298,26 +312,30 @@
             ✨
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
-            <p>Love it. Two quick questions so we set something you’ll actually stick to:</p>
-            <p class="text-slate-600">
-              1️⃣ When do you want to reach 500₪?<br />
-              2️⃣ Roughly how much do you spend on eating out per month?
-            </p>
+            <p>What a great move. Let's do it together. One quick question: When do you want to reach 500₪?</p>
           </div>
         </div>
 
-        <!-- User: answers -->
-        <div id="chat-step-3" class="hidden chat-anim flex justify-end flex-col items-end gap-2">
+        <!-- User: vacation goal time -->
+        <div id="chat-step-3" class="hidden chat-anim flex justify-end">
           <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
             In 2 months.
           </div>
-          <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
-            About 800₪ a month.
+        </div>
+
+                <!-- AI: clarifying questions -->
+        <div id="chat-step-4" class="hidden chat-anim flex items-start gap-2">
+          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
+            ✨
           </div>
+          <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
+            <p> Excellent. Based on your history, It's seems like something you are definatly able to stick to.</p>
+          </div>
+          
         </div>
 
         <!-- AI: proposal  card -->
-        <div id="chat-step-4" class="hidden chat-anim flex items-start gap-2">
+        <div id="chat-step-5" class="hidden chat-anim flex items-start gap-2">
           <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
             ✨
           </div>
@@ -583,6 +601,63 @@
 
   <!-- JS: navigation, onboarding, carousel, chat demo (tap-to-reveal), create/delete/undo -->
   <script type="module" src="/src/main.js"></script>
+  <script>
+    (function(){
+      const greetings = [
+        "Let’s protect those goals! How can I help you?",
+        "Help me help your wallet. What are we looking at today?",
+        "Found something tempting? Let's see how it fits into your big picture"
+      ];
+
+      function randomizeChatGreeting(){
+        const el = document.getElementById('chat-greeting');
+        if(!el) return;
+        const pick = greetings[Math.floor(Math.random()*greetings.length)];
+        el.textContent = pick;
+      }
+
+      // Run once on load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', randomizeChatGreeting);
+      } else {
+        randomizeChatGreeting();
+      }
+
+      // Re-randomize when the chat screen becomes visible (class toggle on #screen-chat)
+      const chatScreen = document.getElementById('screen-chat');
+      if(chatScreen && window.MutationObserver){
+        const obs = new MutationObserver((mutations)=>{
+          for(const m of mutations){
+            if(m.attributeName === 'class'){
+              const cls = chatScreen.className || '';
+              if(!cls.split(/\s+/).includes('hidden')){
+                randomizeChatGreeting();
+              }
+            }
+          }
+        });
+        obs.observe(chatScreen, { attributes: true });
+      }
+
+      // Expose for manual calls/testing if desired
+      window.randomizeChatGreeting = randomizeChatGreeting;
+
+      // Make tapping anywhere in the conversation advance the demo,
+      // but ignore clicks on interactive controls like buttons/links/inputs.
+      function chatAreaTapHandler(e){
+        const ignoreSelectors = 'button, a, input, textarea, select, [data-no-advance]';
+        if(e.target.closest && e.target.closest(ignoreSelectors)) return;
+        if(typeof window.advanceChatDemo === 'function'){
+          window.advanceChatDemo();
+        }
+      }
+
+      const chatScroll = document.getElementById('chat-scroll');
+      if(chatScroll){
+        chatScroll.addEventListener('click', chatAreaTapHandler);
+      }
+    })();
+  </script>
 </body>
 
 </html>

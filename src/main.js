@@ -27,6 +27,26 @@ window.deleteChallengeFromChat = deleteChallengeFromChat;
 window.undoDeleteChallenge = undoDeleteChallenge;
 window.viewChallengeOnDashboard = viewChallengeOnDashboard;
 
+// Toggle the dashboard hamburger menu visibility
+export function toggleDashboardMenu() {
+  const el = document.getElementById("dashboard-menu");
+  if (!el) return;
+  el.classList.toggle("hidden");
+}
+
+export function showAbout() {
+  // Minimal placeholder — replace with modal or screen as needed
+  alert("Pixie mockup — About: Prototype app for demo purposes.");
+}
+
+export function showPrivacy() {
+  alert("Privacy policy: This is a mockup. No data is collected.");
+}
+
+window.toggleDashboardMenu = toggleDashboardMenu;
+window.showAbout = showAbout;
+window.showPrivacy = showPrivacy;
+
 // Init (mirrors original ordering)
 window.addEventListener("DOMContentLoaded", () => {
   showOnboardingSlide(1);

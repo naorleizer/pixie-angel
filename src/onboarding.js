@@ -38,10 +38,10 @@ export function showOnboardingSlide(n) {
   const nextBtn = document.getElementById("onboarding-next-bottom");
   if (nextBtn) {
     if (n >= maxSlides) {
-      nextBtn.textContent = "All Done";
+      nextBtn.textContent = "All Done!";
       nextBtn.setAttribute("aria-label", "All Done");
     } else {
-      nextBtn.textContent = "Next ›";
+      nextBtn.textContent = "Next";
       nextBtn.setAttribute("aria-label", "Next");
     }
   }

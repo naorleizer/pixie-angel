@@ -2,7 +2,7 @@ import "./styles.css";
 
 import { showScreen, goToScreen, goBack } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
-import { setChallengeSlide, viewChallengeOnDashboard } from "./dashboard.js";
+import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat } from "./chat.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 
@@ -53,4 +53,6 @@ window.addEventListener("DOMContentLoaded", () => {
   showScreen("screen-onboarding", false);
   setChallengeSlide(0);
   resetChatDemo();
+    // Enable swipe on challenges carousel (mobile-like)
+    initChallengeSwipe();
 });

@@ -288,7 +288,7 @@
       <button
         class="mt-2 flex items-center gap-2 rounded-full fa-btn fa-btn-primary px-4 py-3 text-sm"
         onclick="openChat('decision', true)">
-        <span class="flex-1 text-left text-white">Ask your money coach anything...</span>
+        <span class="flex-1 text-left text-white">Ask Pixie anything...</span>
         <span class="text-lg text-white">➤</span>
       </button>
     </section>
@@ -301,7 +301,7 @@
           ←
         </button>
         <div class="flex flex-col leading-tight">
-          <span class="text-sm font-semibold">Pixie Coach</span>
+          <span class="text-sm font-semibold">Ask Your Angel ✨</span>
           <span class="text-[11px] text-slate-500">Tap the chat to play the demo</span>
         </div>
       </header>
@@ -338,7 +338,7 @@
             <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
-            <p>What a great move. Let's do it together. One quick question: When do you want to reach 500₪?</p>
+            <p>A vacation? I love that! ✈️ Let’s get you there. What's your deadline to reach 500₪?</p>
           </div>
         </div>
 
@@ -356,7 +356,7 @@
               <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
             </div>
             <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
-              <p> Excellent. Based on your history, It's seems like something you are definatly able to stick to.</p>
+              <p> Perfect. I’ve looked at your habits, and this is totally doable.</p>
             </div>
 
           </div>
@@ -369,21 +369,23 @@
             <div class="max-w-[82%] space-y-2">
               <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
                 <p>
-                  Here’s a friendly plan: reduce eating out by <span class="font-semibold">150₪ per month</span>
-                  for <span class="font-semibold">2 months</span>. That creates room for your vacation savings.
+                  To make it happen, how about we swap <span class="font-semibold">250₪ per month of 'eating out'</span>
+                  for <span class="font-semibold">2 months</span> for your vacation fund?
                 </p>
               </div>
 
               <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-                <p class="text-xs text-slate-500 mb-1">Challenge preview</p>
+                <p class="text-xs text-slate-500 mb-1">Your path to the goal</p>
                 <p class="text-sm font-semibold text-slate-900">Save 500₪ for a vacation</p>
-                <p class="text-xs text-slate-600 mt-1">Type: Periodic</p>
+                <p class="text-xs text-slate-600 mt-1">Type: Routine</p>
                 <p class="text-xs text-slate-600">Amount: 500₪</p>
-                <p class="text-[11px] text-slate-500 mt-1">Duration: 2 months</p>
+                <p class="text-xs text-slate-600">Duration: 2 months</p>
+                <p class="text-[11px] text-slate-500 mt-1">Strategy: -250₪ on dining out / month</p>
+
                 <div class="mt-2 flex gap-2">
                   <button class="px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-semibold shadow"
                     onclick="goToChallengeFormFromChat(event)">
-                    Create challenge
+                    Let's do it
                   </button>
                   <button class="px-3 py-1.5 rounded-full bg-slate-100 text-xs text-slate-500 border border-slate-200"
                     disabled>
@@ -403,10 +405,10 @@
             </div>
             <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
               <p>
-                Done ✅ Your new challenge is active.
+                And just like that, a dream became a plan! ✨✅ 
               </p>
               <p class="mt-1 text-slate-600 text-xs">
-                You can edit or delete it anytime — and undo if you change your mind.
+                Your new challenge is active.You can edit it anytime.
               </p>
             </div>
           </div>
@@ -578,7 +580,7 @@
       <!-- Form -->
       <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         <div class="rounded-3xl bg-white border border-slate-200 shadow-sm px-5 py-4">
-          <p class="text-sm font-semibold text-slate-800">“Small steps today, big freedom tomorrow 💸”</p>
+          <p class="text-sm font-semibold text-slate-800">Turning dreams into a plan 💸</p>
           <p class="text-xs text-slate-500 mt-1">Prefilled from chat. You can edit anything.</p>
         </div>
 
@@ -593,7 +595,7 @@
           <div>
             <label class="block text-xs text-slate-500 mb-1">Type *</label>
             <div class="inline-flex rounded-full bg-slate-50 border border-slate-200 p-1 text-xs">
-              <button class="px-4 py-2 rounded-full bg-indigo-600 text-white font-semibold">Periodic</button>
+              <button class="px-4 py-2 rounded-full bg-indigo-600 text-white font-semibold">Routine</button>
               <button class="px-4 py-2 rounded-full text-slate-600">One-time</button>
             </div>
           </div>
@@ -646,7 +648,7 @@
   <script>
     (function () {
       const greetings = [
-        "Let’s protect those goals! How can I help you?",
+        "I'm all ears! How can I help you today?",
         "Help me help your wallet. What are we looking at today?",
         "Found something tempting? Let's see how it fits into your big picture"
       ];

@@ -44,21 +44,27 @@
       animation-delay: 0.4s;
     }
 
-/* App color palette variables (from user):
-   ff9f1c - ffbf69 - ffffff - cbf3f0 - 2ec4b6
-*/
+/* Financial Angel design tokens */
 :root {
-  --color-primary: #ff9f1c; /* ff9f1c */
-  --color-accent: #ffbf69;  /* ffbf69 */
-  --color-white: #ffffff;   /* ffffff */
-  --color-pale: #cbf3f0;    /* cbf3f0 */
-  --color-teal: #2ec4b6;    /* 2ec4b6 */
+  --fa-primary: #264653;       /* Charcoal Blue */
+  --fa-primary-rgb: 38,70,83;
 
-  /* RGB fallbacks for alpha variants */
-  --color-primary-rgb: 255,159,28;
-  --color-accent-rgb: 255,191,105;
-  --color-pale-rgb: 203,243,240;
-  --color-teal-rgb: 46,196,182;
+  --fa-success: #02C39A;       /* Mint Leaf */
+  --fa-success-rgb: 2,195,154;
+
+  --fa-surface: #F2DCA6;       /* Soft Peach */
+  --fa-surface-rgb: 242,220,166;
+
+  --fa-brand: #FFADBC;         /* Cherry Blossom */
+  --fa-brand-rgb: 255,173,188;
+
+  --fa-secondary: #F39B53;     /* Sandy Brown */
+  --fa-secondary-rgb: 243,155,83;
+
+  --fa-alert: #E9795D;         /* Burnt Peach */
+  --fa-alert-rgb: 233,121,93;
+
+  --fa-radius: 1rem;
 }
 
 /* Utility overrides to map a few frequently used Tailwind color classes
@@ -66,33 +72,56 @@
    as needed. */
 
 /* Primary (maps from indigo utilities used in the markup) */
-.text-indigo-600 { color: var(--color-primary) !important; }
-.bg-indigo-600 { background-color: var(--color-primary) !important; }
-.bg-indigo-500 { background-color: var(--color-primary) !important; }
-.bg-indigo-100 { background-color: rgba(var(--color-primary-rgb), 0.12) !important; }
-.bg-indigo-50 { background-color: rgba(var(--color-primary-rgb), 0.06) !important; }
-.text-indigo-700 { color: rgba(var(--color-primary-rgb), 0.9) !important; }
-.text-indigo-900 { color: rgba(var(--color-primary-rgb), 0.98) !important; }
-.border-indigo-100 { border-color: rgba(var(--color-primary-rgb), 0.12) !important; }
+.text-indigo-600 { color: var(--fa-primary) !important; }
+.bg-indigo-600 { background-color: var(--fa-primary) !important; }
+.bg-indigo-500 { background-color: var(--fa-primary) !important; }
+.bg-indigo-100 { background-color: rgba(var(--fa-primary-rgb), 0.12) !important; }
+.bg-indigo-50 { background-color: rgba(var(--fa-primary-rgb), 0.06) !important; }
+.text-indigo-700 { color: rgba(var(--fa-primary-rgb), 0.9) !important; }
+.text-indigo-900 { color: rgba(var(--fa-primary-rgb), 0.98) !important; }
+.border-indigo-100 { border-color: rgba(var(--fa-primary-rgb), 0.12) !important; }
 
-/* Accent (used for gradients / lighter highlights) */
-.via-sky-500 { background-image: linear-gradient(var(--color-accent), var(--color-accent)) !important; }
+/* Success / Action (maps from emerald utilities) */
+.bg-emerald-500 { background-color: var(--fa-success) !important; }
+.text-emerald-900 { color: var(--fa-success) !important; }
+.text-emerald-700 { color: rgba(var(--fa-success-rgb), 0.9) !important; }
+.bg-emerald-100 { background-color: rgba(var(--fa-success-rgb), 0.12) !important; }
+.bg-emerald-50 { background-color: rgba(var(--fa-success-rgb), 0.06) !important; }
+.border-emerald-100 { border-color: rgba(var(--fa-success-rgb), 0.12) !important; }
 
-/* Teal (maps from emerald utilities) */
-.bg-emerald-50 { background-color: rgba(var(--color-teal-rgb), 0.06) !important; }
-.bg-emerald-100 { background-color: rgba(var(--color-teal-rgb), 0.12) !important; }
-.bg-emerald-500 { background-color: var(--color-teal) !important; }
-.text-emerald-900 { color: var(--color-teal) !important; }
-.text-emerald-700 { color: rgba(var(--color-teal-rgb), 0.9) !important; }
-.border-emerald-100 { border-color: rgba(var(--color-teal-rgb), 0.12) !important; }
-.text-emerald-800 { color: rgba(var(--color-teal-rgb), 0.85) !important; }
+/* Alert / Overspend (map rose -> burnt peach) */
+.text-rose-700 { color: var(--fa-alert) !important; }
+.bg-rose-500 { background-color: var(--fa-alert) !important; }
 
-/* Small helpers to use palette directly in markup */
-.text-primary { color: var(--color-primary) !important; }
-.bg-primary { background-color: var(--color-primary) !important; }
-.bg-primary-10 { background-color: rgba(var(--color-primary-rgb), 0.06) !important; }
-.bg-accent { background-color: var(--color-accent) !important; }
-.bg-pale { background-color: var(--color-pale) !important; }
-.text-teal { color: var(--color-teal) !important; }
-.bg-teal { background-color: var(--color-teal) !important; }
+/* Brand & Emotional cues (map to cherry blossom) */
+.text-pink-400 { color: var(--fa-brand) !important; }
+.bg-pink-100 { background-color: rgba(var(--fa-brand-rgb), 0.10) !important; }
+
+/* Secondary action / guidance (sandy brown) */
+.text-yellow-600 { color: var(--fa-secondary) !important; }
+.bg-yellow-100 { background-color: rgba(var(--fa-secondary-rgb), 0.10) !important; }
+
+/* Surface (card backgrounds) */
+.bg-surface { background-color: var(--fa-surface) !important; }
+
+/* Small helpers to directly use tokens */
+.text-primary { color: var(--fa-primary) !important; }
+.bg-primary { background-color: var(--fa-primary) !important; }
+.bg-primary-10 { background-color: rgba(var(--fa-primary-rgb), 0.06) !important; }
+.bg-success { background-color: var(--fa-success) !important; }
+.bg-brand { background-color: var(--fa-brand) !important; }
+.text-brand { color: var(--fa-brand) !important; }
+.text-secondary { color: var(--fa-secondary) !important; }
+.bg-secondary { background-color: var(--fa-secondary) !important; }
+.text-alert { color: var(--fa-alert) !important; }
+.bg-alert { background-color: var(--fa-alert) !important; }
+
+/* Reusable UI helpers for the Financial Angel system */
+.fa-card { background-color: var(--fa-surface); border-radius: var(--fa-radius); box-shadow: 0 8px 24px rgba(var(--fa-primary-rgb), 0.06); }
+.fa-btn { border-radius: 9999px; padding: 0.5rem 1rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; }
+.fa-btn-primary { background-color: var(--fa-success); color: white; box-shadow: 0 8px 24px rgba(var(--fa-primary-rgb), 0.08); }
+.fa-btn-secondary { background-color: rgba(var(--fa-secondary-rgb), 0.12); color: var(--fa-secondary); }
+.pixie-avatar { width: 44px; height: 44px; border-radius: 1rem; background: linear-gradient(180deg, rgba(var(--fa-brand-rgb),0.9), rgba(var(--fa-brand-rgb),0.7)); display:inline-flex; align-items:center; justify-content:center; }
+.speech-bubble { border-radius: 1rem; padding: 0.6rem; box-shadow: 0 6px 18px rgba(var(--fa-primary-rgb), 0.06); }
+.soft-shadow { box-shadow: 0 10px 30px rgba(var(--fa-primary-rgb), 0.06) !important; }
 

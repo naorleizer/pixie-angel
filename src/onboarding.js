@@ -45,6 +45,17 @@ export function showOnboardingSlide(n) {
       nextBtn.setAttribute("aria-label", "Next");
     }
   }
+
+  // When showing the very first onboarding page, make the whole onboarding
+  // section use the warm gradient instead of the default #264653 color.
+  const onboardingSection = document.getElementById("screen-onboarding");
+  if (onboardingSection) {
+    if (n === 1) {
+      onboardingSection.style.background = "linear-gradient(to bottom, #f4b8a9, #f5af9c)";
+    } else {
+      onboardingSection.style.background = "#264653";
+    }
+  }
 }
 
 export function nextOnboardingSlide() {

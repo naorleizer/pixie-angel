@@ -15,42 +15,43 @@
 
     <!-- ONBOARDING SCREEN -->
     <section id="screen-onboarding" class="flex flex-col flex-1 px-6 py-6 text-white"
-      style="background: linear-gradient(to bottom, #ffbf69, #cbf3f0, #2ec4b6);">
-      <!-- Top bar: logo  skip -->
+      style="background: #264653;">
+        <!-- Top bar: logo  skip -->
       <div class="flex items-center justify-between">
         <!-- Replace this logo with a Flaticon SVG later if you want -->
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
-            <!-- Pixie mark (placeholder SVG) -->
-            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M12 2l1.4 5.2L18 8.6l-4.6 1.4L12 15l-1.4-5L6 8.6l4.6-1.4L12 2z" fill="white" opacity="0.95" />
-              <path d="M19 13l.9 3.2L23 17l-3.1.9L19 21l-.9-3.1L15 17l3.1-.8L19 13z" fill="white" opacity="0.9" />
-            </svg>
+        <div class="flex items-center gap-1">
+          <div class="w-11 h-11 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
-          <span class="font-semibold tracking-wide">Pixie</span>
+          <span class="font-semibold tracking-wide text-[#264653]">Pixie</span>
         </div>
 
-        <button class="text-sm text-white/90 underline" onclick="goToScreen('screen-dashboard')">
+        <button class="text-sm underline text-black/90" onclick="goToScreen('screen-dashboard')">
           Skip
         </button>
       </div>
 
       <div class="flex-1 flex flex-col justify-center gap-10">
-        <!-- Slide 1 -->
-        <div data-onboarding-slide="0" class="flex flex-col items-center text-center gap-4">
-          <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
-            <span class="text-4xl">🪄</span>
+        <!-- New Intro Slide (becomes slide 0) -->
+        <div data-onboarding-slide="0" class="flex-1 flex flex-col items-center justify-center text-center gap-6"
+          style="background: linear-gradient(to bottom, #f4b8a9, #f5af9c); border-radius: 8px; padding: 24px;">
+          <div class="inline-block px-5 py-3 rounded-full text-white bg-[#ee9683] text-xl font-bold">
+            Welcome!<p>I'm Pixie, your financial angel</p>
           </div>
-          <h1 class="text-3xl font-semibold leading-tight">Budgeting, with wings</h1>
-          <p class="text-white/90">
-            Pixie helps you make confident daily choices while staying aligned with your goals.
-          </p>
+
+          <img src="Pixie_body_avatar.png" alt="Pixie body avatar" class="w-44 h-44 object-contain" />
+
+          <div class="mt-3 px-6 py-3 rounded-2xl bg-[#69cab2] text-white font-semibold cursor-pointer"
+            role="button" tabindex="0" aria-label="Next" onclick="nextOnboardingSlide()"
+            onkeydown="if(event.key==='Enter' || event.key===' ' || event.key==='Spacebar'){ event.preventDefault(); nextOnboardingSlide(); }">
+            Let's make some magic happen! ✨
+          </div>
         </div>
 
         <!-- Slide 2 -->
         <div data-onboarding-slide="1" class="hidden flex-col items-center text-center gap-4">
           <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
-            <span class="text-4xl">🍽️</span>
+            <img src="consult_icon.png" alt="Consult icon" class="w-12 h-12 object-contain" />
           </div>
           <h2 class="text-3xl font-semibold leading-tight">Ask in real time</h2>
           <p class="text-white/90">
@@ -62,7 +63,7 @@
         <!-- Slide 3 -->
         <div data-onboarding-slide="2" class="hidden flex-col items-center text-center gap-4">
           <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
-            <span class="text-4xl">🎯</span>
+            <img src="target_icon.png" alt="Target icon" class="w-12 h-12 object-contain" />
           </div>
           <h2 class="text-3xl font-semibold leading-tight">Turn goals into challenges</h2>
           <p class="text-white/90">
@@ -74,8 +75,7 @@
         <!-- Slide 4 -->
         <div data-onboarding-slide="3" class="hidden flex-col items-center text-center gap-4">
           <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
-            <!-- Replaced the old magnifying-glass with a sparkle/wand theme -->
-            <span class="text-4xl">✨</span>
+            <img src="explore_icon.png" alt="Explore icon" class="w-12 h-12 object-contain" />
           </div>
           <h2 class="text-3xl font-semibold leading-tight">Explore safely</h2>
           <p class="text-white/90">
@@ -84,13 +84,13 @@
         </div>
       </div>
 
-      <!-- Bottom controls: Back (left), dots (center), Next (right) -->
+        <!-- Bottom controls: Back (left), dots (center), Next (right) -->
       <div class="mt-6">
         <div class="flex items-center justify-between">
           <button id="onboarding-back-bottom"
-            class="px-4 py-2 rounded-full bg-white/20 text-white font-medium opacity-50 pointer-events-none"
+            class="px-4 py-2 rounded-full bg-[#F2DCA6] text-black font-medium opacity-50 pointer-events-none"
             onclick="prevOnboardingSlide()" aria-label="Back">
-            ‹ Back
+            Back
           </button>
 
           <div class="flex gap-2" id="onboarding-dots">
@@ -98,10 +98,11 @@
             <span data-onboarding-dot="1" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
             <span data-onboarding-dot="2" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
             <span data-onboarding-dot="3" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
+            <span data-onboarding-dot="4" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
           </div>
 
           <button id="onboarding-next-bottom"
-            class="px-4 py-2 rounded-full bg-white text-slate-900 font-semibold text-sm shadow"
+            class="px-4 py-2 rounded-full bg-[#F2DCA6] text-black font-semibold text-sm shadow"
             onclick="nextOnboardingSlide()" aria-label="Next">
             Next
           </button>
@@ -139,12 +140,8 @@
             </div>
           </div>
           <!-- App icon on top-left -->
-          <div class="w-9 h-9 rounded-2xl bg-white shadow flex items-center justify-center">
-            <!-- Placeholder Pixie icon; replace with Flaticon SVG later -->
-            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M12 2l1.4 5.2L18 8.6l-4.6 1.4L12 15l-1.4-5L6 8.6l4.6-1.4L12 2z" fill="#4F46E5" />
-              <path d="M19 13l.9 3.2L23 17l-3.1.9L19 21l-.9-3.1L15 17l3.1-.8L19 13z" fill="#10B981" />
-            </svg>
+          <div class="w-11 h-11 rounded-2xl bg-white shadow flex items-center justify-center">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="leading-tight">
             <h1 class="text-base font-semibold">Pixie</h1>
@@ -159,17 +156,17 @@
 
         <!-- Welcome card -->
         <button
-          class="w-full text-left rounded-3xl bg-white shadow-sm border border-slate-200 px-5 py-4 flex justify-between items-center"
+          class="w-full text-left rounded-3xl fa-card shadow-sm border border-slate-200 px-5 py-4 flex justify-between items-center"
           title="Profile (not implemented)">
           <div>
             <p class="text-sm text-slate-600">Hi Steve 👋</p>
-            <p class="text-xs text-slate-500 mt-0.5">Here’s your snapshot — tap to edit profile later.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Here’s your snapshot.</p>
           </div>
           <span class="text-xs text-indigo-600 font-semibold">Profile</span>
         </button>
 
         <!-- Challenges carousel (bigger  dots  sliding) -->
-        <div class="rounded-3xl bg-white shadow-sm border border-slate-200 px-5 py-4">
+        <div class="rounded-3xl fa-card shadow-sm border border-slate-200 px-5 py-4">
           <div class="flex items-center justify-between mb-3">
             <p class="text-sm font-semibold text-slate-800">Your challenges</p>
             <button class="text-xs text-indigo-600 font-semibold" onclick="openChat('challenge', true)">New via
@@ -247,7 +244,7 @@
         </div>
 
         <!-- Balance widget (aggregated across ALL challenges) -->
-        <div class="rounded-3xl bg-white shadow-sm border border-slate-200 px-5 py-4">
+        <div class="rounded-3xl fa-card shadow-sm border border-slate-200 px-5 py-4">
           <p class="text-sm font-semibold text-slate-800">Challenge balance</p>
           <p class="text-xs text-slate-500 mt-1">
             Overall saved vs. overspent impact across your active challenges.
@@ -277,10 +274,10 @@
 
       <!-- Chat CTA (single-line placeholder only) -->
       <button
-        class="mt-2 flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-4 py-3 text-sm text-slate-500"
+        class="mt-2 flex items-center gap-2 rounded-full fa-btn fa-btn-primary px-4 py-3 text-sm"
         onclick="openChat('decision', true)">
-        <span class="flex-1 text-left">Ask your money coach anything...</span>
-        <span class="text-lg text-indigo-600">➤</span>
+        <span class="flex-1 text-left text-white">Ask your money coach anything...</span>
+        <span class="text-lg text-white">➤</span>
       </button>
     </section>
 
@@ -302,8 +299,8 @@
         onclick="advanceChatDemo()">
         <!-- Assistant greeting (visible immediately, more general) -->
         <div class="flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
+          <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <p class="font-semibold">Hi! I’m Pixie.</p>
@@ -325,8 +322,8 @@
 
         <!-- AI: clarifying questions -->
         <div id="chat-step-2" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
+          <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
             <p>What a great move. Let's do it together. One quick question: When do you want to reach 500₪?</p>
@@ -343,8 +340,8 @@
         <!-- AI: clarifying questions -->
         <div id="chat-step-4" class="hidden">
           <div class="chat-anim flex items-start gap-2">
-            <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-              ✨
+            <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+              <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
             </div>
             <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
               <p> Excellent. Based on your history, It's seems like something you are definatly able to stick to.</p>
@@ -354,8 +351,8 @@
 
           <!-- AI: proposal  card -->
           <div class="chat-anim flex items-start gap-2">
-            <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-              ✨
+            <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+              <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
             </div>
             <div class="max-w-[82%] space-y-2">
               <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
@@ -432,8 +429,8 @@
 
         <!-- AI: deleted  undo -->
         <div id="chat-step-6" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
+          <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <p>
@@ -454,8 +451,8 @@
 
         <!-- AI: budget check and encouragement -->
         <div id="chat-step-8" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
+          <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <p>
@@ -480,8 +477,8 @@
 
         <!-- AI reassures and offers budget adjustment -->
         <div id="chat-step-10" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
+          <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <p>
@@ -530,8 +527,8 @@
 
         <!-- Loading indicator (shown while waiting for AI response) -->
         <div id="chat-loading" class="hidden flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-primary/20 flex items-center justify-center text-xs">
-            ✨
+          <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
             <div class="flex gap-1.5 items-center">

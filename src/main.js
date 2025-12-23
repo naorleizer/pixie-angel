@@ -6,6 +6,7 @@ import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe } from 
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat } from "./chat.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
+import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment } from "./notifications.js";
 
 // Expose functions for existing inline onclick="" handlers in the HTML.
 // This keeps the markup unchanged while allowing modular JS.
@@ -29,6 +30,9 @@ window.undoDeleteChallenge = undoDeleteChallenge;
 window.viewChallengeOnDashboard = viewChallengeOnDashboard;
 window.acceptBudgetAdjustment = acceptBudgetAdjustment;
 window.declineBudgetAdjustment = declineBudgetAdjustment;
+window.openNotifications = openNotifications;
+window.openOverspendNotification = openOverspendNotification;
+window.chooseAdjustment = chooseAdjustment;
 
 // Toggle the dashboard hamburger menu visibility
 export function toggleDashboardMenu() {
@@ -60,4 +64,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initChallengeSwipe();
   // Initialize challenge balance widget
   updateChallengeBalance();
+  // Initialize notification badges
+  updateNotificationBadges();
 });

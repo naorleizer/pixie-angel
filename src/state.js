@@ -8,6 +8,8 @@ export const state = {
   chatStepIndex: -1,
   activeChatStory: "challenge",
   budgetAdjusted: false,
+  notificationsUnread: 1,
+  challengeExtended: false,
 };
 
 // Chat demo sequences split by user story
@@ -25,9 +27,6 @@ export const chatStories = {
   decision: [
     { id: "chat-step-7", delay: 0 },
     { id: "chat-step-8", delay: 0 },
-    { id: "chat-step-9", delay: 0, delayMultiplier: 1.5 },
-    { id: "chat-step-10", delay: 0, noAutoAdvance: true },
-    { id: "chat-step-11", delay: 0, requiresButton: true },
-    { id: "chat-step-12", delay: 0 },
+    { id: "chat-step-9", delay: 0, noAutoAdvance: true },
   ],
 };

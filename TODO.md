@@ -50,3 +50,12 @@ Chat Demo B - Discusse where to eat:
 * V copy paste the logic of chat demo A
 * ?V Natural lang style with theoretical bacground (need a review)
 * V Create a converestation  (more than 2 msgs)
+
+TODO 23/12
+* V change cards colors in the main dashboard
+* V change the "prototype" subtitle to "your guardian angel"
+* the challange widget direction
+* change the Duration to a toggle in the new challange page
+* remove the undo in the bottom of new challange page
+* V fix the icon in the challange creation widget
+* V combine chat bubbles in the new challange chat

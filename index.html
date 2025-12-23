@@ -14,9 +14,8 @@
   <div class="w-full max-w-md h-full min-h-screen bg-white flex flex-col shadow-xl">
 
     <!-- ONBOARDING SCREEN -->
-    <section id="screen-onboarding" class="flex flex-col flex-1 px-6 py-6 text-white"
-      style="background: #264653;">
-        <!-- Top bar: logo  skip -->
+    <section id="screen-onboarding" class="flex flex-col flex-1 px-6 py-6 text-white" style="background: #264653;">
+      <!-- Top bar: logo  skip -->
       <div class="flex items-center justify-between">
         <!-- Replace this logo with a Flaticon SVG later if you want -->
         <div class="flex items-center gap-1">
@@ -41,15 +40,15 @@
 
           <img src="Pixie_body_avatar.png" alt="Pixie body avatar" class="w-44 h-44 object-contain" />
 
-          <div class="mt-3 px-6 py-3 rounded-2xl bg-[#69cab2] text-white font-semibold cursor-pointer"
-            role="button" tabindex="0" aria-label="Next" onclick="nextOnboardingSlide()"
+          <div class="mt-3 px-6 py-3 rounded-2xl bg-[#69cab2] text-white font-semibold cursor-pointer" role="button"
+            tabindex="0" aria-label="Next" onclick="nextOnboardingSlide()"
             onkeydown="if(event.key==='Enter' || event.key===' ' || event.key==='Spacebar'){ event.preventDefault(); nextOnboardingSlide(); }">
             Saving for your dreams just got a whole lot lighter.
           </div>
         </div>
 
-                <!-- Slide 1 -->
-              <div data-onboarding-slide="1" class="flex flex-col items-center text-center gap-4">
+        <!-- Slide 1 -->
+        <div data-onboarding-slide="1" class="flex flex-col items-center text-center gap-4">
           <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
             <img src="money_icon.png" alt="Money icon" class="w-12 h-12 object-contain" />
           </div>
@@ -68,7 +67,8 @@
           </div>
           <h2 class="text-3xl font-semibold leading-tight">Real-time consulting</h2>
           <p class="text-white/90">
-            Just tap and ask. I’ll show you the perfect trade-off for that <span class="font-semibold">new coat</span> or <span class="font-semibold">tonight’s dinner</span>.
+            Just tap and ask. I’ll show you the perfect trade-off for that <span class="font-semibold">new coat</span>
+            or <span class="font-semibold">tonight’s dinner</span>.
           </p>
         </div>
 
@@ -91,16 +91,16 @@
           </div>
           <h2 class="text-3xl font-semibold leading-tight">Feel free to explore</h2>
           <p class="text-white/90">
-          Change of plans? No problem. I'm here to help you, Adjust, undo or start over. 
+            Change of plans? No problem. I'm here to help you, Adjust, undo or start over.
           </p>
         </div>
       </div>
 
-        <!-- Bottom controls: Back (left), dots (center), Next (right) -->
+      <!-- Bottom controls: Back (left), dots (center), Next (right) -->
       <div class="mt-6">
         <div class="flex items-center justify-between">
           <button id="onboarding-back-bottom"
-            class="px-4 py-2 rounded-full bg-[#F2DCA6] text-black font-medium opacity-50 pointer-events-none"
+            class="px-4 py-2 rounded-full text-black font-medium opacity-50 pointer-events-none"
             onclick="prevOnboardingSlide()" aria-label="Back">
             Back
           </button>
@@ -113,11 +113,42 @@
             <span data-onboarding-dot="4" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
           </div>
 
-          <button id="onboarding-next-bottom"
-            class="px-4 py-2 rounded-full bg-[#F2DCA6] text-black font-semibold text-sm shadow"
+          <button id="onboarding-next-bottom" class="px-4 py-2 rounded-full text-black font-semibold text-sm shadow"
             onclick="nextOnboardingSlide()" aria-label="Next">
             Next
           </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTIFICATIONS SCREEN -->
+    <section id="screen-notifications" class="hidden flex-1 flex flex-col bg-slate-50">
+      <header class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+        <div class="flex items-center gap-2">
+          <button class="text-slate-700 font-semibold" onclick="goBack()">←</button>
+          <span class="text-sm font-semibold">Notifications</span>
+        </div>
+        <span class="text-xs text-slate-400">Recent</span>
+      </header>
+
+      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        <div id="notification-overspend"
+          class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm cursor-pointer flex items-start gap-3 hover:bg-slate-50"
+          onclick="openOverspendNotification(event)">
+          <div class="mt-1 w-2 h-2 rounded-full bg-rose-500" id="notification-dot"></div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold" id="notification-title">Eating out challenge is over budget</p>
+            <p class="text-xs text-slate-600 mt-1" id="notification-text">
+              You went over this week's plan. No worries—we can adjust to keep you on track.
+            </p>
+          </div>
+          <span class="text-[10px] text-slate-400">Now</span>
+        </div>
+
+        <!-- Past notifications placeholder -->
+        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <p class="text-sm font-semibold text-slate-700">Goal reminder</p>
+          <p class="text-xs text-slate-500 mt-1">Keep up the great work—small steps add up.</p>
         </div>
       </div>
     </section>
@@ -130,12 +161,22 @@
           <!-- Hamburger menu (dashboard only) -->
           <div class="relative">
             <button id="hamburger-btn" onclick="toggleDashboardMenu()" aria-label="Menu"
-              class="p-2 rounded-md hover:bg-slate-100">
+              class="relative p-2 rounded-md hover:bg-slate-100">
               ☰
+              <span id="notif-badge-hamburger"
+                class="hidden absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] leading-4 text-center font-semibold">
+                1
+              </span>
             </button>
             <div id="dashboard-menu"
               class="hidden absolute left-0 top-12 w-56 bg-white border border-slate-200 rounded-lg shadow-md z-30">
               <div class="flex flex-col py-2">
+                <button class="flex items-center justify-between text-left px-4 py-2 hover:bg-slate-50"
+                  onclick="openNotifications(); toggleDashboardMenu()">
+                  <span>Notifications</span>
+                  <span id="notif-badge-menu"
+                    class="hidden min-w-[18px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] leading-4 text-center font-semibold">1</span>
+                </button>
                 <button class="text-left px-4 py-2 hover:bg-slate-50"
                   onclick="goToScreen('screen-dashboard'); toggleDashboardMenu()">Profile</button>
                 <button class="text-left px-4 py-2 hover:bg-slate-50"
@@ -157,7 +198,7 @@
           </div>
           <div class="leading-tight">
             <h1 class="text-base font-semibold">Pixie</h1>
-            <p class="text-[11px] text-slate-500">Prototype</p>
+            <p class="text-[11px] text-slate-500">Your Guardian Angel</p>
           </div>
         </div>
         <span class="text-xs text-slate-400">Mobile mock</span>
@@ -201,7 +242,7 @@
                   <div class="flex items-start justify-between gap-2">
                     <div>
                       <p class="text-sm font-semibold text-indigo-900">Save 500₪ for a vacation</p>
-                      <p class="text-xs text-indigo-700/80 mt-1">Ends in 2 months</p>
+                      <p class="text-xs text-indigo-700/80 mt-1" data-challenge-deadline>Ends in 2 months</p>
                     </div>
                     <span class="text-[10px] text-indigo-700 bg-indigo-100 px-2 py-1 rounded-full">
                       Active
@@ -285,8 +326,7 @@
       </div>
 
       <!-- Chat CTA (single-line placeholder only) -->
-      <button
-        class="mt-2 flex items-center gap-2 rounded-full fa-btn fa-btn-primary px-4 py-3 text-sm"
+      <button class="mt-2 flex items-center gap-2 rounded-full fa-btn fa-btn-primary px-4 py-3 text-sm"
         onclick="openChat('decision', true)">
         <span class="flex-1 text-left text-white">Ask Pixie anything...</span>
         <span class="text-lg text-white">➤</span>
@@ -308,7 +348,7 @@
 
       <!-- Conversation (tap anywhere here to reveal the next user/AI message) -->
       <div id="chat-scroll" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-sm bg-slate-50"
-        onclick="advanceChatDemo()">
+        onclick="chatAreaTapHandler(event)">
         <!-- Assistant greeting (visible immediately, more general) -->
         <div class="flex items-start gap-2">
           <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
@@ -356,7 +396,10 @@
               <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
             </div>
             <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
-              <p> Perfect. I’ve looked at your habits, and this is totally doable.</p>
+              <p> Perfect. I’ve looked at your habits, and this is totally doable.<br>
+                To make it happen, how about we will save <span class="font-semibold">250₪ per month on 'eating out'</span>
+                for <span class="font-semibold">2 months</span> for your vacation fund?
+              </p>
             </div>
 
           </div>
@@ -367,12 +410,6 @@
               <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
             </div>
             <div class="max-w-[82%] space-y-2">
-              <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-                <p>
-                  To make it happen, how about we swap <span class="font-semibold">250₪ per month of 'eating out'</span>
-                  for <span class="font-semibold">2 months</span> for your vacation fund?
-                </p>
-              </div>
 
               <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
                 <p class="text-xs text-slate-500 mb-1">Your path to the goal</p>
@@ -399,44 +436,43 @@
 
         <!-- AI: created confirmation  edit/delete  view on dashboard -->
         <div id="chat-step-5" class="hidden chat-anim space-y-2">
+        <div class="flex items-start gap-2">
+          <div class="w-8 h-8"></div>
+          <div class="max-w-[82%] rounded-2xl bg-emerald-50 border border-emerald-200 px-3 py-2 shadow-sm space-y-1">
+            <div class="flex justify-between items-center">
+              <p class="text-sm font-semibold text-emerald-900">Save 500₪ for a vacation</p>
+              <span class="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                Active
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-600">0 / 500₪ saved · Ends in 2 months</p>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <button class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-slate-700"
+                onclick="goToChallengeFormFromChat(event, true)">
+                Edit
+              </button>
+              <button class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-rose-600"
+                onclick="deleteChallengeFromChat(event)">
+                Delete
+              </button>
+              <button class="px-3 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow"
+                onclick="viewChallengeOnDashboard(event)">
+                View on dashboard
+              </button>
+            </div>
+          </div>
+        </div>
           <div class="flex items-start gap-2">
-            <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-              ✨
+            <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+              <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
             </div>
             <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
               <p>
-                And just like that, a dream became a plan! ✨✅ 
+                And just like that, a dream became a plan! ✨✅
               </p>
               <p class="mt-1 text-slate-600 text-xs">
                 Your new challenge is active.You can edit it anytime.
               </p>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-2">
-            <div class="w-8 h-8"></div>
-            <div class="max-w-[82%] rounded-2xl bg-emerald-50 border border-emerald-200 px-3 py-2 shadow-sm space-y-1">
-              <div class="flex justify-between items-center">
-                <p class="text-sm font-semibold text-emerald-900">Save 500₪ for a vacation</p>
-                <span class="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                  Active
-                </span>
-              </div>
-              <p class="text-[11px] text-slate-600">0 / 500₪ saved · Ends in 2 months</p>
-              <div class="mt-2 flex flex-wrap gap-2">
-                <button class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-slate-700"
-                  onclick="goToChallengeFormFromChat(event, true)">
-                  Edit
-                </button>
-                <button class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-rose-600"
-                  onclick="deleteChallengeFromChat(event)">
-                  Delete
-                </button>
-                <button class="px-3 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow"
-                  onclick="viewChallengeOnDashboard(event)">
-                  View on dashboard
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -456,84 +492,63 @@
           </div>
         </div>
 
-        <!-- Real-time decision: user asks -->
-        <div id="chat-step-7" class="hidden chat-anim flex justify-end">
-          <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
-            I'm going out with friends tonight, any suggestions?
-          </div>
-        </div>
-
-        <!-- AI: budget check and encouragement -->
-        <div id="chat-step-8" class="hidden chat-anim flex items-start gap-2">
+        <!-- AI: proactive overspend alert -->
+        <div id="chat-step-7" class="hidden chat-anim flex items-start gap-2">
           <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
             <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-            <p>
-              Great to hear you're spending time with friends! 🎉
-            </p>
+            <p class="text-sm font-semibold">I noticed you went over budget on eating out this week.</p>
             <p class="mt-2 text-slate-600 text-xs">
-              Looking at your "Eating out" challenge, you've used <span class="font-semibold text-slate-900">250₪ of your 300₪</span> weekly budget.
-              That leaves you with <span class="font-semibold text-emerald-700">50₪</span> for the rest of the week.
+              You spent <span class="font-semibold text-slate-900">465₪</span> of your <span
+                class="font-semibold text-slate-900">300₪</span> plan. No worries — we can adjust so you stay on
+              track.
             </p>
-            <p class="mt-2 text-slate-600 text-xs">
-              Tell me where you're planning to go and I'll help you find options that fit your budget!
-            </p>
+            <p class="mt-2 text-slate-600 text-xs">Want to see a couple strategies tailored for you?</p>
           </div>
         </div>
 
-        <!-- User reports spending -->
-        <div id="chat-step-9" class="hidden chat-anim flex justify-end">
+        <!-- User: agrees to see strategies -->
+        <div id="chat-step-8" class="hidden flex justify-end" data-no-anim="true">
           <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
-            I ended up spending 215₪.
+            Yes, let's do it.
           </div>
         </div>
 
-        <!-- AI reassures and offers budget adjustment -->
-        <div id="chat-step-10" class="hidden chat-anim flex items-start gap-2">
+        <!-- AI: offers two adjustment options -->
+        <div id="chat-step-9" class="hidden chat-anim flex items-start gap-2">
           <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
             <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
           <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-            <p>
-              Good job tracking that! 💪
-            </p>
-            <p class="mt-2 text-slate-600 text-xs">
-              I see you went a bit over your weekly 300₪ limit (now at <span class="font-semibold text-slate-900">465₪</span>), but that's completely okay — life happens!
-            </p>
-            <p class="mt-2 text-slate-600 text-xs">
-              Would you like me to adjust next week's eating out budget to help you get back on track with your savings goal?
-            </p>
-            <div class="mt-3 flex gap-2">
-              <button class="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow" onclick="acceptBudgetAdjustment(event)">
-                Yes, adjust it
+            <p class="text-sm font-semibold">Here are two smart adjustments based on your habits:</p>
+            <div class="mt-3 space-y-2" data-no-advance>
+              <button class="w-full text-left px-3 py-2 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-semibold hover:bg-slate-100"
+                type="button" onclick="event.stopPropagation(); event.preventDefault(); chooseAdjustment('home-movie');">
+                1) Swap next week's movie outing for a cozy movie-at-home night
               </button>
-              <button class="px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs border border-slate-200" onclick="declineBudgetAdjustment(event)">
-                No, keep as is
+              <button class="w-full text-left px-3 py-2 rounded-2xl border border-indigo-200 bg-indigo-50 text-xs font-semibold text-indigo-900 hover:bg-indigo-100"
+                type="button" onclick="event.stopPropagation(); event.preventDefault(); chooseAdjustment('extend-vacation');">
+                2) Extend your vacation savings challenge deadline by 1 week
               </button>
             </div>
           </div>
         </div>
 
-        <!-- User accepts (triggered by button) -->
-        <div id="chat-step-11" class="hidden chat-anim flex justify-end">
-          <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
-            Yes
+        <!-- User selection (revealed via button) -->
+        <div id="chat-step-10" class="hidden chat-anim flex justify-end">
+          <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow" id="chat-selection-text">
+            
           </div>
         </div>
 
-        <!-- AI confirms adjustment -->
-        <div id="chat-step-12" class="hidden chat-anim flex items-start gap-2">
-          <div class="w-8 h-8 rounded-2xl bg-indigo-100 flex items-center justify-center text-xs">
-            ✨
+        <!-- AI confirmation (populated dynamically) -->
+        <div id="chat-step-11" class="hidden chat-anim flex items-start gap-2">
+          <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+            <img src="pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
           </div>
-          <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-            <p>
-              Done! ✅ I've adjusted your eating out budget to <span class="font-semibold text-emerald-700">250₪ per week</span> for next week.
-            </p>
-            <p class="mt-2 text-slate-600 text-xs">
-              This will help you stay on track with your vacation savings goal. You can always adjust it again if needed!
-            </p>
+          <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm" id="chat-confirmation-text">
+            
           </div>
         </div>
 
@@ -685,6 +700,18 @@
 
       // Expose for manual calls/testing if desired
       window.randomizeChatGreeting = randomizeChatGreeting;
+
+      // Make tapping anywhere in the conversation advance the demo,
+      // but ignore clicks on interactive controls like buttons/links/inputs.
+      function chatAreaTapHandler(e){
+        const ignoreSelectors = 'button, a, input, textarea, select, [data-no-advance]';
+        if(e.target.closest && e.target.closest(ignoreSelectors)) return;
+        if(typeof window.advanceChatDemo === 'function'){
+          window.advanceChatDemo();
+        }
+      }
+
+      window.chatAreaTapHandler = chatAreaTapHandler;
     })();
   </script>
 </body>

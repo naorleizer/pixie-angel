@@ -56,8 +56,13 @@ export function scrollChatToBottom() {
   container.scrollTop = container.scrollHeight;
 }
 
-function revealWithAnim(el) {
-  // Mirror original: reveal + small pop-in animation class
+function revealWithAnim(el, noAnim = false) {
+  // Mirror original: reveal + small pop-in animation class (unless disabled)
+  if (!el) return;
+  if (noAnim || el.dataset?.noAnim === "true") {
+    el.classList.remove("hidden");
+    return;
+  }
   el.classList.remove("hidden");
   el.classList.add("chat-appear");
   setTimeout(() => el.classList.remove("chat-appear"), 350);
@@ -89,7 +94,7 @@ export function advanceChatDemo() {
   }
 
   const nextEl = document.getElementById(next.id);
-  if (nextEl) revealWithAnim(nextEl);
+  if (nextEl) revealWithAnim(nextEl, next?.noAnim);
 
   state.chatStepIndex = nextIdx;
   

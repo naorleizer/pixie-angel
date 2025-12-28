@@ -1,6 +1,22 @@
-# Pixie (Vite + Tailwind)
+# Pixie Money Coach
 
-A modern web application built with Vite and Tailwind CSS.
+A modern AI-powered money coaching application with a Vite + Tailwind frontend and Flask + LLM backend.
+
+## Project Structure
+
+```
+mockup/
+├── backend/              # Flask server for LLM processing
+│   ├── app.py           # Main Flask application
+│   ├── requirements.txt # Python dependencies
+│   ├── .env.example     # Environment variables template
+│   └── README.md        # Backend-specific documentation
+├── src/                 # Frontend JavaScript modules
+├── assets/              # Images and static files
+├── index.html           # Main HTML file
+├── package.json         # Node.js dependencies
+└── vite.config.js       # Vite configuration
+```
 
 ## Prerequisites
 
@@ -184,15 +200,54 @@ mockup/
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
+### Frontend (Vite)
+- `npm run dev` - Start development server on http://localhost:5173
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
 
+### Backend (Flask)
+See [backend/README.md](backend/README.md) for detailed backend setup instructions.
+
+Quick start:
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # macOS/Linux
+pip install -r requirements.txt
+python app.py
+```
+
+Backend will run on http://localhost:5000
+
 ## Technology Stack
 
+### Frontend
 - **Vite** - Next-generation frontend tooling
 - **Tailwind CSS** - Utility-first CSS framework
 - **Vanilla JavaScript** - Modular ES6+ JavaScript
+
+### Backend
+- **Flask** - Python web framework
+- **Flask-CORS** - Cross-Origin Resource Sharing support
+- **LLM Integration** - OpenAI, Anthropic, or other LLM providers (to be implemented)
+
+## Development Workflow
+
+1. Start the backend server:
+   ```bash
+   cd backend
+   python app.py
+   ```
+
+2. In a separate terminal, start the frontend:
+   ```bash
+   npm run dev
+   ```
+
+3. Access the application at http://localhost:5173
+
+The frontend will make API calls to the backend at http://localhost:5000 for LLM-powered features.
 
 ## Notes
 
@@ -200,6 +255,7 @@ mockup/
 - Tailwind is now compiled (no CDN) for optimized production builds
 - The original inline JS was split into small modules under `src/` for better maintainability
 - To avoid changing the HTML, existing `onclick=""` handlers still work via functions exposed on `window`
+- Backend API endpoints will be implemented to handle LLM logic for chat, challenges, and budget suggestions
 
 ## Troubleshooting
 

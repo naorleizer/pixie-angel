@@ -13,6 +13,7 @@ def health_check():
     })
 
 # TODO: Add LLM endpoints here
+# We will use lightLLM for the LLM calls
 # Examples:
 # - /api/chat - Handle chat interactions
 # - /api/challenge - Create/manage challenges

@@ -1,0 +1,98 @@
+{
+  "persona_type": [
+    "supportive_coach",
+    "strict_guardian",
+    "analytical_advisor",
+    "motivational_partner",
+    "minimal_assistant"
+  ],
+
+  "communication_tone": [
+    "supportive",
+    "neutral",
+    "firm",
+    "encouraging"
+  ],
+
+  "communication_verbosity": [
+    "short",
+    "medium",
+    "detailed"
+  ],
+
+  "communication_directness": [
+    "soft",
+    "balanced",
+    "direct"
+  ],
+
+  "derived_interests_from_spending": [
+    "restaurants",
+    "food_delivery",
+    "travel",
+    "fitness",
+    "fashion",
+    "technology",
+    "entertainment",
+    "gaming",
+    "education",
+    "family",
+    "home_improvement",
+    "health"
+  ],
+
+  "self_reported_interests": [
+    "personal_growth",
+    "experiences_over_objects",
+    "saving_money",
+    "financial_independence",
+    "career_advancement",
+    "family_time",
+    "minimalism",
+    "sustainability"
+  ],
+
+  "fixed_expense_categories": [
+    "rent",
+    "mortgage",
+    "electricity",
+    "water",
+    "gas",
+    "internet",
+    "mobile",
+    "insurance",
+    "subscriptions"
+  ],
+
+  "variable_expense_categories": [
+    "food",
+    "entertainment",
+    "transportation",
+    "shopping",
+    "restaurants",
+    "vacations",
+    "health",
+    "education",
+    "gifts",
+    "miscellaneous"
+  ],
+
+  "motivations": [
+    "financial_security",
+    "long_term_stability",
+    "freedom",
+    "peace_of_mind",
+    "family_support",
+    "goal_achievement",
+    "early_retirement"
+  ],
+
+  "weaknesses": [
+    "impulse_spending",
+    "overspending_on_food",
+    "difficulty_tracking_expenses",
+    "lack_of_long_term_planning",
+    "emotional_spending",
+    "low_budget_awareness"
+  ]
+}

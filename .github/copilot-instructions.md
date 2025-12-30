@@ -14,6 +14,7 @@ Pixie is an AI-powered financial guardian angel application.
 
 ### Frontend (`/frontend`)
 - **Framework**: No framework (Vanilla JS). Uses ES Modules.
+- **Architecture**: "HTML-in-JS". Screens are stored in `src/screens/*.html` and injected by `src/main.js`.
 - **Styling**: Tailwind CSS.
 - **State Management**: Simple global state object in `src/state.js`.
 - **API**: All backend communication MUST go through `src/api.js`.

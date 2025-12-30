@@ -1,0 +1,76 @@
+<section id="screen-challenge" class="hidden flex-1 flex flex-col bg-slate-50">
+  <!-- Header -->
+  <header class="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+    <div class="flex items-center gap-2">
+      <button class="text-slate-700 font-semibold" onclick="goBack()">
+        ←
+      </button>
+      <span class="text-sm font-semibold">New Challenge</span>
+    </div>
+    <button class="text-xs text-slate-500 underline" onclick="goBack()">Cancel</button>
+  </header>
+
+  <!-- Form -->
+  <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+    <div class="rounded-3xl bg-white border border-slate-200 shadow-sm px-5 py-4">
+      <p class="text-sm font-semibold text-slate-800">Turning dreams into a plan 💸</p>
+      <p class="text-xs text-slate-500 mt-1">Prefilled from chat. You can edit anything.</p>
+    </div>
+
+    <div class="rounded-3xl bg-white border border-slate-200 shadow-sm px-5 py-4 space-y-4">
+      <div>
+        <label class="block text-xs text-slate-500 mb-1">Title *</label>
+        <input id="challenge-title" type="text"
+          class="w-full rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none"
+          value="Save 500₪ for a vacation" />
+      </div>
+
+      <div>
+        <label class="block text-xs text-slate-500 mb-1">Type *</label>
+        <div class="inline-flex rounded-full bg-slate-50 border border-slate-200 p-1 text-xs">
+          <button class="px-4 py-2 rounded-full bg-indigo-600 text-white font-semibold">Routine</button>
+          <button class="px-4 py-2 rounded-full text-slate-600">One-time</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs text-slate-500 mb-1">Amount (₪) *</label>
+        <input id="challenge-amount" type="number"
+          class="w-full rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none"
+          value="500" />
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-xs text-slate-500 mb-1">Duration *</label>
+
+        <div class="flex gap-2 text-xs">
+          <button class="flex-1 rounded-full bg-indigo-600 text-white py-2 font-semibold">For X</button>
+          <button class="flex-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200 py-2">Until
+            date</button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input id="challenge-duration-value" type="number"
+            class="w-20 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none" value="2" />
+          <select id="challenge-duration-unit"
+            class="flex-1 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none">
+            <option value="months" selected>months</option>
+            <option value="weeks">weeks</option>
+            <option value="days">days</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create button -->
+  <div class="px-4 pb-5 pt-2 bg-slate-50">
+    <button class="w-full rounded-full bg-emerald-500 text-white py-3 text-sm font-semibold shadow"
+      onclick="createChallenge()">
+      Create Challenge
+    </button>
+    <p class="mt-2 text-[11px] text-slate-500 text-center">
+      All fields are required. You can edit/delete later (and undo).
+    </p>
+  </div>
+</section>

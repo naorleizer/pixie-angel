@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-please-change'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     
     # Database
     # If DATABASE_URL starts with postgres://, replace with postgresql:// for SQLAlchemy

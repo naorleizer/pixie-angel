@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models.chat import ChatSession, ChatMessage
@@ -63,9 +64,9 @@ def send_message(session_id):
             system_prompt=system_prompt or "You are Pixie, a friendly AI money coach."
         )
         
-        # Update session timestamp
-        session.updated_at = db.func.now()
-        
+        # Update session timestamp using a concrete UTC datetime
+        session.updated_at = datetime.utcnow()
+
         # Auto-generate title if it's still default
         if session.title == 'New Chat':
             # Check message count
@@ -106,6 +107,7 @@ def get_transactions():
     transactions = Transaction.query.filter_by(user_id=user_id).order_by(Transaction.date.desc()).limit(50).all()
     return jsonify([t.to_dict() for t in transactions]), 200
 
+@jwt_required()
 @bp.route('/test-llm', methods=['POST'])
 def test_llm():
 

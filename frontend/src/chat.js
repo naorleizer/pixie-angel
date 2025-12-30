@@ -2,7 +2,8 @@ import { createChatSession, getChatHistory, sendChatMessage, getChatSessions } f
 import { showScreen } from "./navigation.js";
 
 let currentSessionId = null;
-let isProcessing = false;
+let isSendingMessage = false;
+let chatFormHandler = null;
 
 export async function openChatHistory() {
   showScreen("screen-chat-history", true);
@@ -144,27 +145,32 @@ function setupChatInput() {
 
   const form = document.getElementById('chat-form');
   if (form) {
-    // Remove old listeners to prevent duplicates
-    const newForm = form.cloneNode(true);
-    form.parentNode.replaceChild(newForm, form);
-    
-    newForm.addEventListener('submit', async (e) => {
+    // Remove old listener if present to avoid duplicates
+    try {
+      if (chatFormHandler) form.removeEventListener('submit', chatFormHandler);
+    } catch (err) {
+      // ignore if element changed
+    }
+
+    chatFormHandler = async function onChatFormSubmit(e) {
       e.preventDefault();
       const input = document.getElementById('chat-input');
       const message = input.value.trim();
-      
-      if (message && !isProcessing) {
+
+      if (message && !isSendingMessage) {
         input.value = '';
         await handleUserMessage(message);
       }
-    });
+    };
+
+    form.addEventListener('submit', chatFormHandler);
   }
 }
 
 async function handleUserMessage(content) {
   if (!currentSessionId) return;
   
-  isProcessing = true;
+  isSendingMessage = true;
   appendMessage('user', content);
   showLoading();
 
@@ -177,7 +183,7 @@ async function handleUserMessage(content) {
     console.error("Chat error:", error);
     appendMessage('assistant', "Sorry, something went wrong. Please try again.");
   } finally {
-    isProcessing = false;
+    isSendingMessage = false;
   }
 }
 
@@ -268,3 +274,50 @@ export function advanceChatDemo() {
 export function goToChallengeFormFromChat() {
   // Placeholder
 }
+
+// --- UI Helpers (moved from index.html inline script) ---
+
+const greetings = [
+  "I'm all ears! How can I help you today?",
+  "Help me help your wallet. What are we looking at today?",
+  "Found something tempting? Let's see how it fits into your big picture"
+];
+
+export function randomizeChatGreeting() {
+  const el = document.getElementById('chat-greeting');
+  if (!el) return;
+  const pick = greetings[Math.floor(Math.random() * greetings.length)];
+  el.textContent = pick;
+}
+
+export function chatAreaTapHandler(e) {
+  const ignoreSelectors = 'button, a, input, textarea, select, [data-no-advance]';
+  if(e.target.closest && e.target.closest(ignoreSelectors)) return;
+  if(typeof window.advanceChatDemo === 'function'){
+    window.advanceChatDemo();
+  }
+}
+
+export function initChatUI() {
+  randomizeChatGreeting();
+
+  // Re-randomize when the chat screen becomes visible
+  const chatScreen = document.getElementById('screen-chat');
+  if (chatScreen && window.MutationObserver) {
+    const obs = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.attributeName === 'class') {
+          const cls = chatScreen.className || '';
+          if (!cls.split(/\s+/).includes('hidden')) {
+            randomizeChatGreeting();
+          }
+        }
+      }
+    });
+    obs.observe(chatScreen, { attributes: true });
+  }
+}
+
+// Expose for HTML onclick handlers
+window.chatAreaTapHandler = chatAreaTapHandler;
+window.randomizeChatGreeting = randomizeChatGreeting;

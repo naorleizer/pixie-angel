@@ -61,8 +61,26 @@ export async function apiRequest(endpoint, options = {}) {
         // Optional: Redirect to login
         // window.location.href = '/login'; 
       }
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `API error: ${response.status} ${response.statusText}`);
+      let errorData = null;
+      let errorText = null;
+
+      try {
+        errorData = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse error response as JSON:', parseError);
+        try {
+          errorText = await response.text();
+        } catch (textError) {
+          console.error('Failed to read error response as text:', textError);
+        }
+      }
+
+      const message =
+        (errorData && errorData.message) ||
+        errorText ||
+        `API error: ${response.status} ${response.statusText}`;
+
+      throw new Error(message);
     }
     
     return await response.json();

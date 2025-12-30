@@ -1,9 +1,18 @@
 import "./styles.css";
 
+// Import HTML screens
+import loginHtml from "./screens/login.html?raw";
+import onboardingHtml from "./screens/onboarding.html?raw";
+import dashboardHtml from "./screens/dashboard.html?raw";
+import notificationsHtml from "./screens/notifications.html?raw";
+import chatHistoryHtml from "./screens/chat-history.html?raw";
+import chatHtml from "./screens/chat.html?raw";
+import challengeHtml from "./screens/challenge.html?raw";
+
 import { showScreen, goToScreen, goBack } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
 import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe } from "./dashboard.js";
-import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory } from "./chat.js";
+import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI } from "./chat.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
 import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment } from "./notifications.js";
@@ -58,6 +67,22 @@ window.showPrivacy = showPrivacy;
 
 // Init (mirrors original ordering)
 window.addEventListener("DOMContentLoaded", () => {
+  // Inject screens
+  const appContainer = document.getElementById("app-container");
+  if (appContainer) {
+    appContainer.innerHTML = 
+      loginHtml +
+      onboardingHtml +
+      dashboardHtml +
+      notificationsHtml +
+      chatHistoryHtml +
+      chatHtml +
+      challengeHtml;
+  }
+
+  // Initialize Chat UI (greetings, observers)
+  initChatUI();
+
   // Initialize Auth Logic
   initAuth();
 
@@ -65,7 +90,6 @@ window.addEventListener("DOMContentLoaded", () => {
   checkAuthAndRedirect();
 
   showOnboardingSlide(1);
-  // showScreen("screen-onboarding", false); // Removed: handled by checkAuthAndRedirect
   setChallengeSlide(1); // Start at eating out challenge (index 1)
   resetChatDemo();
   // Enable swipe on challenges carousel (mobile-like)

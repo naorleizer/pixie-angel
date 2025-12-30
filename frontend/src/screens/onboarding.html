@@ -1,0 +1,106 @@
+<section id="screen-onboarding" class="hidden flex-col flex-1 px-6 py-6 text-white" style="background: #264653;">
+  <!-- Top bar: logo  skip -->
+  <div class="flex items-center justify-between">
+    <!-- Replace this logo with a Flaticon SVG later if you want -->
+    <div class="flex items-center gap-1">
+      <div class="w-11 h-11 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <span class="font-semibold tracking-wide text-black">Pixie</span>
+    </div>
+
+    <button class="text-sm underline text-black/90" onclick="goToScreen('screen-dashboard')">
+      Skip
+    </button>
+  </div>
+
+  <div class="flex-1 flex flex-col justify-center gap-10">
+    <!-- New Intro Slide (becomes slide 0) -->
+    <div data-onboarding-slide="0" class="flex-1 flex flex-col items-center justify-center text-center gap-6"
+      style="background: linear-gradient(to bottom, #f4b8a9, #f5af9c); border-radius: 8px; padding: 24px;">
+      <div class="inline-block px-5 py-3 rounded-full text-white bg-[#ee9683] text-xl font-bold">
+        Welcome!<p>I'm Pixie, your financial guardian angel.✨</p>
+      </div>
+
+      <img src="assets/images/Pixie_body_avatar.png" alt="Pixie body avatar" class="w-44 h-44 object-contain" />
+
+      <div class="mt-3 px-6 py-3 rounded-2xl bg-[#69cab2] text-white font-semibold cursor-pointer" role="button"
+        tabindex="0" aria-label="Next" onclick="nextOnboardingSlide()"
+        onkeydown="if(event.key==='Enter' || event.key===' ' || event.key==='Spacebar'){ event.preventDefault(); nextOnboardingSlide(); }">
+        Saving for your dreams just got a whole lot lighter.
+      </div>
+    </div>
+
+    <!-- Slide 1 -->
+    <div data-onboarding-slide="1" class="flex flex-col items-center text-center gap-4">
+      <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
+        <img src="assets/images/money_icon.png" alt="Money icon" class="w-12 h-12 object-contain" />
+      </div>
+      <div class="flex flex-col items-center text-center gap-1">
+        <h1 class="text-3xl font-semibold leading-tight">Budgeting, with wings</h1>
+        <p class="text-white/90 mt-0">
+          I’ll help you navigate daily spending, keeping your big dreams always in sight
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div data-onboarding-slide="2" class="hidden flex-col items-center text-center gap-4">
+      <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
+        <img src="assets/images/consult_icon.png" alt="Consult icon" class="w-12 h-12 object-contain" />
+      </div>
+      <h2 class="text-3xl font-semibold leading-tight">Real-time consulting</h2>
+      <p class="text-white/90">
+        Just tap and ask. I’ll show you the perfect trade-off for that <span class="font-semibold">new coat</span>
+        or <span class="font-semibold">tonight’s dinner</span>.
+      </p>
+    </div>
+
+    <!-- Slide 3 -->
+    <div data-onboarding-slide="3" class="hidden flex-col items-center text-center gap-4">
+      <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
+        <img src="assets/images/target_icon.png" alt="Target icon" class="w-12 h-12 object-contain" />
+      </div>
+      <h2 class="text-3xl font-semibold leading-tight">Turn dreams into challenges</h2>
+      <p class="text-white/90">
+        Set goals like <span class="font-semibold">“Save 500₪ for a vacation”</span>
+        and watch your progress soar.
+      </p>
+    </div>
+
+    <!-- Slide 4 -->
+    <div data-onboarding-slide="4" class="hidden flex-col items-center text-center gap-4">
+      <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
+        <img src="assets/images/explore_icon.png" alt="Explore icon" class="w-12 h-12 object-contain" />
+      </div>
+      <h2 class="text-3xl font-semibold leading-tight">Feel free to explore</h2>
+      <p class="text-white/90">
+        Change of plans? No problem. I'm here to help you, Adjust, undo or start over.
+      </p>
+    </div>
+  </div>
+
+  <!-- Bottom controls: Back (left), dots (center), Next (right) -->
+  <div class="mt-6">
+    <div class="flex items-center justify-between">
+      <button id="onboarding-back-bottom"
+        class="px-4 py-2 rounded-full text-black font-medium opacity-50 pointer-events-none"
+        onclick="prevOnboardingSlide()" aria-label="Back">
+        Back
+      </button>
+
+      <div class="flex gap-2" id="onboarding-dots">
+        <span data-onboarding-dot="0" class="h-2.5 w-2.5 rounded-full bg-white"></span>
+        <span data-onboarding-dot="1" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
+        <span data-onboarding-dot="2" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
+        <span data-onboarding-dot="3" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
+        <span data-onboarding-dot="4" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
+      </div>
+
+      <button id="onboarding-next-bottom" class="px-4 py-2 rounded-full text-black font-semibold text-sm shadow"
+        onclick="nextOnboardingSlide()" aria-label="Next">
+        Next
+      </button>
+    </div>
+  </div>
+</section>

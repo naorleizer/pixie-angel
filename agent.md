@@ -18,6 +18,7 @@ graph TD
 | **LLM** | `backend/app/services/llm_service.py` | AI logic & prompt engineering. |
 | **API Client** | `frontend/src/api.js` | Frontend fetch wrappers. |
 | **Chat UI** | `frontend/src/chat.js` | Chat logic & DOM manipulation. |
+| **Screens** | `frontend/src/screens/` | HTML partials for each view (Login, Dashboard, etc). |
 | **Auth UI** | `frontend/src/auth.js` | Login form handling. |
 | **Entry** | `frontend/src/main.js` | App initialization. |
 
@@ -35,6 +36,7 @@ The immediate goal is to move "Challenges" from mockup to reality.
     *   Update `dashboard.js` to render challenges from the API response.
 
 ## 4. Known Issues / Gotchas
+- **Frontend Architecture**: `index.html` is a shell. Screens are loaded from `frontend/src/screens/*.html` via `main.js` using Vite's `?raw` import.
 - **Chat Response Format**: The backend returns `{ "response": "..." }`. Ensure frontend uses `.response` property, not `.content`.
 - **Auth Token**: Stored in `localStorage` key `pixie_auth_token`.
 - **Dev Environment**: Backend runs on port 35000. Frontend proxies or calls directly (CORS enabled).

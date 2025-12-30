@@ -1,0 +1,244 @@
+<section id="screen-chat" class="hidden flex-1 flex flex-col bg-white">
+  <!-- Header -->
+  <header class="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+    <button class="text-slate-700 font-semibold" onclick="goBack()">
+      ←
+    </button>
+    <div class="flex flex-col leading-tight">
+      <span class="text-sm font-semibold">Ask Your Angel ✨</span>
+      <span class="text-[11px] text-slate-500">Tap the chat to play the demo</span>
+    </div>
+  </header>
+
+  <!-- Conversation (tap anywhere here to reveal the next user/AI message) -->
+  <div id="chat-scroll" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-sm bg-slate-50"
+    onclick="chatAreaTapHandler(event)">
+    <!-- Assistant greeting (visible immediately, more general) -->
+    <div class="flex items-start gap-2">
+      <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+        <p class="font-semibold">Hi! I’m Pixie.</p>
+        <p id="chat-greeting" class="mt-1 text-slate-600">
+          What would you like to ask your financial angel?
+        </p>
+
+      </div>
+    </div>
+
+    <!-- DEMO STEPS (initially hidden; revealed on tap) -->
+
+    <!-- User: vacation goal -->
+    <div id="chat-step-1" class="hidden chat-anim flex justify-end">
+      <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
+        I want to save 500₪ for a short vacation.
+      </div>
+    </div>
+
+    <!-- AI: clarifying questions -->
+    <div id="chat-step-2" class="hidden chat-anim flex items-start gap-2">
+      <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
+        <p>A vacation? I love that! ✈️ Let’s get you there. What's your deadline to reach 500₪?</p>
+      </div>
+    </div>
+
+    <!-- User: vacation goal time -->
+    <div id="chat-step-3" class="hidden chat-anim flex justify-end">
+      <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
+        In 2 months.
+      </div>
+    </div>
+
+    <!-- AI: clarifying questions -->
+    <div id="chat-step-4" class="hidden">
+      <div class="chat-anim flex items-start gap-2">
+        <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+          <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+        </div>
+        <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm space-y-1">
+          <p> Perfect. I’ve looked at your habits, and this is totally doable.<br>
+            To make it happen, how about we will save <span class="font-semibold">250₪ per month on 'eating out'</span>
+            for <span class="font-semibold">2 months</span> for your vacation fund?
+          </p>
+        </div>
+
+      </div>
+
+      <!-- AI: proposal  card -->
+      <div class="chat-anim flex items-start gap-2">
+        <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+          <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+        </div>
+        <div class="max-w-[82%] space-y-2">
+
+          <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+            <p class="text-xs text-slate-500 mb-1">Your path to the goal</p>
+            <p class="text-sm font-semibold text-slate-900">Save 500₪ for a vacation</p>
+            <p class="text-xs text-slate-600 mt-1">Type: Routine</p>
+            <p class="text-xs text-slate-600">Amount: 500₪</p>
+            <p class="text-xs text-slate-600">Duration: 2 months</p>
+            <p class="text-[11px] text-slate-500 mt-1">Strategy: -250₪ on dining out / month</p>
+
+            <div class="mt-2 flex gap-2">
+              <button class="px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-semibold shadow"
+                onclick="goToChallengeFormFromChat(event)">
+                Let's do it
+              </button>
+              <button class="px-3 py-1.5 rounded-full bg-slate-100 text-xs text-slate-500 border border-slate-200"
+                disabled>
+                Edit details
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI: created confirmation  edit/delete  view on dashboard -->
+    <div id="chat-step-5" class="hidden chat-anim space-y-2">
+    <div class="flex items-start gap-2">
+      <div class="w-8 h-8"></div>
+      <div class="max-w-[82%] rounded-2xl bg-emerald-50 border border-emerald-200 px-3 py-2 shadow-sm space-y-1">
+        <div class="flex justify-between items-center">
+          <p class="text-sm font-semibold text-emerald-900">Save 500₪ for a vacation</p>
+          <span class="text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+            Active
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-600">0 / 500₪ saved · Ends in 2 months</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-slate-700"
+            onclick="goToChallengeFormFromChat(event, true)">
+            Edit
+          </button>
+          <button class="px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs text-rose-600"
+            onclick="deleteChallengeFromChat(event)">
+            Delete
+          </button>
+          <button class="px-3 py-1.5 rounded-full bg-indigo-600 text-white text-xs font-semibold shadow"
+            onclick="viewChallengeOnDashboard(event)">
+            View on dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+      <div class="flex items-start gap-2">
+        <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+          <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+        </div>
+        <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+          <p>
+            And just like that, a dream became a plan! ✨✅
+          </p>
+          <p class="mt-1 text-slate-600 text-xs">
+            Your new challenge is active.You can edit it anytime.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI: deleted  undo -->
+    <div id="chat-step-6" class="hidden chat-anim flex items-start gap-2">
+      <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+        <p>
+          Challenge deleted.
+        </p>
+        <button class="mt-2 text-xs text-indigo-600 font-semibold underline" onclick="undoDeleteChallenge(event)">
+          Undo
+        </button>
+      </div>
+    </div>
+
+    <!-- AI: proactive overspend alert -->
+    <div id="chat-step-7" class="hidden chat-anim flex items-start gap-2">
+      <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+        <p class="text-sm font-semibold">I noticed you went over budget on eating out this week.</p>
+        <p class="mt-2 text-slate-600 text-xs">
+          You spent <span class="font-semibold text-slate-900">465₪</span> of your <span
+            class="font-semibold text-slate-900">300₪</span> plan. No worries — we can adjust so you stay on
+          track.
+        </p>
+        <p class="mt-2 text-slate-600 text-xs">Want to see a couple strategies tailored for you?</p>
+      </div>
+    </div>
+
+    <!-- User: agrees to see strategies -->
+    <div id="chat-step-8" class="hidden flex justify-end" data-no-anim="true">
+      <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
+        Yes, let's do it.
+      </div>
+    </div>
+
+    <!-- AI: offers two adjustment options -->
+    <div id="chat-step-9" class="hidden chat-anim flex items-start gap-2">
+      <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+        <p class="text-sm font-semibold">Here are two smart adjustments based on your habits:</p>
+        <div class="mt-3 space-y-2" data-no-advance>
+          <button class="w-full text-left px-3 py-2 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-semibold hover:bg-slate-100"
+            type="button" onclick="event.stopPropagation(); event.preventDefault(); chooseAdjustment('home-movie');">
+            1) Swap next week's movie outing for a cozy movie-at-home night
+          </button>
+          <button class="w-full text-left px-3 py-2 rounded-2xl border border-indigo-200 bg-indigo-50 text-xs font-semibold text-indigo-900 hover:bg-indigo-100"
+            type="button" onclick="event.stopPropagation(); event.preventDefault(); chooseAdjustment('extend-vacation');">
+            2) Extend your vacation savings challenge deadline by 1 week
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- User selection (revealed via button) -->
+    <div id="chat-step-10" class="hidden chat-anim flex justify-end">
+      <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow" id="chat-selection-text">
+        
+      </div>
+    </div>
+
+    <!-- AI confirmation (populated dynamically) -->
+    <div id="chat-step-11" class="hidden chat-anim flex items-start gap-2">
+      <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm" id="chat-confirmation-text">
+        
+      </div>
+    </div>
+
+    <div class="h-6"></div>
+
+    <!-- Loading indicator (shown while waiting for AI response) -->
+    <div id="chat-loading" class="hidden flex items-start gap-2">
+      <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden">
+        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
+      </div>
+      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+        <div class="flex gap-1.5 items-center">
+          <span class="w-2 h-2 rounded-full bg-slate-400 loading-dot"></span>
+          <span class="w-2 h-2 rounded-full bg-slate-400 loading-dot"></span>
+          <span class="w-2 h-2 rounded-full bg-slate-400 loading-dot"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky input (always visible) -->
+  <div id="chat-input-container" class="border-t border-slate-200 px-3 py-3 bg-white sticky bottom-0">
+    <form id="chat-form" class="flex items-center gap-2 bg-slate-50 rounded-full px-4 py-3 border border-slate-200">
+      <input type="text" id="chat-input" class="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
+        placeholder="Ask Pixie anything…" autocomplete="off" />
+      <button type="submit" class="text-indigo-600 text-base font-semibold">➤</button>
+    </form>
+  </div>
+</section>

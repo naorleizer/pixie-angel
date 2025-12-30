@@ -14,8 +14,13 @@ def seed_data():
         demo_user = User.query.filter_by(username='demo_user').first()
         if not demo_user:
             print("Creating demo user...")
+            demo_password = os.getenv("PIXIE_DEMO_PASSWORD")
+            if not demo_password:
+                raise RuntimeError(
+                    "Environment variable PIXIE_DEMO_PASSWORD must be set before seeding demo data."
+                )
             demo_user = User(username='demo_user', email='demo@pixie.ai')
-            demo_user.set_password('pixie123')
+            demo_user.set_password(demo_password)
             db.session.add(demo_user)
             db.session.commit()
         

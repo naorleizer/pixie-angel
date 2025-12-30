@@ -3,10 +3,11 @@ import "./styles.css";
 import { showScreen, goToScreen, goBack } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
 import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe } from "./dashboard.js";
-import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat } from "./chat.js";
+import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory } from "./chat.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
 import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment } from "./notifications.js";
+import { initAuth, checkAuthAndRedirect } from "./auth.js";
 
 // Expose functions for existing inline onclick="" handlers in the HTML.
 // This keeps the markup unchanged while allowing modular JS.
@@ -20,6 +21,7 @@ window.prevOnboardingSlide = prevOnboardingSlide;
 
 window.setChallengeSlide = setChallengeSlide;
 window.openChat = openChat;
+window.openChatHistory = openChatHistory;
 window.resetChatDemo = resetChatDemo;
 window.advanceChatDemo = advanceChatDemo;
 
@@ -56,8 +58,14 @@ window.showPrivacy = showPrivacy;
 
 // Init (mirrors original ordering)
 window.addEventListener("DOMContentLoaded", () => {
+  // Initialize Auth Logic
+  initAuth();
+
+  // Check if user is logged in and redirect accordingly
+  checkAuthAndRedirect();
+
   showOnboardingSlide(1);
-  showScreen("screen-onboarding", false);
+  // showScreen("screen-onboarding", false); // Removed: handled by checkAuthAndRedirect
   setChallengeSlide(1); // Start at eating out challenge (index 1)
   resetChatDemo();
   // Enable swipe on challenges carousel (mobile-like)

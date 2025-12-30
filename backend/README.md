@@ -1,6 +1,14 @@
 # Pixie Backend - Flask LLM Server
 
-This is the backend server for the Pixie money coach application. It handles all LLM logic and data processing.
+This is the backend server for the Pixie money coach application. It handles user data, transaction history, and LLM logic.
+
+## Architecture
+
+- **Flask Application Factory**: Modular structure in `app/`
+- **Database**: SQLAlchemy ORM (SQLite for dev, Postgres ready)
+- **Authentication**: JWT (JSON Web Tokens)
+- **LLM Integration**: LiteLLM for multi-provider support
+- **Migrations**: Flask-Migrate (Alembic)
 
 ## Setup
 
@@ -31,27 +39,39 @@ pip install -r requirements.txt
 # Copy the example env file
 cp .env.example .env
 
-# Edit .env and add your API keys
+# Edit .env and add your API keys and JWT secret
+```
+
+4. Initialize the database:
+```bash
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+```
+
+5. Seed mock data (optional):
+```bash
+python seed.py
 ```
 
 ### Running the Server
 
 ```bash
-python app.py
+python run.py
 ```
 
 The server will start on `http://localhost:5000`
 
 ### API Endpoints
 
+#### Auth
+- **POST** `/api/auth/register` - Register a new user
+- **POST** `/api/auth/login` - Login and get JWT token
+- **GET** `/api/auth/me` - Get current user info (requires JWT)
+
 #### Health Check
 - **GET** `/health` - Verify server is running
 
-#### TODO: LLM Endpoints (to be implemented)
-- **POST** `/api/chat` - Handle chat interactions with LLM
-- **POST** `/api/challenge` - Create and manage savings challenges
-- **POST** `/api/budget` - Get budget suggestions and calculations
-- **POST** `/api/notification` - Generate proactive spending notifications
 
 ## Development
 

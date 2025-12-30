@@ -1,6 +1,25 @@
 // API configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Auth Token Management
+const TOKEN_KEY = 'pixie_auth_token';
+
+export function setAuthToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function getAuthToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function clearAuthToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+export function isAuthenticated() {
+  return !!getAuthToken();
+}
+
 /**
  * Make a request to the Flask backend
  * @param {string} endpoint - API endpoint (e.g., '/api/chat')
@@ -17,6 +36,12 @@ export async function apiRequest(endpoint, options = {}) {
     },
   };
 
+  // Add Auth Token if available
+  const token = getAuthToken();
+  if (token) {
+    defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const config = {
     ...defaultOptions,
     ...options,
@@ -30,7 +55,14 @@ export async function apiRequest(endpoint, options = {}) {
     const response = await fetch(url, config);
     
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
+      // Handle 401 Unauthorized (Token expired/invalid)
+      if (response.status === 401) {
+        clearAuthToken();
+        // Optional: Redirect to login
+        // window.location.href = '/login'; 
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `API error: ${response.status} ${response.statusText}`);
     }
     
     return await response.json();
@@ -54,45 +86,57 @@ export async function checkBackendHealth() {
   }
 }
 
-// TODO: Add specific API functions when endpoints are implemented
-// Examples:
+// --- Auth API ---
 
-/**
- * Send a chat message to the LLM
- * @param {string} message - User message
- * @param {object} context - Chat context (history, user state, etc.)
- * @returns {Promise<object>} - LLM response
- */
-export async function sendChatMessage(message, context = {}) {
-  // TODO: Implement when /api/chat endpoint is ready
-  return apiRequest('/api/chat', {
+export async function login(username, password) {
+  const data = await apiRequest('/api/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ message, context }),
+    body: JSON.stringify({ username, password }),
+  });
+  if (data.access_token) {
+    setAuthToken(data.access_token);
+  }
+  return data;
+}
+
+export async function register(username, email, password) {
+  return apiRequest('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ username, email, password }),
   });
 }
 
-/**
- * Create a new savings challenge
- * @param {object} challengeData - Challenge details
- * @returns {Promise<object>} - Created challenge
- */
-export async function createChallenge(challengeData) {
-  // TODO: Implement when /api/challenge endpoint is ready
-  return apiRequest('/api/challenge', {
+export async function getCurrentUser() {
+  return apiRequest('/api/auth/me');
+}
+
+// --- Chat API ---
+
+export async function createChatSession(title = 'New Chat') {
+  return apiRequest('/api/chat/sessions', {
     method: 'POST',
-    body: JSON.stringify(challengeData),
+    body: JSON.stringify({ title }),
   });
 }
 
-/**
- * Get budget suggestions from LLM
- * @param {object} budgetData - Current budget and spending data
- * @returns {Promise<object>} - Budget suggestions
- */
-export async function getBudgetSuggestions(budgetData) {
-  // TODO: Implement when /api/budget endpoint is ready
-  return apiRequest('/api/budget', {
+export async function getChatSessions() {
+  return apiRequest('/api/chat/sessions');
+}
+
+export async function getChatHistory(sessionId) {
+  return apiRequest(`/api/chat/sessions/${sessionId}`);
+}
+
+export async function sendChatMessage(sessionId, message, systemPrompt = null) {
+  return apiRequest(`/api/chat/sessions/${sessionId}/messages`, {
     method: 'POST',
-    body: JSON.stringify(budgetData),
+    body: JSON.stringify({ message, system_prompt: systemPrompt }),
   });
 }
+
+// --- Data API ---
+
+export async function getTransactions() {
+  return apiRequest('/api/transactions');
+}
+

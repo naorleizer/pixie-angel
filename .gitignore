@@ -3,3 +3,46 @@ dist
 .env
 *.log
 .DS_Store
+backend/instance/pixie.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+
+# Virtualenvs created by various tools
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
+# npm/yarn logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# build output
+build/
+dist/
+
+# Ignore local env variants but not .env example files
+.env.local
+.env.*.local

@@ -1,0 +1,33 @@
+{
+  "model_type": "RandomForestClassifier",
+  "n_estimators": 100,
+  "max_depth": 20,
+  "accuracy": 0.9015650926050496,
+  "n_classes": 10,
+  "classes": [
+    "Entertainment",
+    "Food & Dining",
+    "Fuel",
+    "Groceries",
+    "Healthcare",
+    "Home & Garden",
+    "Professional Services",
+    "Shopping",
+    "Telecom",
+    "Transportation"
+  ],
+  "training_date": "2026-01-05T21:36:48.445817",
+  "training_samples": 89194,
+  "test_samples": 22299,
+  "features": [
+    "amount",
+    "month",
+    "day",
+    "hour",
+    "merchant_name",
+    "merchant_city",
+    "merchant_state",
+    "use_chip"
+  ],
+  "n_rows_used": 150000
+}

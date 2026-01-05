@@ -52,7 +52,7 @@ class LLMService:
             else:
                 if provider in ('gemini', 'google'):
                     # Use Gemini Flash 2.0 as a sensible default for Gemini
-                    self.model = 'gemini/gemini-2.5-flash-lite'
+                    self.model = 'gemini/gemini-2.5-flash'
                 else:
                     self.model = 'gpt-4'
         else:

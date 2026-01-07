@@ -8,21 +8,26 @@ import notificationsHtml from "./screens/notifications.html?raw";
 import chatHistoryHtml from "./screens/chat-history.html?raw";
 import chatHtml from "./screens/chat.html?raw";
 import challengeHtml from "./screens/challenge.html?raw";
+import importTransactionsHtml from "./screens/import-transactions.html?raw";
+import transactionsHtml from "./screens/transactions.html?raw";
 
-import { showScreen, goToScreen, goBack } from "./navigation.js";
+import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
-import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe } from "./dashboard.js";
+import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI } from "./chat.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
-import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment } from "./notifications.js";
+import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment, loadNotifications } from "./notifications.js";
 import { initAuth, checkAuthAndRedirect } from "./auth.js";
+import { initImportTransactions } from "./import-transactions.js";
+import { openTransactions } from "./transactions.js";
 
 // Expose functions for existing inline onclick="" handlers in the HTML.
 // This keeps the markup unchanged while allowing modular JS.
 window.showScreen = showScreen;
 window.goToScreen = goToScreen;
 window.goBack = goBack;
+window.navigate = navigate;
 
 window.showOnboardingSlide = showOnboardingSlide;
 window.nextOnboardingSlide = nextOnboardingSlide;
@@ -44,6 +49,7 @@ window.declineBudgetAdjustment = declineBudgetAdjustment;
 window.openNotifications = openNotifications;
 window.openOverspendNotification = openOverspendNotification;
 window.chooseAdjustment = chooseAdjustment;
+window.openTransactions = openTransactions;
 
 // Toggle the dashboard hamburger menu visibility
 export function toggleDashboardMenu() {
@@ -77,11 +83,16 @@ window.addEventListener("DOMContentLoaded", () => {
       notificationsHtml +
       chatHistoryHtml +
       chatHtml +
-      challengeHtml;
+      challengeHtml +
+      importTransactionsHtml + 
+      transactionsHtml;
   }
 
   // Initialize Chat UI (greetings, observers)
   initChatUI();
+
+  // Initialize Import Transactions
+  initImportTransactions();
 
   // Initialize Auth Logic
   initAuth();
@@ -89,13 +100,18 @@ window.addEventListener("DOMContentLoaded", () => {
   // Check if user is logged in and redirect accordingly
   checkAuthAndRedirect();
 
+  // Load data if likely logged in (checkAuth handles redirect, but we can try loading)
+  // Or better, let checkAuth callback, but for now safe to call, they fail if no token
+  loadChallenges();
+  loadNotifications();
+
   showOnboardingSlide(1);
-  setChallengeSlide(1); // Start at eating out challenge (index 1)
+  setChallengeSlide(0); // Start at first slide (now empty)
   resetChatDemo();
   // Enable swipe on challenges carousel (mobile-like)
   initChallengeSwipe();
-  // Initialize challenge balance widget
-  updateChallengeBalance();
+  // Initialize history/back integration after DOM is ready
+  initHistoryNavigation();
   // Initialize notification badges
   updateNotificationBadges();
 });

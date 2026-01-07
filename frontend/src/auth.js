@@ -1,5 +1,5 @@
 import { login, register, isAuthenticated, getCurrentUser } from './api.js';
-import { showScreen } from './navigation.js';
+import { resetTo } from './navigation.js';
 
 export function initAuth() {
   const loginForm = document.getElementById('login-form');
@@ -78,14 +78,13 @@ export async function checkAuthAndRedirect() {
         usernameEl.textContent = `Hi ${user.username} 👋`;
       }
 
-      // Go to dashboard or onboarding
-      // For now, let's go to dashboard directly to skip onboarding if logged in
-      showScreen('screen-dashboard');
+      // Reset app root to dashboard so Back never reveals onboarding
+      resetTo('dashboard');
     } catch (e) {
       console.error('Session invalid', e);
-      showScreen('screen-login');
+      resetTo('login');
     }
   } else {
-    showScreen('screen-login');
+    resetTo('login');
   }
 }

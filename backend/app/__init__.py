@@ -22,6 +22,8 @@ def create_app(config_class=Config):
     from app.models.user import User
     from app.models.transaction import Transaction
     from app.models.chat import ChatSession, ChatMessage
+    from app.models.challenge import Challenge
+    from app.models.notification import Notification
 
     # Register Blueprints
     from app.routes.auth import bp as auth_bp

@@ -2,43 +2,9 @@
   <!-- Header -->
   <header class="relative flex items-center justify-between mb-4">
     <div class="flex items-center gap-2">
-      <!-- Hamburger menu (dashboard only) -->
-      <div class="relative">
-        <button id="hamburger-btn" onclick="toggleDashboardMenu()" aria-label="Menu"
-          class="relative p-2 rounded-md hover:bg-slate-100">
-          ☰
-          <span id="notif-badge-hamburger"
-            class="hidden absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] leading-4 text-center font-semibold">
-            1
-          </span>
-        </button>
-        <div id="dashboard-menu"
-          class="hidden absolute left-0 top-12 w-56 bg-white border border-slate-200 rounded-lg shadow-md z-30">
-          <div class="flex flex-col py-2">
-            <button class="flex items-center justify-between text-left px-4 py-2 hover:bg-slate-50"
-              onclick="openNotifications(); toggleDashboardMenu()">
-              <span>Notifications</span>
-              <span id="notif-badge-menu"
-                class="hidden min-w-[18px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] leading-4 text-center font-semibold">1</span>
-            </button>
-            <button class="text-left px-4 py-2 hover:bg-slate-50"
-              onclick="goToScreen('screen-dashboard'); toggleDashboardMenu()">Profile</button>
-            <button class="text-left px-4 py-2 hover:bg-slate-50"
-              onclick="goToScreen('screen-challenge'); toggleDashboardMenu()">New challenge</button>
-            <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="openChat(null, true); toggleDashboardMenu()">New
-              chat</button>
-            <button class="text-left px-4 py-2 hover:bg-slate-50" onclick="openChatHistory(); toggleDashboardMenu()">Chat History</button>
-            <button class="text-left px-4 py-2 hover:bg-slate-50"
-              onclick="showOnboardingSlide(1); goToScreen('screen-onboarding'); toggleDashboardMenu()">Tutorial</button>
-            <button class="text-left px-4 py-2 hover:bg-slate-50"
-              onclick="showAbout(); toggleDashboardMenu()">About</button>
-            <button class="text-left px-4 py-2 hover:bg-slate-50"
-              onclick="showPrivacy(); toggleDashboardMenu()">Privacy policy</button>
-          </div>
-        </div>
-      </div>
+      <!-- (Previous hamburger menu is replaced by a sidebar toggle on the avatar) -->
       <!-- App icon on top-left -->
-      <div class="w-11 h-11 rounded-2xl bg-white shadow flex items-center justify-center">
+      <div id="app-avatar-btn" class="w-11 h-11 rounded-2xl bg-white shadow flex items-center justify-center cursor-pointer" onclick="toggleSidebar()">
         <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
       </div>
       <div class="leading-tight">
@@ -57,7 +23,7 @@
       class="w-full text-left rounded-3xl fa-card shadow-sm border border-slate-200 px-5 py-4 flex justify-between items-center"
       title="Profile (not implemented)">
       <div>
-        <p class="text-sm text-slate-600" id="dashboard-username">Hi there 👋</p>
+        <p class="text-sm text-slate-600" id="dashboard-username">RutSavi</p>
         <p class="text-xs text-slate-500 mt-0.5">Here’s your snapshot.</p>
       </div>
       <span class="text-xs text-indigo-600 font-semibold">Profile</span>

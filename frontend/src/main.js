@@ -8,6 +8,7 @@ import notificationsHtml from "./screens/notifications.html?raw";
 import chatHistoryHtml from "./screens/chat-history.html?raw";
 import chatHtml from "./screens/chat.html?raw";
 import challengeHtml from "./screens/challenge.html?raw";
+import profileHtml from "./screens/profile.html?raw";
 
 import { showScreen, goToScreen, goBack } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
@@ -100,25 +101,7 @@ const sidebarHtml = `
             </svg>
           </div>
         </button>
-        <button class="text-left px-3 py-2 hover:bg-slate-50 rounded" onclick="showPrivacy(); toggleSidebar()">
-          <div class="flex items-center justify-between">
-            <span>Privacy policy</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="6.5" cy="12.5" r="3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
-              <circle cx="17.5" cy="12.5" r="3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.5 12.5h5" />
-            </svg>
-          </div>
-        </button>
-        <button class="text-left px-3 py-2 hover:bg-slate-50 rounded" onclick="showAbout(); toggleSidebar()">
-          <div class="flex items-center justify-between">
-            <span>About</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6.5A2.5 2.5 0 016.5 9H20v10" />
-            </svg>
-          </div>
-        </button>
+        
       </nav>
 
       <!-- Chats list rendered inline in sidebar -->
@@ -131,7 +114,7 @@ const sidebarHtml = `
       <!-- Profile shortcut fixed to bottom-left of sidebar -->
       <div class="absolute left-4 bottom-4 flex items-center gap-3">
         <div class="relative">
-          <button id="sidebar-profile-btn" aria-label="Profile" onclick="goToScreen('screen-dashboard'); toggleSidebar()" class="flex items-center gap-2 p-2 rounded-full hover:bg-slate-100 relative">
+          <button id="sidebar-profile-btn" aria-label="Profile" onclick="goToScreen('screen-profile'); toggleSidebar()" class="flex items-center gap-2 p-2 rounded-full hover:bg-slate-100 relative">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM6 20v-1a4 4 0 014-4h4a4 4 0 014 4v1" />
             </svg>
@@ -238,6 +221,7 @@ window.addEventListener("DOMContentLoaded", () => {
       loginHtml +
       onboardingHtml +
       dashboardHtml +
+      profileHtml +
       notificationsHtml +
       chatHistoryHtml +
       chatHtml +

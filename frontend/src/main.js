@@ -9,6 +9,9 @@ import chatHistoryHtml from "./screens/chat-history.html?raw";
 import chatHtml from "./screens/chat.html?raw";
 import challengeHtml from "./screens/challenge.html?raw";
 import profileHtml from "./screens/profile.html?raw";
+import accountManagementHtml from "./screens/account-management.html?raw";
+import privacyHtml from "./screens/privacy.html?raw";
+import privacyPolicyHtml from "./screens/privacy-policy.html?raw";
 
 import { showScreen, goToScreen, goBack } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
@@ -126,10 +129,10 @@ const sidebarHtml = `
           <div id="notification-title" class="text-xs text-slate-500">Profile</div>
         </div>
       </div>
-      <!-- Tutorial CTA fixed to bottom-right of sidebar -->
+      <!-- Onboarding CTA fixed to bottom-right of sidebar -->
       <div class="absolute right-4 bottom-4">
         <button onclick="showOnboardingSlide(1); goToScreen('screen-onboarding'); toggleSidebar()" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-200">
-          Tutorial
+          Onboarding
         </button>
       </div>
     </div>
@@ -222,6 +225,9 @@ window.addEventListener("DOMContentLoaded", () => {
       onboardingHtml +
       dashboardHtml +
       profileHtml +
+      accountManagementHtml +
+      privacyHtml +
+      privacyPolicyHtml +
       notificationsHtml +
       chatHistoryHtml +
       chatHtml +
@@ -256,4 +262,49 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Load sidebar chats initially
   try { loadSidebarChats(); } catch (err) { /* ignore */ }
+
+  // Preference toggles initialization
+  window.togglePreference = function(key, btn) {
+    if (!btn) return;
+    const isOn = btn.classList.toggle('bg-indigo-600');
+    const knob = btn.querySelector('.toggle-knob');
+    if (knob) knob.classList.toggle('translate-x-5');
+    btn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+    try { localStorage.setItem('pref_' + key, isOn ? '1' : '0'); } catch (e) {}
+  };
+
+  // Restore saved preferences
+  try {
+    const prefs = ['interests','location','motivations','communication_style'];
+    prefs.forEach((k) => {
+      const btn = document.querySelector(`[data-pref="${k}"]`);
+      if (!btn) return;
+      const v = localStorage.getItem('pref_' + k);
+      if (v === '1') {
+        btn.classList.add('bg-indigo-600');
+        const knob = btn.querySelector('.toggle-knob');
+        if (knob) knob.classList.add('translate-x-5');
+        btn.setAttribute('aria-pressed', 'true');
+      }
+    });
+  } catch (e) {
+    // ignore
+  }
+
+  // Populate Account Management screen fields from localStorage (with fallbacks)
+  try {
+    const interestsEl = document.getElementById('acct-interests');
+    const commEl = document.getElementById('acct-comm-style');
+    const motEl = document.getElementById('acct-motivations');
+
+    const savedInterests = localStorage.getItem('user_interests');
+    const savedComm = localStorage.getItem('user_communication_style');
+    const savedMots = localStorage.getItem('user_motivations');
+
+    if (interestsEl) interestsEl.textContent = savedInterests || 'Sports, Shows';
+    if (commEl) commEl.textContent = savedComm || 'Communicator';
+    if (motEl) motEl.textContent = savedMots || 'Financial Security, freedom';
+  } catch (e) {
+    // ignore
+  }
 });

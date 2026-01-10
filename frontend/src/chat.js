@@ -1,5 +1,5 @@
 import { createChatSession, getChatHistory, sendChatMessage, getChatSessions } from "./api.js";
-import { showScreen } from "./navigation.js";
+import { showScreen, navigate } from "./navigation.js";
 
 let currentSessionId = null;
 let isSendingMessage = false;
@@ -44,7 +44,7 @@ export async function openChatHistory() {
 
 export async function loadChatSession(sessionId) {
   currentSessionId = sessionId;
-  showScreen("screen-chat", true);
+  navigate("chat");
   
   const chatScroll = document.getElementById("chat-scroll");
   if (chatScroll) {
@@ -81,7 +81,7 @@ export async function loadChatSession(sessionId) {
 }
 
 export async function openChat(arg, maybeReset = false) {
-  showScreen("screen-chat", true);
+  navigate("chat");
   
   // Remove the demo click handler if it exists
   const chatScroll = document.getElementById("chat-scroll");

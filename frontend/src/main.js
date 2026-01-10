@@ -110,6 +110,22 @@ const sidebarHtml = `
             </svg>
           </div>
         </button>
+        <button class="text-left px-3 py-2 hover:bg-slate-50 rounded" onclick="navigate('import-transactions'); toggleSidebar()">
+          <div class="flex items-center justify-between">
+            <span>Import transactions</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+            </svg>
+          </div>
+        </button>
+        <button class="text-left px-3 py-2 hover:bg-slate-50 rounded" onclick="openTransactions(); toggleSidebar()">
+          <div class="flex items-center justify-between">
+            <span>Transactions history</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z" />
+            </svg>
+          </div>
+        </button>
         
       </nav>
 

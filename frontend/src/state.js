@@ -8,7 +8,7 @@ export const state = {
   chatStepIndex: -1,
   activeChatStory: "challenge",
   budgetAdjusted: false,
-  notificationsUnread: 1,
+  notificationsUnread: 0,
   challengeExtended: false,
 };
 

@@ -1,0 +1,13 @@
+{
+  "Food & Dining": ["restaurant", "food", "eating", "drinking", "bar", "cafe", "bakery", "caterer"],
+  "Groceries": ["grocery", "supermarket", "market"],
+  "Transportation": ["taxi", "parking", "toll", "transportation", "bus", "train", "airline", "travel"],
+  "Fuel": ["gas", "fuel", "service station"],
+  "Shopping": ["store", "shop", "retail", "clothing", "apparel", "department store"],
+  "Healthcare": ["hospital", "medical", "dental", "doctor", "pharmacy", "drug", "health"],
+  "Entertainment": ["theater", "movie", "entertainment", "recreation", "sport", "amusement"],
+  "Utilities": ["electric", "utility", "water", "gas utility"],
+  "Telecom": ["telephone", "telecommunication", "internet"],
+  "Professional Services": ["professional", "legal", "accounting", "consultant"],
+  "Home & Garden": ["hardware", "garden", "nursery", "home improvement", "furniture"]
+}

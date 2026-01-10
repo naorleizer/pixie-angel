@@ -1,44 +1,56 @@
 import { state } from "./state.js";
-import { showScreen } from "./navigation.js";
-import { resetChatDemo, scrollChatToBottom, advanceChatDemo } from "./chat.js";
+import { goBack } from "./navigation.js";
+import { apiRequest } from "./api.js";
+import { loadChallenges } from "./dashboard.js";
 
-export function createChallenge() {
-  state.challengeCreated = true;
+export async function createChallenge() {
+  // Read form values
+  const titleEl = document.getElementById("challenge-title");
+  const amountEl = document.getElementById("challenge-amount");
+  const durValEl = document.getElementById("challenge-duration-value");
+  const durUnitEl = document.getElementById("challenge-duration-unit");
 
-  // Reveal the vacation challenge card on the dashboard
-  revealVacationChallenge();
+  const title = titleEl?.value?.trim();
+  const targetAmount = parseFloat(amountEl?.value || "0");
+  const durationValue = parseInt(durValEl?.value || "0", 10);
+  const durationUnit = durUnitEl?.value || "months";
 
-  // In the original, creating a challenge returns you to chat and unlocks chat-step-5
-  // Reset stack so back from chat returns to dashboard (not to the form)
-  state.screenStack = ["screen-dashboard"];
-  showScreen("screen-chat", true);
+  if (!title || !Number.isFinite(targetAmount) || targetAmount <= 0 || !Number.isFinite(durationValue) || durationValue <= 0) {
+    alert("Please fill in all required fields with valid values.");
+    return;
+  }
 
-  // Reveal the "created" UI if present
-  const createdBadge = document.getElementById("challenge-created-banner");
-  if (createdBadge) createdBadge.classList.remove("hidden");
+  // Compute end_date from duration
+  const now = new Date();
+  const end = new Date(now);
+  if (durationUnit === "days") end.setDate(end.getDate() + durationValue);
+  else if (durationUnit === "weeks") end.setDate(end.getDate() + durationValue * 7);
+  else end.setMonth(end.getMonth() + durationValue); // months default
 
-  // Auto-show the confirmation message
-  scrollChatToBottom();
-  setTimeout(() => {
-    const step5 = document.getElementById("chat-step-5");
-    if (step5) {
-      step5.classList.remove("hidden");
-      step5.classList.add("chat-appear");
-      setTimeout(() => step5.classList.remove("chat-appear"), 350);
-    }
-    state.chatStepIndex = 4;
-    scrollChatToBottom();
-  }, 100);
-}
+  // For now, default to a savings-type challenge with indigo color
+  const payload = {
+    title,
+    description: "",
+    type: "savings",
+    target_amount: targetAmount,
+    color: "indigo",
+    end_date: end.toISOString(),
+  };
 
-function revealVacationChallenge() {
-  // Hide empty state
-  const emptyCard = document.getElementById("challenge-card-empty");
-  if (emptyCard) emptyCard.classList.add("hidden");
+  try {
+    // Persist to backend
+    await apiRequest("/api/challenges", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
 
-  // Show vacation challenge card
-  const vacationCard = document.getElementById("challenge-card-0");
-  if (vacationCard) vacationCard.classList.remove("hidden");
+    // Refresh dashboard challenges and return to previous screen
+    await loadChallenges();
+    goBack();
+  } catch (e) {
+    console.error("Failed to create challenge:", e);
+    alert(e?.message || "Failed to create challenge");
+  }
 }
 
 export function deleteChallengeFromChat(event) {

@@ -158,3 +158,14 @@ export async function getTransactions() {
   return apiRequest('/api/transactions');
 }
 
+export async function getCategories() {
+  return apiRequest('/api/categories');
+}
+
+export async function updateTransactionCategory(id, category) {
+  return apiRequest(`/api/transactions/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ category })
+  });
+}
+

@@ -29,9 +29,9 @@
       <p class="text-sm font-semibold text-slate-800 mb-2">Support</p>
       <div class="space-y-2">
         <button onclick="showAbout()" class="w-full text-left px-4 py-3 rounded-lg bg-white border border-slate-100 shadow-sm hover:bg-slate-50">About</button>
-        <button onclick="showOnboardingSlide(1); goToScreen('screen-onboarding')" class="w-full text-left px-4 py-3 rounded-lg bg-white border border-slate-100 shadow-sm hover:bg-slate-50">Onboarding</button>
+        <button onclick="window.onboardingReturnScreen='screen-profile'; showOnboardingSlide(1); goToScreen('screen-onboarding')" class="w-full text-left px-4 py-3 rounded-lg bg-white border border-slate-100 shadow-sm hover:bg-slate-50">Onboarding</button>
         <button onclick="goToScreen('screen-privacy-policy')" class="w-full text-left px-4 py-3 rounded-lg bg-white border border-slate-100 shadow-sm hover:bg-slate-50">Privacy policy</button>
-        <button class="w-full text-left px-4 py-3 rounded-lg bg-white border border-slate-100 shadow-sm hover:bg-slate-50">Report an issue</button>
+        <button onclick="goToScreen('screen-report-issue')" class="w-full text-left px-4 py-3 rounded-lg bg-white border border-slate-100 shadow-sm hover:bg-slate-50">Report an issue</button>
       </div>
     </div>
   </div>

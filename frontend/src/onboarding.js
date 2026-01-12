@@ -56,6 +56,31 @@ export function showOnboardingSlide(n) {
       onboardingSection.style.background = "#264653";
     }
   }
+
+  // Update the top-right exit button: if onboarding was opened from another
+  // screen (e.g. profile) show an 'X' that returns to that screen. Otherwise
+  // keep the default Skip -> dashboard behavior.
+  try {
+    const topExit = document.getElementById("onboarding-exit-top");
+    if (topExit) {
+      if (window.onboardingReturnScreen) {
+        topExit.textContent = "✕";
+        topExit.setAttribute('aria-label', 'Close');
+        topExit.onclick = () => {
+          const target = window.onboardingReturnScreen || 'screen-profile';
+          // clear the return target so future opens behave normally
+          window.onboardingReturnScreen = null;
+          try { window.goToScreen(target); } catch (e) { /* ignore */ }
+        };
+      } else {
+        topExit.textContent = "Skip";
+        topExit.setAttribute('aria-label', 'Skip');
+        topExit.onclick = () => { try { window.goToScreen('screen-dashboard'); } catch (e) {} };
+      }
+    }
+  } catch (e) {
+    // ignore in non-browser test contexts
+  }
 }
 
 export function nextOnboardingSlide() {

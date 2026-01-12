@@ -14,12 +14,13 @@ import profileHtml from "./screens/profile.html?raw";
 import accountManagementHtml from "./screens/account-management.html?raw";
 import privacyHtml from "./screens/privacy.html?raw";
 import privacyPolicyHtml from "./screens/privacy-policy.html?raw";
+import reportIssueHtml from "./screens/report-issue.html?raw";
 
 import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
 import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI, loadChatSession } from "./chat.js";
-import { getChatSessions, getChatHistory } from "./api.js";
+import { apiRequest, getChatSessions, getChatHistory } from "./api.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
 import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment, loadNotifications } from "./notifications.js";
@@ -75,6 +76,29 @@ export function showPrivacy() {
 window.toggleDashboardMenu = toggleDashboardMenu;
 window.showAbout = showAbout;
 window.showPrivacy = showPrivacy;
+
+// Simple handler for the Report issue screen submit button.
+  window.submitFeedback = async function() {
+    const name = document.getElementById('report-name')?.value || '';
+    const feedback = document.getElementById('report-feedback')?.value || '';
+
+    if (!feedback.trim()) {
+      try { alert('Please enter feedback before submitting.'); } catch (e) {}
+      return;
+    }
+
+    try {
+      await apiRequest('/api/feedback', {
+        method: 'POST',
+        body: JSON.stringify({ name: name.trim() || null, message: feedback.trim() })
+      });
+      try { alert('Thanks for your feedback. Our team will get back to you promptly.'); } catch (e) {}
+      try { goBack(); } catch (e) {}
+    } catch (e) {
+      console.error('Failed to submit feedback', e);
+      try { alert('Failed to submit feedback: ' + (e.message || e)); } catch (err) {}
+    }
+  };
 
 // Sidebar HTML injected into the app container so it is present across screens.
 const sidebarHtml = `
@@ -247,6 +271,7 @@ window.addEventListener("DOMContentLoaded", () => {
       onboardingHtml +
       dashboardHtml +
       profileHtml +
+      reportIssueHtml +
       accountManagementHtml +
       privacyHtml +
       privacyPolicyHtml +

@@ -14,6 +14,7 @@ from decimal import Decimal, InvalidOperation
 
 from app.models.challenge import Challenge
 from app.models.notification import Notification
+from app.models.feedback import Feedback
 
 bp = Blueprint('api', __name__)
 
@@ -387,6 +388,25 @@ def mark_notification_read(id):
     db.session.commit()
     
     return jsonify({'success': True}), 200
+
+
+# --- Feedback Endpoint ---
+@bp.route('/feedback', methods=['POST'])
+@jwt_required()
+def submit_feedback():
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+    name = data.get('name')
+    message = data.get('message') or data.get('feedback')
+
+    if not message or not message.strip():
+        return jsonify({'message': 'Feedback message is required'}), 400
+
+    fb = Feedback(user_id=user_id, name=name, message=message.strip())
+    db.session.add(fb)
+    db.session.commit()
+
+    return jsonify(fb.to_dict()), 201
 
 # --- Categories Endpoint ---
 @bp.route('/categories', methods=['GET'])

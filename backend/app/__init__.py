@@ -15,7 +15,14 @@ def create_app(config_class=Config):
     # Initialize Flask extensions
     db.init_app(app)
     migrate.init_app(app, db)
-    cors.init_app(app)
+    # Configure CORS explicitly to allow Authorization header for API calls
+    cors.init_app(
+        app,
+        resources={r"/api/*": {"origins": "*"}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+        methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    )
     jwt.init_app(app)
 
     # Import models to ensure they are registered with SQLAlchemy
@@ -24,6 +31,7 @@ def create_app(config_class=Config):
     from app.models.chat import ChatSession, ChatMessage
     from app.models.challenge import Challenge
     from app.models.notification import Notification
+    from app.models.feedback import Feedback
 
     # Register Blueprints
     from app.routes.auth import bp as auth_bp

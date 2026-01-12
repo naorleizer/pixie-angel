@@ -1,92 +1,162 @@
 import { apiRequest, getCategories, updateTransactionCategory } from "./api.js";
 import { navigate } from "./navigation.js";
 
+let allTransactions = [];
+let allCategories = [];
+
 export function openTransactions() {
   navigate('transactions');
   loadTransactions();
 }
 
 export async function loadTransactions() {
-  const listContainer = document.getElementById("full-transactions-list");
-  if (!listContainer) return;
+  const tbody = document.getElementById("transactions-tbody");
+  if (!tbody) return;
 
-  listContainer.innerHTML = '<p class="text-sm text-slate-500 text-center py-4">Loading...</p>';
+  tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-500">Loading...</td></tr>';
 
   try {
     const [transactions, catsResp] = await Promise.all([
       apiRequest("/api/transactions"),
       getCategories()
     ]);
-    const categories = catsResp.categories || [];
-    renderTransactions(transactions, categories);
+    allTransactions = transactions;
+    allCategories = catsResp.categories || [];
+    
+    // Populate category filter
+    const categoryFilter = document.getElementById('category-filter');
+    if (categoryFilter) {
+      const currentValue = categoryFilter.value;
+      categoryFilter.innerHTML = '<option value="">All Categories</option>' + 
+        allCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+      categoryFilter.value = currentValue;
+      
+      // Attach filter event listener
+      categoryFilter.onchange = applyFilters;
+    }
+    
+    renderTransactions(allTransactions);
   } catch (error) {
     console.error("Failed to load transactions", error);
-    listContainer.innerHTML = '<p class="text-sm text-red-500 text-center py-4">Failed to load transactions.</p>';
+    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-red-500">Failed to load transactions.</td></tr>';
   }
 }
 
-function renderTransactions(transactions, categories) {
-  const listContainer = document.getElementById("full-transactions-list");
-  if (!listContainer) return;
+function applyFilters() {
+  const categoryFilter = document.getElementById('category-filter')?.value;
+  
+  let filtered = allTransactions;
+  
+  if (categoryFilter) {
+    filtered = filtered.filter(t => t.category === categoryFilter);
+  }
+  
+  renderTransactions(filtered);
+}
+
+function renderTransactions(transactions) {
+  const tbody = document.getElementById("transactions-tbody");
+  if (!tbody) return;
 
   if (!transactions || transactions.length === 0) {
-    listContainer.innerHTML = `
-      <div class="text-center py-8">
-        <p class="text-sm text-slate-600">No transactions found</p>
-        <p class="text-xs text-slate-500 mt-1">Uploaded transactions will appear here.</p>
-      </div>
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" class="text-center py-8">
+          <p class="text-sm text-slate-600">No transactions found</p>
+          <p class="text-xs text-slate-500 mt-1">Try adjusting your filters or upload transactions.</p>
+        </td>
+      </tr>
     `;
     return;
   }
 
-  listContainer.innerHTML = transactions.map(t => {
-    const isNegative = t.amount < 0; // Assuming negative is outgoing? Or usually positive in CSV?
-    // In the User0 CSV, amounts are positive, implying spending. 
-    // Let's assume standard positive = spend for now unless we see "Credit" logic.
-    // Actually, usually negative is spend in bank exports, but in that CSV they were positive.
-    // Let's just display as is.
+  tbody.innerHTML = transactions.map(t => {
+    const isIncome = t.amount > 0;
+    const amountClass = isIncome ? 'text-green-600' : 'text-red-600';
+    const amountPrefix = isIncome ? '+' : '';
     
     const date = new Date(t.date).toLocaleDateString(undefined, {
-      year: 'numeric', month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      day: 'numeric', month: 'short'
     });
 
-    const opts = categories.map(c => `<option value="${c}" ${t.category === c ? 'selected' : ''}>${c}</option>`).join('');
-    const current = t.category || 'Uncategorized';
+    const title = t.description || t.merchant || 'Unknown';
+    const current = t.category || '';
+    const opts = allCategories.map(c => `<option value="${c}" ${t.category === c ? 'selected' : ''}>${c}</option>`).join('');
+    
+    // Account/Card info
+    let accountInfo = '';
+    if (t.account_name) {
+      accountInfo = t.account_name;
+      if (t.card_last_4) {
+        accountInfo += ` ••${t.card_last_4}`;
+      }
+    } else if (t.account_type) {
+      accountInfo = t.account_type;
+    }
+    
+    // Additional metadata
+    let metadata = [];
+    if (t.merchant_country && t.merchant_country !== 'IL') {
+      metadata.push(`🌍 ${t.merchant_country}`);
+    }
+    if (t.is_recurring) {
+      metadata.push('🔄 Recurring');
+    }
+    const metadataStr = metadata.length > 0 ? metadata.join(' • ') : '';
+    
     return `
-      <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm flex items-center justify-between">
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold truncate text-slate-800">${t.merchant}</p>
-          <div class="flex items-center gap-2 mt-1">
-             <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded" id="tx-cat-badge-${t.id}">
-               ${current}
-             </span>
-             <select id="tx-cat-${t.id}" class="text-xs border border-slate-200 rounded px-2 py-1" onchange="window._onCategoryChange(${t.id})">
-               <option value="">Uncategorized</option>
-               ${opts}
-             </select>
-             <span class="text-xs text-slate-400">${date}</span>
+      <tr class="hover:bg-slate-50 border-b border-slate-100">
+        <td class="px-0 py-0 w-20">
+          <div class="text-xs font-medium text-slate-900">${date}</div>
+        </td>
+        <td class="px-0 py-0">
+          <div class="text-sm font-medium text-slate-900 line-clamp-1">${title}</div>
+        </td>
+        <td class="px-0 py-0">
+          <select id="tx-cat-${t.id}" 
+                  class="text-xs border border-slate-300 rounded px-0 py-0 bg-white hover:border-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none w-full"
+                  onchange="window._onCategoryChange(${t.id})">
+            <option value="">Uncategorized</option>
+            ${opts}
+          </select>
+        </td>
+      </tr>
+      <tr class="hover:bg-slate-50 border-b border-slate-300">
+        <td colspan="2" class="px-0 py-0">
+          <div class="text-xs text-slate-500">
+            ${accountInfo ? `<span class="font-medium">${accountInfo}</span>` : ''}
+            ${accountInfo && metadataStr ? ' • ' : ''}${metadataStr}
           </div>
-        </div>
-        <div class="text-sm font-semibold text-slate-700 whitespace-nowrap ml-3">
-          ${t.amount.toFixed(2)}₪
-        </div>
-      </div>
+        </td>
+        <td class="px-0 py-0 text-right">
+          <span class="text-sm font-semibold ${amountClass}">${amountPrefix}${Math.abs(t.amount).toFixed(2)}₪</span>
+        </td>
+      </tr>
     `;
   }).join('');
 
-  // Bind change handler globally once
+  // Bind change handler globally
   window._onCategoryChange = async function (id) {
     try {
       const select = document.getElementById(`tx-cat-${id}`);
-      const badge = document.getElementById(`tx-cat-badge-${id}`);
       const val = select.value || null;
+      
       await updateTransactionCategory(id, val);
-      if (badge) badge.textContent = val || 'Uncategorized';
+      
+      // Update the transaction in our local array
+      const tx = allTransactions.find(t => t.id === id);
+      if (tx) {
+        tx.category = val;
+        tx.categorization_source = 'manual';
+        tx.categorization_confidence = 1.0;
+      }
+      
+      // Re-render to update badges
+      applyFilters();
+      
     } catch (e) {
       console.error('Failed to update category', e);
       alert(e?.message || 'Failed to update category');
     }
   };
-
 }

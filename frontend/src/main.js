@@ -17,7 +17,7 @@ import privacyPolicyHtml from "./screens/privacy-policy.html?raw";
 
 import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
-import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges } from "./dashboard.js";
+import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges, loadRecentTransactions } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI, loadChatSession } from "./chat.js";
 import { getChatSessions, getChatHistory } from "./api.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
@@ -273,6 +273,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Load data if likely logged in (checkAuth handles redirect, but we can try loading)
   // Or better, let checkAuth callback, but for now safe to call, they fail if no token
   loadChallenges();
+  loadRecentTransactions();
   loadNotifications();
 
   showOnboardingSlide(1);

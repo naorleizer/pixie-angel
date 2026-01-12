@@ -295,6 +295,44 @@ def my_route():
         return jsonify(error='Internal server error'), 500
 ```
 
+### Transaction Manual Category Correction Endpoint
+Track manual corrections for future ML model retraining:
+
+```python
+@bp.route('/transactions/<int:transaction_id>', methods=['PATCH'])
+@jwt_required()
+def update_transaction(transaction_id):
+    """Update transaction category manually."""
+    user_id = get_jwt_identity()
+    transaction = Transaction.query.filter_by(id=transaction_id, user_id=user_id).first_or_404()
+    
+    data = request.get_json()
+    new_category = data.get('category')
+    
+    # Log manual correction for ML retraining
+    if transaction.categorization_source != 'manual':
+        current_app.logger.info(
+            f"Manual category correction: Transaction {transaction_id} "
+            f"changed from '{transaction.category}' (source: {transaction.categorization_source}) "
+            f"to '{new_category}' by user {user_id}"
+        )
+    
+    # Update category and mark as manually categorized
+    transaction.category = new_category
+    transaction.categorization_source = 'manual'
+    transaction.categorization_confidence = 1.0  # 100% confidence for manual
+    
+    db.session.commit()
+    
+    return jsonify(transaction.to_dict()), 200
+```
+
+**Key Details**:
+- Only logs if not already marked as manual (avoid duplicate logs)
+- Stores old category, source, and user_id for audit trail
+- Sets confidence to 1.0 (manual corrections are fully trusted)
+- Frontend updates are instant; logs available for batch retraining later
+
 ## Testing & Debugging
 
 - **Server logs**: Check terminal where `uv run run.py` is running
@@ -311,6 +349,7 @@ def my_route():
 5. ✅ Error handling on all endpoints (try/except blocks)
 6. ✅ LLM calls use `llm_service.py` not direct API calls
 7. ✅ Frontend can call new endpoint via `api.js` wrapper
+8. ✅ Manual corrections logged for audit trail
 
 ---
 

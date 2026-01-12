@@ -97,7 +97,10 @@ showScreen("screen-dashboard", false);  // No URL update, no history push
 button.onclick = () => showScreen("screen-chat", true);
 ```
 
-**Recent Fix (Jan 12, 2026)**: Chat and challenge forms now use `navigate()` so back button works correctly.
+**Recent Updates (Jan 12, 2026)**: 
+- Transaction UI now uses compact 2-row layout for mobile readability
+- Dashboard displays recent transactions from real API
+- Chat and challenge forms use `navigate()` for proper back button support
 
 ### Component Patterns
 
@@ -148,6 +151,45 @@ function renderItems(items) {
 ```
 
 ## Common Tasks
+
+### Transaction List Pattern (Mobile-Friendly 2-Row Layout)
+The transactions list uses a compact 2-row layout per transaction for optimal mobile readability:
+
+**Row 1**: Date | Description | Category Dropdown
+**Row 2**: Account/Metadata | Amount (color-coded)
+
+Example implementation:
+```javascript
+// Each transaction renders as 2 table rows
+tbody.innerHTML = transactions.map(t => {
+  const date = new Date(t.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const isIncome = t.amount > 0;
+  
+  return `
+    <tr class="hover:bg-slate-50 border-b border-slate-100">
+      <td class="px-3 py-1 w-20"><div class="text-xs font-medium">${date}</div></td>
+      <td class="px-3 py-1"><div class="text-sm font-medium line-clamp-1">${t.description}</div></td>
+      <td class="px-3 py-1">
+        <select onchange="updateCategory(${t.id}, this.value)" class="text-xs border rounded px-2 py-0.5">
+          <option>Category</option>
+        </select>
+      </td>
+    </tr>
+    <tr class="hover:bg-slate-50 border-b border-slate-300">
+      <td colspan="2" class="px-3 py-1"><div class="text-xs text-slate-500">${t.account_name}</div></td>
+      <td class="px-3 py-1 text-right"><span class="text-sm font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}">${isIncome ? '+' : ''}${Math.abs(t.amount).toFixed(2)}₪</span></td>
+    </tr>
+  `;
+}).join('');
+```
+
+**Key Pattern Details**:
+- Row 1 has light border (slate-100) separating related rows
+- Row 2 has darker border (slate-300) separating different transactions
+- Amounts are color-coded: green for income (+), red for expenses (-)
+- Metadata (account_name, card_last_4, country, recurring) shown below description
+- Compact padding: py-1 throughout, select dropdown py-0.5
+- No confidence badges or source indicators (backend-only concerns)
 
 ### Adding an API Call
 1. Add function to `frontend/src/api.js`:

@@ -14,20 +14,33 @@ This file provides essential context for AI coding agents working on the Pixie m
 
 ## Current Project Status (Jan 12, 2026)
 
-### ✅ Recently Completed
-- **Merged branch changes** → Real app structure (not mockup)
-- **Sidebar menu fixed** → Added "Import transactions" & "Transactions history" buttons
-- **URL routing fixed** → Chat screen now updates URL (`#/chat`) so browser back button works
+### ✅ Recently Completed (Jan 12 Session - Part 2)
+- **Transaction Title Fix**: Fixed null/empty titles; backend priority: merchant_name > description > transaction_type > date
+- **Manual Category Corrections**: PATCH /api/transactions/<id> endpoint with logging
+- **Transaction UI Redesign**: 2-row compact layout (Date/Description/Category + Account/Metadata/Amount)
+- **Account/Card Info Display**: Shows account_name, card_last_4, merchant country, recurring indicator
+- **Recent Transactions Widget**: Dashboard now shows 5 most recent transactions with real API calls
+- **UI Compacting**: Reduced padding (py-2 → py-1), optimized border styling for mobile
+
+### ✅ Previously Completed (Jan 12 Session - Part 1)
+- **ML Model Integration**: Loaded pre-trained RandomForest classifier from classifier.ipynb
+- **Waterfall Categorization**: Implemented three-stage pipeline (heuristic → ML → LLM) with confidence scoring
+- **Transaction Model Updated**: Added `categorization_confidence` (0.0-1.0) and `categorization_source` (heuristic/ml/llm/manual) fields
+- **CSV Import Enhanced**: New format support (balance_after, transaction_type, merchant_country, is_recurring) with waterfall categorization
+- **LLM Failure Handling**: Graceful degradation with logging (items marked category=None on LLM failure, partial import succeeds)
+- **Account Model**: Normalization of financial accounts with composite key matching
 
 ### 🚧 In Progress / Blockers
-- **Challenges API**: Backend model exists, frontend needs real API calls instead of mock data
-- **Transactions UI**: API exists but frontend UI not fully connected
-- **Import transactions**: Screen exists but backend import pipeline needs validation
+- **ML Model Artifacts**: Verify classifier.pkl exists in backend/app/ml_models/
+- **End-to-end Testing**: CSV import workflow with waterfall categorization
+- **Challenges API**: Backend exists, frontend needs full wiring with real API
 
 ### 📋 Next Priority Tasks
-1. Replace `challenge.js` mock state with real API calls to `/api/challenges`
-2. Implement full transactions history UI (filter, sort, categorization)
-3. Complete import transactions pipeline with validation feedback
+1. End-to-end testing: Upload CSV file, verify waterfall categorization logs, test manual corrections UI
+2. Verify ML model artifacts present (classifier.pkl, categories.json, model_metadata.json)
+3. Wire challenges API in challenge.js (replace mock data with real API calls)
+4. Test all transaction features: filtering, manual corrections, account display
+
 
 ---
 
@@ -67,6 +80,19 @@ uv run flask db migrate -m "description"
 uv run flask db upgrade
 ```
 
+**ML Model Setup** (REQUIRED before first CSV import):
+```bash
+# 1. Train the classifier (if not already done)
+cd model
+jupyter notebook classifier.ipynb
+# Run all cells - this saves artifacts to backend/app/ml_models/
+
+# 2. Verify artifacts exist:
+# - backend/app/ml_models/transaction_classifier.pkl (the model)
+# - backend/app/ml_models/categories.json (category definitions)
+# - backend/app/ml_models/model_metadata.json (training info)
+```
+
 ---
 
 ## Key Commands & Checks
@@ -80,6 +106,7 @@ uv run flask db upgrade
 | **Seed test data** | `uv run seed.py` | Populates DB with demo users/chats |
 | **Clear DB** | `uv run clear_db.py` | Wipe all data (dev only) |
 | **DB upgrade** | `uv run flask db upgrade` | Apply pending migrations |
+| **Train ML model** | `jupyter notebook model/classifier.ipynb` | Generates artifacts in backend/app/ml_models/ |
 
 ---
 
@@ -117,7 +144,29 @@ src/api.js (fetch client)           app/models/
 src/chat.js (chat logic)                ├── user.py
 src/dashboard.js (ui logic)             ├── challenge.py
 src/challenge.js (challenges)           ├── chat.py
-                                        └── transaction.py
+                                        ├── transaction.py
+                                        └── account.py
+```
+
+## Transaction Categorization Pipeline (Waterfall)
+
+```
+CSV Import
+  ↓
+For each transaction:
+  ├─ Stage 1: Heuristic (transaction_type hints)
+  │   └─ Match: salary→Income, bill_payment→Bills & Utilities, etc.
+  ├─ Stage 2: Heuristic (merchant name + MCC keywords)
+  │   └─ Match: keywords in categories.json
+  ├─ Stage 3: ML Model (RandomForest)
+  │   └─ If confidence >= 0.7: categorize, else defer
+  └─ Stage 4: LLM Batch (Gemini API)
+      └─ Called once at end of import for all uncategorized items
+      └─ On failure: mark category=None, log error, continue
+
+Result: (category, confidence, source) stored in Transaction model
+- source: 'heuristic' | 'ml' | 'llm' | None
+- confidence: 0.0-1.0 (1.0 for heuristic, varies for ML/LLM)
 ```
 
 ---
@@ -127,14 +176,17 @@ src/challenge.js (challenges)           ├── chat.py
 | File | Why It Matters |
 |------|----------------|
 | `frontend/src/main.js` | App initialization, screen injection, event setup |
-| `frontend/src/navigation.js` | Screen routing & URL sync (recent fix for back button) |
+| `frontend/src/navigation.js` | Screen routing & URL sync (back button support) |
 | `frontend/src/api.js` | All backend communication; auth token handling |
 | `backend/app/__init__.py` | Flask factory, CORS setup, error handlers |
 | `backend/app/routes/api.py` | All API endpoints (GET/POST/PUT/DELETE) |
-| `backend/app/models/` | Database schemas (User, ChatSession, Challenge, etc) |
+| `backend/app/models/` | Database schemas (User, ChatSession, Transaction, etc) |
+| `backend/app/services/categorization_service.py` | Waterfall categorization pipeline (heuristic→ML→LLM) |
+| `backend/app/services/llm_service.py` | LiteLLM wrapper for Gemini API |
 | `.github/copilot-instructions.md` | High-level rules & conventions |
 | `.github/instructions/frontend.instructions.md` | Frontend-specific patterns |
 | `.github/instructions/backend.instructions.md` | Backend-specific patterns |
+| `PARTIALLY_IMPLEMENTED.md` | Tracks incomplete code pieces & status |
 
 ---
 

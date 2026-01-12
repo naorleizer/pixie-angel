@@ -20,6 +20,7 @@ def create_app(config_class=Config):
 
     # Import models to ensure they are registered with SQLAlchemy
     from app.models.user import User
+    from app.models.account import Account
     from app.models.transaction import Transaction
     from app.models.chat import ChatSession, ChatMessage
     from app.models.challenge import Challenge

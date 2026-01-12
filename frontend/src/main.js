@@ -15,6 +15,7 @@ import accountManagementHtml from "./screens/account-management.html?raw";
 import privacyHtml from "./screens/privacy.html?raw";
 import privacyPolicyHtml from "./screens/privacy-policy.html?raw";
 import reportIssueHtml from "./screens/report-issue.html?raw";
+import aboutHtml from "./screens/about.html?raw";
 
 import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
@@ -65,8 +66,8 @@ export function toggleDashboardMenu() {
 }
 
 export function showAbout() {
-  // Minimal placeholder — replace with modal or screen as needed
-  alert("Pixie mockup — About: Prototype app for demo purposes.");
+  // Navigate to dedicated About screen instead of showing an alert
+  try { goToScreen('screen-about'); } catch (e) { /* fallback */ }
 }
 
 export function showPrivacy() {
@@ -266,21 +267,22 @@ window.addEventListener("DOMContentLoaded", () => {
   const appContainer = document.getElementById("app-container");
   if (appContainer) {
     appContainer.innerHTML =
-      sidebarHtml +
-      loginHtml +
-      onboardingHtml +
-      dashboardHtml +
-      profileHtml +
-      reportIssueHtml +
-      accountManagementHtml +
-      privacyHtml +
-      privacyPolicyHtml +
-      notificationsHtml +
-      chatHistoryHtml +
-      chatHtml +
-      challengeHtml +
-      importTransactionsHtml + 
-      transactionsHtml;
+        sidebarHtml +
+        loginHtml +
+        onboardingHtml +
+        dashboardHtml +
+        profileHtml +
+        aboutHtml +
+        reportIssueHtml +
+        accountManagementHtml +
+        privacyHtml +
+        privacyPolicyHtml +
+        notificationsHtml +
+        chatHistoryHtml +
+        chatHtml +
+        challengeHtml +
+        importTransactionsHtml + 
+        transactionsHtml;
   }
 
   // Initialize Chat UI (greetings, observers)

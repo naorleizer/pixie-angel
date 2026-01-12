@@ -1,4 +1,4 @@
-import { login, register, isAuthenticated, getCurrentUser } from './api.js';
+import { login, register, isAuthenticated, getCurrentUser, clearAuthToken } from './api.js';
 import { resetTo } from './navigation.js';
 
 export function initAuth() {
@@ -88,3 +88,15 @@ export async function checkAuthAndRedirect() {
     resetTo('login');
   }
 }
+
+export function logout() {
+  try {
+    clearAuthToken();
+  } catch (e) {
+    console.error('Failed to clear auth token during logout', e);
+  }
+  resetTo('login');
+}
+
+// Expose for inline onclick handlers in HTML (keeps markup simple)
+window.logout = logout;

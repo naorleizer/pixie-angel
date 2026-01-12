@@ -4,6 +4,10 @@ import { showScreen, navigate } from "./navigation.js";
 let currentSessionId = null;
 let isSendingMessage = false;
 let chatFormHandler = null;
+// Track the last user message DOM element to allow editing only that message
+let lastUserMessageEl = null;
+let isEditingMessage = false;
+let editingMessageEl = null;
 
 export async function openChatHistory() {
   showScreen("screen-chat-history", true);
@@ -157,10 +161,27 @@ function setupChatInput() {
       const input = document.getElementById('chat-input');
       const message = input.value.trim();
 
-      if (message && !isSendingMessage) {
+      if (!message || isSendingMessage) return;
+
+      if (isEditingMessage && editingMessageEl) {
+        // Finish editing the existing last message (client-side only)
+        const newContent = message;
+        // update DOM
+        editingMessageEl.innerHTML = escapeHtml(newContent);
+        // store updated content
+        editingMessageEl.dataset.content = newContent;
+        isEditingMessage = false;
+        editingMessageEl = null;
+        // clear input
         input.value = '';
-        await handleUserMessage(message);
+        // hide any lingering edit button on the lastUserMessageEl
+        if (lastUserMessageEl && lastUserMessageEl._editBtn) lastUserMessageEl._editBtn.style.display = 'none';
+        return;
       }
+
+      // Normal new message
+      input.value = '';
+      await handleUserMessage(message);
     };
 
     form.addEventListener('submit', chatFormHandler);
@@ -196,11 +217,37 @@ function appendMessage(role, content) {
   div.className = `flex items-start gap-2 ${isUser ? 'justify-end' : ''} chat-appear`;
   
   if (isUser) {
-    div.innerHTML = `
-      <div class="max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow">
-        ${escapeHtml(content)}
-      </div>
-    `;
+    // Create message bubble and an edit button (only visible for the last user message)
+    const bubble = document.createElement('div');
+    bubble.className = 'max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow';
+    bubble.innerHTML = escapeHtml(content);
+    // store original content for editing
+    bubble.dataset.content = content;
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'ml-2 text-xs text-indigo-600 bg-white px-2 py-0.5 rounded-full';
+    editBtn.style.display = 'none';
+    editBtn.onclick = function(e) {
+      e.stopPropagation();
+      // start editing this message (only allowed for the last user message)
+      if (div !== lastUserMessageEl) return;
+      const input = document.getElementById('chat-input');
+      if (!input) return;
+      input.value = bubble.dataset.content || '';
+      input.focus();
+      isEditingMessage = true;
+      editingMessageEl = bubble;
+      // show visual state if desired
+    };
+
+    // attach references so we can hide/show later
+    div._bubble = bubble;
+    div._editBtn = editBtn;
+
+    div.appendChild(bubble);
+    div.appendChild(editBtn);
   } else {
     div.innerHTML = `
       <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden bg-indigo-100 flex-shrink-0">
@@ -211,8 +258,19 @@ function appendMessage(role, content) {
       </div>
     `;
   }
-
+  // Append message
   container.appendChild(div);
+
+  // If this is a user message, ensure only this last user message shows the edit button
+  if (isUser) {
+    // hide previous last
+    if (lastUserMessageEl && lastUserMessageEl._editBtn) {
+      lastUserMessageEl._editBtn.style.display = 'none';
+    }
+    // show this message's edit button
+    lastUserMessageEl = div;
+    if (div._editBtn) div._editBtn.style.display = 'inline-block';
+  }
   scrollChatToBottom();
 }
 

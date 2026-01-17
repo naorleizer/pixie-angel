@@ -13,6 +13,8 @@ import io
 import uuid
 import threading
 from decimal import Decimal, InvalidOperation
+from litellm import RateLimitError
+import uuid as _uuid
 
 from app.models.challenge import Challenge, ChallengeUpdate
 from app.models.notification import Notification
@@ -75,21 +77,55 @@ def send_message(session_id):
         return jsonify({'message': 'Message is required'}), 400
         
     try:
-        # Use LLM Service to handle chat logic + persistence + tool calling
+        # Build dynamic system prompt that includes user's challenges
+        # and documents available tools for the LLM to use.
         # Note: llm_service.chat_with_session handles saving all messages including tool messages
-        default_system_prompt = """You are Pixie, a friendly AI money coach. You help users track finances, set savings challenges, and get personalized financial advice.
 
-You have access to a calculator tool for precise arithmetic and financial calculations. Use it when users ask about math, budgets, or financial projections. The calculator supports:
-- Basic arithmetic: +, -, *, /, %, **
-- Math functions: sqrt, abs, sin, cos, tan, log, exp, ceil, floor
-- Financial calculations: percentage_of, percentage_change, compound_interest, simple_interest
+        # Gather user's challenges for context injection
+        all_challenges = Challenge.query.filter_by(user_id=user_id).order_by(Challenge.end_date.asc()).all()
+        lines = []
+        for c in all_challenges:
+            c_dict = c.to_dict()
+            title = c_dict.get('title')
+            status = c_dict.get('status')
+            target = c_dict.get('target_amount')
+            current = c_dict.get('current_amount')
+            end_date = c_dict.get('end_date')
+            lines.append(f"- {title} | status: {status} | progress: {current}₪ / {target}₪ | end: {end_date}")
 
-Always use the calculator tool when numerical accuracy is important. After using the tool, incorporate the results naturally into your response."""
+        challenge_summary = "\n".join(lines) if lines else "(No challenges yet)"
+
+        # Add current datetime (UTC) to give time context
+        now_utc = datetime.utcnow().isoformat()
+
+        dynamic_system_prompt = f"""
+You are Pixie, a friendly AI money coach. You help users track finances, set savings challenges, and provide personalized financial advice.
+
+You have access to these tools:
+- calculator: For precise arithmetic, budgeting math, and financial projections.
+- challenge_manager: To manage user challenges (actions: list, get_details, create, add_update). Always use it for challenge operations.
+
+    Current datetime (UTC): {now_utc}
+
+Current user's challenges:
+{challenge_summary}
+
+Instructions:
+- When the user asks to view or reference challenges, use challenge_manager with action="list" or "get_details".
+- When the user wants to create a challenge, call action="create" with title, target_amount, end_date, and optional description/type/color.
+- When the user logs savings or spending, call action="add_update" with challenge_id, signed amount (positive=savings, negative=spending), and description.
+- Use the calculator tool whenever numerical accuracy matters.
+"""
+
+        # If a custom system_prompt is provided, append the dynamic context
+        combined_system_prompt = (
+            (system_prompt + "\n\n" + dynamic_system_prompt) if system_prompt else dynamic_system_prompt
+        )
         
         response_content = llm.chat_with_session(
             session_id=session.id,
             user_message=user_message,
-            system_prompt=system_prompt or default_system_prompt,
+            system_prompt=combined_system_prompt,
             use_tools=True
         )
         
@@ -124,8 +160,24 @@ Always use the calculator tool when numerical accuracy is important. After using
             'response': response_content
         }), 200
         
+    except RateLimitError as e:
+        # Handle Gemini API rate limiting gracefully
+        error_id = str(_uuid.uuid4())
+        current_app.logger.warning(f"[{error_id}] Rate limit hit for user {user_id}: {str(e)}")
+        return jsonify({
+            'error': 'RATE_LIMIT',
+            'message': 'The AI service has exceeded its request limit. Please try again later.',
+            'retry_after': 'Please wait a few minutes before sending another message.',
+            'error_id': error_id
+        }), 429
     except Exception as e:
-        return jsonify({'message': str(e)}), 500
+        error_id = str(_uuid.uuid4())
+        current_app.logger.error(f"[{error_id}] Chat error for user {user_id}: {str(e)}", exc_info=True)
+        return jsonify({
+            'error': 'CHAT_ERROR',
+            'message': 'An error occurred while processing your message. Please try again.',
+            'error_id': error_id
+        }), 500
 
 # --- Transaction Endpoints ---
 

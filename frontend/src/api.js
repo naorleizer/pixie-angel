@@ -1,5 +1,6 @@
 // API configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const DEBUG = (import.meta.env.VITE_DEBUG === 'true') || (localStorage.getItem('pixie_debug') === 'true');
 
 // Auth Token Management
 const TOKEN_KEY = 'pixie_auth_token';
@@ -80,12 +81,27 @@ export async function apiRequest(endpoint, options = {}) {
         errorText ||
         `API error: ${response.status} ${response.statusText}`;
 
-      throw new Error(message);
+      const error = new Error(message);
+      error.statusCode = response.status;
+      error.statusText = response.statusText;
+      error.response = errorData;
+      // Propagate server-provided diagnostics for debugging
+      if (errorData) {
+        error.serverMessage = errorData.message;
+        error.errorCode = errorData.error || errorData.error_code;
+        error.errorId = errorData.error_id;
+      }
+      throw error;
     }
     
     return await response.json();
   } catch (error) {
-    console.error('API request failed:', error);
+    if (DEBUG) {
+      console.error(`[API] ${config.method || 'GET'} ${url} failed:`, error);
+    } else {
+      // Avoid exposing technical details in production
+      console.warn('API request failed.');
+    }
     throw error;
   }
 }

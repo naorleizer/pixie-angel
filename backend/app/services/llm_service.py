@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from app.extensions import db
 from app.models.chat import ChatSession, ChatMessage
 from app.services.calculator_service import calculator
+from app.services.challenge_manager_service import challenge_manager
 
 load_dotenv()
 
@@ -50,11 +51,69 @@ TOOLS_REGISTRY = {
             }
         },
         "retry_limit": 0  # Local tool, no retries needed
+    },
+    "challenge_manager": {
+        "type": "function",
+        "function": {
+            "name": "challenge_manager",
+            "description": "Manage user savings/spending challenges: create new challenges, add savings/spending updates, list challenges, and get challenge details with update history.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["create", "add_update", "get_details", "list"],
+                        "description": "Operation to perform"
+                    },
+                    "challenge_id": {
+                        "type": "integer",
+                        "description": "Target challenge ID (required for add_update and get_details)"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Challenge title (required for create)"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Optional description for challenge or required description for add_update"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Challenge type (e.g., spending_limit, savings)",
+                        "default": "spending_limit"
+                    },
+                    "target_amount": {
+                        "type": "number",
+                        "description": "Target amount in shekels (required for create)"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "description": "End date in ISO format (YYYY-MM-DD or full ISO)"
+                    },
+                    "color": {
+                        "type": "string",
+                        "description": "Optional color tag for UI",
+                        "default": "indigo"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Signed update amount (positive=savings, negative=spending) for add_update"
+                    },
+                    "filter": {
+                        "type": "string",
+                        "enum": ["current", "past", "all"],
+                        "description": "Filter for list action"
+                    }
+                },
+                "required": ["action"]
+            }
+        },
+        "retry_limit": 1
     }
 }
 
 
-def execute_tool(tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+def execute_tool(tool_name: str, arguments: Dict[str, Any], session_id: Optional[int] = None) -> Dict[str, Any]:
     """
     Execute a tool by name with given arguments.
     
@@ -68,6 +127,27 @@ def execute_tool(tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
     if tool_name == "calculator":
         expression = arguments.get("expression", "")
         return calculator.calculate(expression)
+    elif tool_name == "challenge_manager":
+        # Derive user_id securely from the session
+        if session_id is None:
+            return {
+                "status": "error",
+                "result": None,
+                "error_message": "Missing session context for challenge_manager",
+                "error_code": "MISSING_SESSION"
+            }
+
+        session = ChatSession.query.get(session_id)
+        if not session:
+            return {
+                "status": "error",
+                "result": None,
+                "error_message": f"Session {session_id} not found",
+                "error_code": "SESSION_NOT_FOUND"
+            }
+
+        user_id = session.user_id
+        return challenge_manager.execute(user_id=user_id, **arguments)
     else:
         return {
             "status": "error",
@@ -216,6 +296,7 @@ class LLMService:
 
         # Tool calling loop
         final_response = None
+        last_tool_success_message = None
         tool_call_count = 0
         max_iterations = 5  # Prevent infinite loops
         iteration = 0
@@ -283,7 +364,7 @@ class LLMService:
                         tool_args = json.loads(tool_call.function.arguments)
                         
                         # Execute tool with retry logic
-                        tool_result = self._execute_tool_with_retry(tool_name, tool_args)
+                        tool_result = self._execute_tool_with_retry(tool_name, tool_args, session_id=session_id)
                         
                         # Append tool result to conversation (following LiteLLM/Gemini format)
                         messages.append({
@@ -305,6 +386,12 @@ class LLMService:
                         )
                         db.session.add(tool_msg)
                         db.session.flush()
+
+                        # Capture a human-readable success message to use as fallback reply
+                        if tool_result.get("status") == "success":
+                            msg_text = tool_result.get("message")
+                            if isinstance(msg_text, str) and msg_text.strip():
+                                last_tool_success_message = msg_text.strip()
                         
                         logger.info(f"Tool executed: {tool_name} - {tool_result.get('status', 'unknown')}")
                         
@@ -341,7 +428,11 @@ class LLMService:
         
         # If we hit max iterations without a response
         if final_response is None:
-            final_response = response_message.content or "I encountered an issue processing your request. Please try again."
+            # Prefer a descriptive tool success message if available
+            if last_tool_success_message:
+                final_response = last_tool_success_message
+            else:
+                final_response = response_message.content or "I encountered an issue processing your request. Please try again."
         
         # Save final assistant response
         assistant_msg = ChatMessage(session_id=session_id, role='assistant', content=final_response)
@@ -350,7 +441,7 @@ class LLMService:
 
         return final_response
     
-    def _execute_tool_with_retry(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+    def _execute_tool_with_retry(self, tool_name: str, arguments: Dict[str, Any], session_id: Optional[int] = None) -> Dict[str, Any]:
         """
         Execute a tool with retry logic based on tool configuration.
         
@@ -374,7 +465,7 @@ class LLMService:
         last_error = None
         for attempt in range(retry_limit + 1):
             try:
-                result = execute_tool(tool_name, arguments)
+                result = execute_tool(tool_name, arguments, session_id=session_id)
                 
                 # If execution was successful, return immediately
                 if result.get("status") == "success":

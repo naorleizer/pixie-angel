@@ -13,9 +13,10 @@ if __name__ == '__main__':
 
     port = int(os.environ.get('PORT', 35000))
     host = os.environ.get('HOST', '0.0.0.0')
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
     try:
-        app.run(debug=True, host=host, port=port)
+        app.run(debug=debug, host=host, port=port)
     except OSError as e:
         # Common on Windows when port is in use or blocked by permissions
         print(f"Failed to start server on {host}:{port}: {e}")

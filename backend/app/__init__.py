@@ -3,6 +3,9 @@ from config import Config
 from app.extensions import db, migrate, cors, jwt
 from dotenv import load_dotenv
 from pathlib import Path
+import logging
+from logging.handlers import RotatingFileHandler
+import os
 
 # Load .env from the backend root so configuration is available early
 env_path = Path(__file__).resolve().parent.parent / '.env'
@@ -44,6 +47,32 @@ def create_app(config_class=Config):
     @app.route('/health')
     def health_check():
         return {'status': 'healthy', 'message': 'Pixie Backend Running'}
+
+    # Configure application logging: write to rotating file under instance/
+    try:
+        backend_root = Path(__file__).resolve().parent.parent
+        instance_dir = backend_root / 'instance'
+        instance_dir.mkdir(parents=True, exist_ok=True)
+        log_file_path = instance_dir / 'pixie.log'
+
+        log_level = logging.DEBUG if os.environ.get('FLASK_DEBUG', 'False').lower() == 'true' else logging.INFO
+        formatter = logging.Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s')
+
+        file_handler = RotatingFileHandler(str(log_file_path), maxBytes=5 * 1024 * 1024, backupCount=3, encoding='utf-8')
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+
+        # Attach handler to app logger and Werkzeug
+        app.logger.setLevel(log_level)
+        if not any(isinstance(h, RotatingFileHandler) for h in app.logger.handlers):
+            app.logger.addHandler(file_handler)
+        werkzeug_logger = logging.getLogger('werkzeug')
+        werkzeug_logger.setLevel(log_level)
+        if not any(isinstance(h, RotatingFileHandler) for h in werkzeug_logger.handlers):
+            werkzeug_logger.addHandler(file_handler)
+    except Exception as e:
+        # Fallback: ensure at least a console log if file setup fails
+        app.logger.error(f"Failed to configure file logging: {e}")
 
     return app
 

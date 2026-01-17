@@ -49,4 +49,6 @@ def login():
 def get_me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
     return jsonify(user.to_dict()), 200

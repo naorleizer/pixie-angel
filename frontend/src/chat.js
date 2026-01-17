@@ -1,4 +1,5 @@
 import { createChatSession, getChatHistory, sendChatMessage, getChatSessions } from "./api.js";
+const DEBUG = (import.meta.env.VITE_DEBUG === 'true') || (localStorage.getItem('pixie_debug') === 'true');
 import { showScreen, navigate } from "./navigation.js";
 
 let currentSessionId = null;
@@ -202,7 +203,20 @@ async function handleUserMessage(content) {
   } catch (error) {
     hideLoading();
     console.error("Chat error:", error);
-    appendMessage('assistant', "Sorry, something went wrong. Please try again.");
+    
+    // Display user-friendly error messages
+    let errorMessage = "Sorry, something went wrong. Please try again.";
+    if (error.statusCode === 429) {
+      errorMessage = "⏰ Rate limit reached: The AI service is temporarily unavailable. Please wait a few minutes and try again.";
+    } else if (error.statusCode === 500) {
+      errorMessage = "❌ Server error: Something went wrong on our end. Please try again in a moment.";
+    }
+    // In debug mode, append correlation ID for deeper tracing
+    if (DEBUG && error.errorId) {
+      errorMessage += `\n(ref: ${error.errorId})`;
+    }
+    
+    appendMessage('assistant', errorMessage);
   } finally {
     isSendingMessage = false;
   }

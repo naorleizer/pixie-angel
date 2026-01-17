@@ -61,6 +61,11 @@ function initScreenHandlers(screenId) {
       loadChallenges();
       loadRecentTransactions();
     }).catch(err => console.error('Failed to refresh dashboard:', err));
+  } else if (screenId === 'screen-account-management') {
+    // Initialize account management preferences
+    import('./auth.js').then(({ initAccountManagement }) => {
+      initAccountManagement();
+    }).catch(err => console.error('Failed to init account management:', err));
   }
 }
 

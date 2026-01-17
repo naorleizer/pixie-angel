@@ -1,6 +1,41 @@
 import { login, register, isAuthenticated, getCurrentUser, clearAuthToken, updateUserPreferences } from './api.js';
 import { resetTo } from './navigation.js';
 
+// Valid enum values for user preferences
+const VALID_INTERESTS = [
+  "restaurants",
+  "food_delivery",
+  "travel",
+  "fitness",
+  "fashion",
+  "technology",
+  "entertainment",
+  "sports",
+  "gaming",
+  "education",
+  "family",
+  "home_improvement",
+  "health"
+];
+
+const VALID_MOTIVATIONS = [
+  "saving_money",
+  "financial_independence",
+  "family_time",
+  "minimalism",
+  "financial_security",
+  "long_term_stability",
+  "freedom",
+  "peace_of_mind",
+  "family_support",
+  "goal_achievement"
+];
+
+// Format label from snake_case
+function formatLabel(str) {
+  return str.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
 export function initAuth() {
   const loginForm = document.getElementById('login-form');
   const registerForm = document.getElementById('register-form');
@@ -132,21 +167,174 @@ window.savePersonaPreference = savePersonaPreference;
 
 export async function initAccountManagement() {
   const personaSelect = document.getElementById('acct-persona-select');
+  const interestsContainer = document.getElementById('acct-interests-container');
+  const motivationsContainer = document.getElementById('acct-motivations-container');
   
-  if (!personaSelect) {
-    console.warn('Persona select element not found');
+  if (!personaSelect || !interestsContainer || !motivationsContainer) {
+    console.warn('Account management elements not found');
     return;
   }
   
   try {
     const user = await getCurrentUser();
+    
+    // Populate persona select
     if (user && user.preferred_persona) {
       personaSelect.value = user.preferred_persona;
     }
+    
+    // Generate interests pills
+    interestsContainer.innerHTML = '';
+    const selectedInterests = user.interests || [];
+    VALID_INTERESTS.forEach(interest => {
+      const isSelected = selectedInterests.includes(interest);
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.dataset.interest = interest;
+      pill.dataset.selected = isSelected ? 'true' : 'false';
+      pill.className = `px-3 py-1 rounded-full text-sm font-medium transition cursor-pointer ${
+        isSelected 
+          ? 'bg-indigo-600 text-white' 
+          : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+      }`;
+      pill.innerHTML = `${formatLabel(interest)} ${isSelected ? '<span class="ml-1">✕</span>' : ''}`;
+      pill.onclick = (e) => {
+        e.preventDefault();
+        toggleInterest(interest);
+      };
+      interestsContainer.appendChild(pill);
+    });
+    
+    // Generate motivations pills
+    motivationsContainer.innerHTML = '';
+    const selectedMotivations = user.motivations || [];
+    VALID_MOTIVATIONS.forEach(motivation => {
+      const isSelected = selectedMotivations.includes(motivation);
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.dataset.motivation = motivation;
+      pill.dataset.selected = isSelected ? 'true' : 'false';
+      pill.className = `px-3 py-1 rounded-full text-sm font-medium transition cursor-pointer ${
+        isSelected 
+          ? 'bg-indigo-600 text-white' 
+          : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+      }`;
+      pill.innerHTML = `${formatLabel(motivation)} ${isSelected ? '<span class="ml-1">✕</span>' : ''}`;
+      pill.onclick = (e) => {
+        e.preventDefault();
+        toggleMotivation(motivation);
+      };
+      motivationsContainer.appendChild(pill);
+    });
+    
   } catch (error) {
-    console.error('Failed to load user preferences:', error);
+    console.error('Failed to load account management:', error);
+  }
+}
+
+function toggleInterest(interest) {
+  const interestsContainer = document.getElementById('acct-interests-container');
+  const pills = interestsContainer.querySelectorAll('button');
+  const pill = Array.from(pills).find(p => p.dataset.interest === interest);
+  
+  if (pill) {
+    const isCurrentlySelected = pill.dataset.selected === 'true';
+    
+    if (isCurrentlySelected) {
+      // Deselect
+      pill.classList.remove('bg-indigo-600', 'text-white');
+      pill.classList.add('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+      pill.innerHTML = formatLabel(interest);
+      pill.dataset.selected = 'false';
+    } else {
+      // Select
+      pill.classList.remove('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+      pill.classList.add('bg-indigo-600', 'text-white');
+      pill.innerHTML = `${formatLabel(interest)} <span class="ml-1">✕</span>`;
+      pill.dataset.selected = 'true';
+    }
+  }
+}
+
+function toggleMotivation(motivation) {
+  const motivationsContainer = document.getElementById('acct-motivations-container');
+  const pills = motivationsContainer.querySelectorAll('button');
+  const pill = Array.from(pills).find(p => p.dataset.motivation === motivation);
+  
+  if (pill) {
+    const isCurrentlySelected = pill.dataset.selected === 'true';
+    
+    if (isCurrentlySelected) {
+      // Deselect
+      pill.classList.remove('bg-indigo-600', 'text-white');
+      pill.classList.add('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+      pill.innerHTML = formatLabel(motivation);
+      pill.dataset.selected = 'false';
+    } else {
+      // Select
+      pill.classList.remove('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+      pill.classList.add('bg-indigo-600', 'text-white');
+      pill.innerHTML = `${formatLabel(motivation)} <span class="ml-1">✕</span>`;
+      pill.dataset.selected = 'true';
+    }
+  }
+}
+
+function getSelectedInterests() {
+  const interestsContainer = document.getElementById('acct-interests-container');
+  const selectedPills = interestsContainer.querySelectorAll('button[data-selected="true"]');
+  return Array.from(selectedPills).map(pill => pill.dataset.interest);
+}
+
+function getSelectedMotivations() {
+  const motivationsContainer = document.getElementById('acct-motivations-container');
+  const selectedPills = motivationsContainer.querySelectorAll('button[data-selected="true"]');
+  return Array.from(selectedPills).map(pill => pill.dataset.motivation);
+}
+
+export async function saveInterests() {
+  const messageEl = document.getElementById('acct-interests-message');
+  const selectedInterests = getSelectedInterests();
+  
+  messageEl.textContent = 'Saving...';
+  messageEl.className = 'mt-2 text-sm text-slate-500';
+  
+  try {
+    const updatedUser = await updateUserPreferences({ interests: selectedInterests });
+    messageEl.textContent = `✓ Interests saved`;
+    messageEl.className = 'mt-2 text-sm text-green-600';
+    setTimeout(() => {
+      messageEl.textContent = '';
+    }, 3000);
+  } catch (error) {
+    console.error('Failed to save interests:', error);
+    messageEl.textContent = `✗ Error: ${error.message}`;
+    messageEl.className = 'mt-2 text-sm text-red-600';
+  }
+}
+
+export async function saveMotivations() {
+  const messageEl = document.getElementById('acct-motivations-message');
+  const selectedMotivations = getSelectedMotivations();
+  
+  messageEl.textContent = 'Saving...';
+  messageEl.className = 'mt-2 text-sm text-slate-500';
+  
+  try {
+    const updatedUser = await updateUserPreferences({ motivations: selectedMotivations });
+    messageEl.textContent = `✓ Motivations saved`;
+    messageEl.className = 'mt-2 text-sm text-green-600';
+    setTimeout(() => {
+      messageEl.textContent = '';
+    }, 3000);
+  } catch (error) {
+    console.error('Failed to save motivations:', error);
+    messageEl.textContent = `✗ Error: ${error.message}`;
+    messageEl.className = 'mt-2 text-sm text-red-600';
   }
 }
 
 // Expose for inline onclick handlers in HTML
 window.initAccountManagement = initAccountManagement;
+window.saveInterests = saveInterests;
+window.saveMotivations = saveMotivations;

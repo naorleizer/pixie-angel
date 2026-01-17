@@ -209,7 +209,7 @@ export async function addChallengeUpdate(challengeId, amount, description) {
   });
 }
 export async function updateUserPreferences(preferences) {
-  return apiRequest('/api/user/preferences', {
+  return apiRequest('/api/auth/user/preferences', {
     method: 'PATCH',
     body: JSON.stringify(preferences)
   });

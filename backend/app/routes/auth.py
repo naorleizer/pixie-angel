@@ -3,8 +3,39 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from app.models.user import User
 from app.extensions import db
 from app.services.llm_service import PERSONAS
+import json
 
 bp = Blueprint('auth', __name__)
+
+# Valid enum values for user preferences
+VALID_INTERESTS = [
+    "restaurants",
+    "food_delivery",
+    "travel",
+    "fitness",
+    "fashion",
+    "technology",
+    "entertainment",
+    "sports",
+    "gaming",
+    "education",
+    "family",
+    "home_improvement",
+    "health"
+]
+
+VALID_MOTIVATIONS = [
+    "saving_money",
+    "financial_independence",
+    "family_time",
+    "minimalism",
+    "financial_security",
+    "long_term_stability",
+    "freedom",
+    "peace_of_mind",
+    "family_support",
+    "goal_achievement"
+]
 
 @bp.route('/register', methods=['POST'])
 def register():
@@ -57,11 +88,13 @@ def get_me():
 @jwt_required()
 def update_user_preferences():
     """
-    Update user preferences including preferred_persona.
+    Update user preferences including preferred_persona, interests, and motivations.
     
     Expected JSON:
     {
-        "preferred_persona": "the_analyst" | "the_driver" | "the_promoter" | "the_supportive"
+        "preferred_persona": "the_analyst" | "the_driver" | "the_promoter" | "the_supportive",
+        "interests": ["restaurants", "travel", ...],
+        "motivations": ["saving_money", "financial_independence", ...]
     }
     """
     user_id = get_jwt_identity()
@@ -80,6 +113,40 @@ def update_user_preferences():
                 'message': f'Invalid persona type. Must be one of: {", ".join(PERSONAS.keys())}'
             }), 400
         user.preferred_persona = preferred_persona
+    
+    # Update interests if provided
+    if 'interests' in data:
+        interests = data['interests']
+        if not isinstance(interests, list):
+            return jsonify({
+                'message': 'interests must be an array'
+            }), 400
+        
+        # Validate all interests are in the allowed list
+        invalid_interests = [i for i in interests if i not in VALID_INTERESTS]
+        if invalid_interests:
+            return jsonify({
+                'message': f'Invalid interests: {", ".join(invalid_interests)}. Must be one of: {", ".join(VALID_INTERESTS)}'
+            }), 400
+        
+        user.interests = interests
+    
+    # Update motivations if provided
+    if 'motivations' in data:
+        motivations = data['motivations']
+        if not isinstance(motivations, list):
+            return jsonify({
+                'message': 'motivations must be an array'
+            }), 400
+        
+        # Validate all motivations are in the allowed list
+        invalid_motivations = [m for m in motivations if m not in VALID_MOTIVATIONS]
+        if invalid_motivations:
+            return jsonify({
+                'message': f'Invalid motivations: {", ".join(invalid_motivations)}. Must be one of: {", ".join(VALID_MOTIVATIONS)}'
+            }), 400
+        
+        user.motivations = motivations
     
     db.session.commit()
     

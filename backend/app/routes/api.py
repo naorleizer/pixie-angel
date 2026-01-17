@@ -102,6 +102,22 @@ def send_message(session_id):
         # Get user's preferred persona and inject its guidelines
         preferred_persona = user.preferred_persona if user else 'the_supportive'
         persona_prompt = llm.get_persona_prompt(preferred_persona)
+        
+        # Format interests and motivations for context injection
+        interests_context = ""
+        if user.interests and len(user.interests) > 0:
+            interests_str = ", ".join([interest.replace('_', ' ').title() for interest in user.interests])
+            interests_context = f"\n**User Interests:** {interests_str}"
+        
+        motivations_context = ""
+        if user.motivations and len(user.motivations) > 0:
+            motivations_str = ", ".join([motivation.replace('_', ' ').title() for motivation in user.motivations])
+            motivations_context = f"\n**User Motivations:** {motivations_str}"
+        
+        # Build user context if interests or motivations exist
+        user_context = ""
+        if interests_context or motivations_context:
+            user_context = f"\n**User Profile:**{interests_context}{motivations_context}\n"
 
         dynamic_system_prompt = f"""You are Pixie, a personal financial "Guardian Angel." Your mission is to help users turn dreams into plans through smart budgeting, expense analysis, and challenges.
 
@@ -125,6 +141,7 @@ def send_message(session_id):
 - challenge_manager: To manage user challenges (actions: list, get_details, create, add_update). Always use it for challenge operations.
 
 **Current datetime (UTC):** {now_utc}
+{user_context}
 
 **Current user's challenges:**
 {challenge_summary}

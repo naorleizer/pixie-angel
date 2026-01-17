@@ -21,6 +21,53 @@ export async function loadChallenges() {
   }
 }
 
+export async function loadRecentTransactions() {
+  const emptyState = document.getElementById("transactions-empty");
+  const list = document.getElementById("transactions-list");
+  if (!list || !emptyState) return;
+
+  try {
+    const transactions = await apiRequest("/api/transactions");
+    
+    if (!transactions || transactions.length === 0) {
+      emptyState.classList.remove("hidden");
+      list.classList.add("hidden");
+      return;
+    }
+
+    // Show only first 5 recent transactions
+    const recent = transactions.slice(0, 5);
+    
+    emptyState.classList.add("hidden");
+    list.classList.remove("hidden");
+    
+    list.innerHTML = recent.map(t => {
+      const isIncome = t.amount > 0;
+      const amountClass = isIncome ? 'text-green-600' : 'text-red-600';
+      const amountPrefix = isIncome ? '+' : '';
+      
+      const date = new Date(t.date).toLocaleDateString(undefined, {
+        month: 'short', day: 'numeric'
+      });
+      const title = t.description || t.merchant || 'Unknown';
+      
+      return `
+        <div class="flex items-center justify-between py-1 px-0 border-b border-slate-100 last:border-0">
+          <div class="flex-1">
+            <p class="text-sm font-medium text-slate-900 truncate">${title}</p>
+            <p class="text-xs text-slate-500 mt-0.5">${date}</p>
+          </div>
+          <p class="text-sm font-semibold ${amountClass} ml-2">${amountPrefix}${Math.abs(t.amount).toFixed(2)}₪</p>
+        </div>
+      `;
+    }).join('');
+  } catch (error) {
+    console.error("Failed to fetch transactions:", error);
+    emptyState.classList.remove("hidden");
+    list.classList.add("hidden");
+  }
+}
+
 function renderChallenges(items, track, dotsContainer) {
   if (!items || items.length === 0) {
     renderEmptyState(track);

@@ -1,6 +1,5 @@
 {
   "user_id": "",
-
   "persona": {
     "type": "",
     "communication_style": {
@@ -9,19 +8,26 @@
       "directness": ""
     }
   },
-
   "interests": {
-    "derived_from_spending": [],
-    "self_reported": []
+    "derived_from_spending": {
+      "motivations": [],
+      "weaknesses": []
+    },
+    "self_reported": {
+      "motivations": [],
+      "weaknesses": []
+    }
   },
-
   "financial_state": {
     "fixed_expenses": {},
-    "variable_expenses": {}
-  },
-
-  "motivations_and_weaknesses": {
-    "motivations": [],
-    "weaknesses": []
+    "variable_expenses": {},
+    "challenges": [{
+      "name": "",
+      "start_time": "",
+      "end_time": "",
+      "type": "onetime/repeating",
+      "amount": 0,
+      "current_status": 0
+    }]
   }
 }

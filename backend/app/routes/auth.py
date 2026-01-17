@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.models.user import User
 from app.extensions import db
+from app.services.llm_service import PERSONAS
 
 bp = Blueprint('auth', __name__)
 
@@ -51,4 +52,35 @@ def get_me():
     user = User.query.get(user_id)
     if not user:
         return jsonify({'message': 'User not found'}), 404
+    return jsonify(user.to_dict()), 200
+@bp.route('/user/preferences', methods=['PATCH'])
+@jwt_required()
+def update_user_preferences():
+    """
+    Update user preferences including preferred_persona.
+    
+    Expected JSON:
+    {
+        "preferred_persona": "the_analyst" | "the_driver" | "the_promoter" | "the_supportive"
+    }
+    """
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    data = request.get_json()
+    
+    # Update preferred_persona if provided
+    if 'preferred_persona' in data:
+        preferred_persona = data['preferred_persona']
+        # Validate persona type
+        if preferred_persona not in PERSONAS:
+            return jsonify({
+                'message': f'Invalid persona type. Must be one of: {", ".join(PERSONAS.keys())}'
+            }), 400
+        user.preferred_persona = preferred_persona
+    
+    db.session.commit()
+    
     return jsonify(user.to_dict()), 200

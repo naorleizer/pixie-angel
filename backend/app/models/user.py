@@ -9,6 +9,7 @@ class User(db.Model):
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
+    preferred_persona = db.Column(db.String(50), default='the_supportive')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -29,6 +30,7 @@ class User(db.Model):
             'id': self.id,
             'username': self.username,
             'email': self.email,
+            'preferred_persona': self.preferred_persona,
             'created_at': self.created_at.isoformat()
         }
 

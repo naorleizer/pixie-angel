@@ -145,7 +145,12 @@ def send_message(session_id):
 
 8. **Transactions Import**: Async background job via `/api/transactions/import`. Uses threading + in-memory progress store (`_upload_progress` dict in api.py).
 
-9. **Challenge Widget**: Frontend still uses mock state in `state.js` for carousel display; real API exists at `/api/challenges` but wiring incomplete.
+9. **Challenge Updates System**: 
+   - Challenges track progress via `ChallengeUpdate` records with signed amounts (positive=savings, negative=spending)
+   - `current_amount` is computed from sum of all updates (not stored in DB column)
+   - `status` computed based on `end_date`: active before deadline, completed/failed after
+   - Dashboard modal opens on card click (doesn't navigate); all challenges screen has separate modal
+   - Balance widget shows total: "Saved: X₪" (green) when positive, "Overspent: X₪" (red) when negative
 
 ## Project File Structure
 
@@ -159,8 +164,9 @@ mockup/
 │   │   ├── api.js                  # Backend client wrapper (JWT injection, error handling)
 │   │   ├── state.js                # Global app state object
 │   │   ├── chat.js                 # Chat UI logic, message rendering
-│   │   ├── dashboard.js            # Dashboard carousel, challenge display
-│   │   ├── challenge.js            # Challenge creation form (wired to real API)
+│   │   ├── dashboard.js            # Dashboard carousel, challenge cards, detail modal
+│   │   ├── challenge.js            # Challenge creation form
+│   │   ├── challenges.js           # All challenges list, filters, detail modal
 │   │   ├── auth.js                 # Login, register, token management
 │   │   ├── transactions.js         # Transaction list, filtering
 │   │   ├── import-transactions.js  # CSV import workflow
@@ -183,9 +189,11 @@ mockup/
 │   │   ├── models/
 │   │   │   ├── user.py             # User model + to_dict()
 │   │   │   ├── chat.py             # ChatSession, ChatMessage + to_dict()
-│   │   │   ├── challenge.py        # Challenge model
+│   │   │   ├── challenge.py        # Challenge, ChallengeUpdate models
 │   │   │   ├── transaction.py      # Transaction model
-│   │   │   └── notification.py     # Notification model
+│   │   │   ├── account.py          # Account model
+│   │   │   ├── notification.py     # Notification model
+│   │   │   └── feedback.py         # Feedback model
 │   │   ├── services/
 │   │   │   ├── llm_service.py      # LiteLLM wrapper, chat_with_session(), Gemini calls
 │   │   │   └── categorization_service.py # Transaction categorization logic

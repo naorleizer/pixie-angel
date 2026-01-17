@@ -8,6 +8,7 @@ import notificationsHtml from "./screens/notifications.html?raw";
 import chatHistoryHtml from "./screens/chat-history.html?raw";
 import chatHtml from "./screens/chat.html?raw";
 import challengeHtml from "./screens/challenge.html?raw";
+import challengesHtml from "./screens/challenges.html?raw";
 import importTransactionsHtml from "./screens/import-transactions.html?raw";
 import transactionsHtml from "./screens/transactions.html?raw";
 import profileHtml from "./screens/profile.html?raw";
@@ -19,10 +20,11 @@ import aboutHtml from "./screens/about.html?raw";
 
 import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from "./navigation.js";
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
-import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges, loadRecentTransactions } from "./dashboard.js";
+import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges, loadRecentTransactions, navigateToChallengeDetail, showChallengeDetailOnDashboard } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI, loadChatSession } from "./chat.js";
 import { apiRequest, getChatSessions, getChatHistory } from "./api.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
+import { initChallenges } from "./challenges.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
 import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment, loadNotifications } from "./notifications.js";
 import { initAuth, checkAuthAndRedirect } from "./auth.js";
@@ -51,6 +53,8 @@ window.createChallenge = createChallenge;
 window.deleteChallengeFromChat = deleteChallengeFromChat;
 window.undoDeleteChallenge = undoDeleteChallenge;
 window.viewChallengeOnDashboard = viewChallengeOnDashboard;
+window.navigateToChallengeDetail = navigateToChallengeDetail;
+window.showChallengeDetailOnDashboard = showChallengeDetailOnDashboard;
 window.acceptBudgetAdjustment = acceptBudgetAdjustment;
 window.declineBudgetAdjustment = declineBudgetAdjustment;
 window.openNotifications = openNotifications;
@@ -132,6 +136,14 @@ const sidebarHtml = `
             <span>New challenge</span>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 21h8M12 17v4M5 8l2-3 3-1 3 1 3 1 2 3v6a2 2 0 01-2 2H7a2 2 0 01-2-2V8z" />
+            </svg>
+          </div>
+        </button>
+        <button class="text-left px-3 py-2 hover:bg-slate-50 rounded" onclick="navigate('challenges'); toggleSidebar()">
+          <div class="flex items-center justify-between">
+            <span>All challenges</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
           </div>
         </button>
@@ -281,6 +293,7 @@ window.addEventListener("DOMContentLoaded", () => {
         chatHistoryHtml +
         chatHtml +
         challengeHtml +
+        challengesHtml +
         importTransactionsHtml + 
         transactionsHtml;
   }

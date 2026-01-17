@@ -22,9 +22,11 @@ backend/
 │   ├── models/
 │   │   ├── user.py              # User model
 │   │   ├── chat.py              # ChatSession & Message models
-│   │   ├── challenge.py         # Challenge model
+│   │   ├── challenge.py         # Challenge & ChallengeUpdate models
 │   │   ├── transaction.py       # Transaction model
-│   │   └── notification.py      # Notification model
+│   │   ├── account.py           # Account model
+│   │   ├── notification.py      # Notification model
+│   │   └── feedback.py          # Feedback model
 │   ├── services/
 │   │   ├── llm_service.py       # Gemini API calls & prompts
 │   │   └── categorization_service.py # Transaction categorization
@@ -41,43 +43,41 @@ backend/
 ```
 
 ### Flask Factory Pattern
-The app is initialized in `app/__init__.py` using the factory pattern:
-
-```python
-def create_app(config_name='development'):
-    app = Flask(__name__)
-    app.config.from_object(Config)
-    
-    # Init extensions
-    db.init_app(app)
-    
-    # Register blueprints
-    from app.routes import api_bp, auth_bp
-    app.register_blueprint(api_bp, url_prefix='/api')
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    
-    return app
-```
+The app is initialized in `app/__init__.py` using the factory pattern. See [app/__init__.py](../../backend/app/__init__.py) for implementation.
 
 **All endpoints defined in `app/routes/api.py` and `app/routes/auth.py`** — no scattered blueprints.
 
 ### Model Pattern
-Models inherit from `db.Model` and define columns + relationships:
+Models inherit from `db.Model` and define columns + relationships. Each model includes a `to_dict()` method for JSON serialization.
 
-```python
-from app.extensions import db
-from datetime import datetime
+**See [app/models/](../../backend/app/models/) for all model implementations.** Key patterns:
+- All models have `to_dict()` method for JSON serialization
+- Use `db.relationship()` with `cascade='all, delete-orphan'` for automatic cleanup
+- Foreign keys reference parent tables explicitly
+- Computed fields (like Challenge.compute_current_amount) calculate at request time
+- Timestamps use `datetime.utcnow` with `onupdate` for auto-update
 
-class Challenge(db.Model):
-    __tablename__ = 'challenges'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    target_amount = db.Column(db.Float, nullable=False)
-    current_amount = db.Column(db.Float, default=0)
-    deadline = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+**Challenge Model Specifics** (see [app/models/challenge.py](../../backend/app/models/challenge.py)):
+- `current_amount` is computed from the sum of all `ChallengeUpdate` records (not stored, computed at request time)
+- `status` computed based on `end_date`: active before deadline, completed/failed after
+- `ChallengeUpdate` uses **signed amounts**: positive for savings, negative for spending
+- `to_dict(include_updates=True)` returns full update history (newest first)
+
+### Challenge API Endpoints
+The challenge system provides full CRUD operations plus update tracking. See [app/routes/api.py](../../backend/app/routes/api.py) for full implementation.
+
+**Challenge API Endpoints**:
+- `GET /api/challenges?filter=current|past|all` — List challenges with date-based filtering
+- `GET /api/challenges/<id>` — Get single challenge with full update history  
+- `POST /api/challenges` — Create new challenge
+- `POST /api/challenges/<id>/updates` — Add update, recalculates current_amount and status
+
+**Challenge API Patterns**:
+- Filter parameter: `current` (active before end_date), `past` (after end_date), `all` (everything)
+- Updates use **signed amounts**: positive = savings/progress, negative = spending/regression
+- Status and current_amount automatically recalculated on each request (computed properties)
+- Creating a challenge does not require initial updates; users add them later
+- Frontend displays signed amounts with arrows (↑ green for positive, ↓ red for negative)
     
     user = db.relationship('User', backref='challenges')
     
@@ -140,98 +140,27 @@ def delete_challenge(id):
 ```
 
 ### LLM Service Pattern
-All Gemini calls centralized in `app/services/llm_service.py`:
+All Gemini calls centralized in `app/services/llm_service.py`. See [app/services/llm_service.py](../../backend/app/services/llm_service.py) for implementation.
 
-```python
-from litellm import completion
-
-def chat_with_gemini(messages, system_prompt=None):
-    """Send messages to Gemini and get response."""
-    try:
-        response = completion(
-            model="gemini-2.0-flash",
-            messages=messages,
-            system=system_prompt,
-            temperature=0.7,
-        )
-        return response['choices'][0]['message']['content']
-    except Exception as e:
-        raise Exception(f"LLM error: {str(e)}")
-```
-
-Called from route:
-```python
-@api_bp.route('/chat/send', methods=['POST'])
-@jwt_required()
-def send_message():
-    user_id = get_jwt_identity()
-    data = request.get_json()
-    
-    # Build message history
-    messages = [{"role": "user", "content": data['message']}]
-    
-    # Call Gemini
-    ai_response = chat_with_gemini(messages)
-    
-    # Save to DB
-    message = Message(user_id=user_id, role='user', content=data['message'])
-    db.session.add(message)
-    db.session.commit()
-    
-    return jsonify(response=ai_response)
-```
+**Pattern**: Import LLM service, call via `llm.chat_with_session()` or similar functions. Never make direct LiteLLM calls in route handlers. Service handles error handling, logging, and response formatting.
 
 ## Common Tasks
 
 ### Adding a New Model
-1. Create file `backend/app/models/my_model.py`:
-   ```python
-   from app.extensions import db
-   from datetime import datetime
-   
-   class MyModel(db.Model):
-       __tablename__ = 'my_table'
-       id = db.Column(db.Integer, primary_key=True)
-       # Add columns...
-       
-       def to_dict(self):
-           return { 'id': self.id, ... }
-   ```
-
-2. Import in `backend/app/models/__init__.py` (if it exists) or just ensure it's imported before Flask app creation
-
-3. Create migration:
+1. Create file `backend/app/models/my_model.py` following patterns in [app/models/challenge.py](../../backend/app/models/challenge.py)
+2. Include `__tablename__`, primary key, foreign keys with proper cascades, and `to_dict()` method
+3. Create and apply migration:
    ```bash
    uv run flask db migrate -m "add my_model table"
    uv run flask db upgrade
    ```
 
 ### Adding a New API Endpoint
-1. Add route to `backend/app/routes/api.py`:
-   ```python
-   @api_bp.route('/my-endpoint', methods=['POST'])
-   @jwt_required()  # Add if needs auth
-   def my_endpoint():
-       user_id = get_jwt_identity()
-       data = request.get_json()
-       # Implement logic...
-       return jsonify(result=...)
-   ```
-
-2. Test with curl or Postman:
-   ```bash
-   curl -X POST http://localhost:35000/api/my-endpoint \
-     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-     -H "Content-Type: application/json" \
-     -d '{"key": "value"}'
-   ```
-
-3. Add wrapper in `frontend/src/api.js`:
-   ```javascript
-   export async function myEndpoint(data) {
-     return apiRequest("/api/my-endpoint", { method: "POST", body: data });
-   }
-   ```
+1. Add route to `backend/app/routes/api.py` with `@jwt_required()` for protected endpoints
+2. Return JSON with `jsonify()` and proper HTTP status codes (200, 201, 400, 404, 500)
+3. Always validate input and handle errors with try/except
+4. Add wrapper in `frontend/src/api.js` that calls `apiRequest()`
+5. Test with curl/Postman before frontend integration
 
 ### Running Migrations
 After changing models:
@@ -271,67 +200,19 @@ DATABASE_URL=sqlite:///instance/pixie.db  # or postgres://...
 ```
 
 ## Error Handling Pattern
+**Always return proper HTTP status codes with JSON error messages**:
+- **200**: Success
+- **201**: Created
+- **400**: Bad request (validation errors)
+- **404**: Not found
+- **500**: Server error
 
-**Always return proper HTTP status codes with JSON error messages:**
+Wrap routes in try/except, validate input before processing, log unexpected errors.
 
-```python
-@api_bp.route('/my-route', methods=['POST'])
-@jwt_required()
-def my_route():
-    try:
-        data = request.get_json()
-        if not data.get('required_field'):
-            return jsonify(error='Missing required_field'), 400
-        
-        # Process...
-        result = do_something(data)
-        
-        return jsonify(result=result), 200
-        
-    except ValueError as e:
-        return jsonify(error=str(e)), 400
-    except Exception as e:
-        app.logger.error(f"Unexpected error: {e}")
-        return jsonify(error='Internal server error'), 500
-```
+### Transaction Manual Category Correction
+Transaction category corrections support manual user edits. See [app/routes/api.py](../../backend/app/routes/api.py) PATCH /api/transactions/<id> endpoint.
 
-### Transaction Manual Category Correction Endpoint
-Track manual corrections for future ML model retraining:
-
-```python
-@bp.route('/transactions/<int:transaction_id>', methods=['PATCH'])
-@jwt_required()
-def update_transaction(transaction_id):
-    """Update transaction category manually."""
-    user_id = get_jwt_identity()
-    transaction = Transaction.query.filter_by(id=transaction_id, user_id=user_id).first_or_404()
-    
-    data = request.get_json()
-    new_category = data.get('category')
-    
-    # Log manual correction for ML retraining
-    if transaction.categorization_source != 'manual':
-        current_app.logger.info(
-            f"Manual category correction: Transaction {transaction_id} "
-            f"changed from '{transaction.category}' (source: {transaction.categorization_source}) "
-            f"to '{new_category}' by user {user_id}"
-        )
-    
-    # Update category and mark as manually categorized
-    transaction.category = new_category
-    transaction.categorization_source = 'manual'
-    transaction.categorization_confidence = 1.0  # 100% confidence for manual
-    
-    db.session.commit()
-    
-    return jsonify(transaction.to_dict()), 200
-```
-
-**Key Details**:
-- Only logs if not already marked as manual (avoid duplicate logs)
-- Stores old category, source, and user_id for audit trail
-- Sets confidence to 1.0 (manual corrections are fully trusted)
-- Frontend updates are instant; logs available for batch retraining later
+**Pattern**: Manual corrections logged for ML retraining, marked with categorization_source='manual' and confidence=1.0. Avoid duplicate logs by checking existing source first.
 
 ## Testing & Debugging
 
@@ -354,3 +235,44 @@ def update_transaction(transaction_id):
 ---
 
 **Remember**: Keep all routes in `api.py`, all models organized in `models/`, all LLM logic in `llm_service.py`. Follow patterns from existing code.
+
+## Maintaining These Instructions
+
+These instructions serve as **style guides and pattern references**, not comprehensive code documentation. Key principles for keeping them current:
+
+### Code Examples vs References
+- **Use code examples only for essential patterns** that can't be explained concisely (e.g., status code returns, error handling structure)
+- **Replace full code blocks with source file references** — e.g., instead of copying entire model code, link to [app/models/challenge.py](../../backend/app/models/challenge.py) and describe key patterns
+- **Agents should read source code** for implementation details; instructions point them there
+
+### Single Source of Truth
+- **Keep actual implementations in source files**, not replicated in docs
+- **Update code first**, then update references in instructions
+- **Link to specific files** using markdown file paths: `[challenge.py](../../backend/app/models/challenge.py)` for source references
+- Never copy/paste code that will drift from reality
+
+### Structure for New Features
+When adding documentation for a new feature:
+1. **List all API endpoints** with method, path, and brief description
+2. **Describe key patterns** (how data flows, special rules, constraints)
+3. **Reference implementation files** for agents to explore
+4. **Show only critical code patterns** (e.g., JWT requirements, response format, error handling)
+5. **Link examples to sections** where they're most relevant
+
+### What to Document vs What to Link
+| Should Document | Should Link To Source |
+|---|---|
+| Error codes (200, 201, 400, 404) | Full error handling middleware |
+| Required decorators (`@jwt_required()`) | Decorator implementation details |
+| Response JSON shape | Full endpoint implementations |
+| Model relationships & cascade rules | Full model code |
+| Filter/query parameter options | Complete filter logic |
+| Security patterns (JWT, validation) | Actual validation code |
+
+### Keeping References Fresh
+- When moving/renaming files, update all markdown links
+- When adding models/endpoints, add to the file organization section
+- When changing patterns, update the relevant pattern section AND link to updated source
+- Test that links resolve before submitting
+
+

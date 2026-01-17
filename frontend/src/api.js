@@ -169,3 +169,26 @@ export async function updateTransactionCategory(id, category) {
   });
 }
 
+// --- Challenge API ---
+
+export async function getChallenges(filter = 'current') {
+  return apiRequest(`/api/challenges?filter=${filter}`);
+}
+
+export async function getChallengeDetail(challengeId) {
+  return apiRequest(`/api/challenges/${challengeId}`);
+}
+
+export async function createChallenge(data) {
+  return apiRequest('/api/challenges', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+export async function addChallengeUpdate(challengeId, amount, description) {
+  return apiRequest(`/api/challenges/${challengeId}/updates`, {
+    method: 'POST',
+    body: JSON.stringify({ amount, description })
+  });
+}

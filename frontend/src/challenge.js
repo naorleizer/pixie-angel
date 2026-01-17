@@ -1,6 +1,6 @@
 import { state } from "./state.js";
 import { goBack } from "./navigation.js";
-import { apiRequest } from "./api.js";
+import { createChallenge as createChallengeAPI } from "./api.js";
 import { loadChallenges } from "./dashboard.js";
 
 export async function createChallenge() {
@@ -38,11 +38,8 @@ export async function createChallenge() {
   };
 
   try {
-    // Persist to backend
-    await apiRequest("/api/challenges", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    // Persist to backend using API wrapper
+    await createChallengeAPI(payload);
 
     // Refresh dashboard challenges and return to previous screen
     await loadChallenges();

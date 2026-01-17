@@ -9,6 +9,7 @@ const screenMap = {
   "chat-history": "screen-chat-history",
   chat: "screen-chat",
   challenge: "screen-challenge",
+  challenges: "screen-challenges",
   "import-transactions": "import-transactions-screen",
   transactions: "screen-transactions",
 };
@@ -42,6 +43,24 @@ export function showScreen(screenId, pushToStack = true) {
   if (pushToStack) {
     const top = state.screenStack[state.screenStack.length - 1];
     if (top !== screenId) state.screenStack.push(screenId);
+  }
+  
+  // Initialize screen-specific logic
+  initScreenHandlers(screenId);
+}
+
+function initScreenHandlers(screenId) {
+  // Import screen initializers dynamically when needed
+  if (screenId === 'screen-challenges') {
+    import('./challenges.js').then(({ initChallenges }) => {
+      initChallenges();
+    }).catch(err => console.error('Failed to init challenges:', err));
+  } else if (screenId === 'screen-dashboard') {
+    // Refresh dashboard data when returning to it
+    import('./dashboard.js').then(({ loadChallenges, loadRecentTransactions }) => {
+      loadChallenges();
+      loadRecentTransactions();
+    }).catch(err => console.error('Failed to refresh dashboard:', err));
   }
 }
 

@@ -14,7 +14,7 @@ import uuid
 import threading
 from decimal import Decimal, InvalidOperation
 
-from app.models.challenge import Challenge
+from app.models.challenge import Challenge, ChallengeUpdate
 from app.models.notification import Notification
 from app.models.feedback import Feedback
 
@@ -480,8 +480,31 @@ def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
 @jwt_required()
 def get_challenges():
     user_id = get_jwt_identity()
-    challenges = Challenge.query.filter_by(user_id=user_id, status='active').all()
+    filter_type = request.args.get('filter', 'current')  # current, past, all
+    
+    query = Challenge.query.filter_by(user_id=user_id)
+    
+    if filter_type == 'current':
+        # Active challenges with end_date in the future or not set
+        now = datetime.utcnow()
+        query = query.filter(
+            (Challenge.end_date >= now) | (Challenge.end_date == None)
+        )
+    elif filter_type == 'past':
+        # Challenges with end_date in the past
+        now = datetime.utcnow()
+        query = query.filter(Challenge.end_date < now)
+    # 'all' returns everything, no additional filter
+    
+    challenges = query.order_by(Challenge.end_date.asc()).all()
     return jsonify([c.to_dict() for c in challenges]), 200
+
+@bp.route('/challenges/<int:challenge_id>', methods=['GET'])
+@jwt_required()
+def get_challenge_detail(challenge_id):
+    user_id = get_jwt_identity()
+    challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
+    return jsonify(challenge.to_dict(include_updates=True)), 200
 
 @bp.route('/challenges', methods=['POST'])
 @jwt_required()
@@ -503,6 +526,39 @@ def create_challenge():
     db.session.commit()
     
     return jsonify(challenge.to_dict()), 201
+
+@bp.route('/challenges/<int:challenge_id>/updates', methods=['POST'])
+@jwt_required()
+def add_challenge_update(challenge_id):
+    user_id = get_jwt_identity()
+    challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
+    
+    data = request.get_json()
+    amount = data.get('amount')
+    description = data.get('description')
+    
+    if amount is None:
+        return jsonify({'error': 'Amount is required'}), 400
+    if not description:
+        return jsonify({'error': 'Description is required'}), 400
+    
+    try:
+        amount = float(amount)
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Amount must be a number'}), 400
+    
+    # Create the update
+    update = ChallengeUpdate(
+        challenge_id=challenge.id,
+        amount=amount,
+        description=description
+    )
+    
+    db.session.add(update)
+    db.session.commit()
+    
+    # Return updated challenge with new computed values
+    return jsonify(challenge.to_dict(include_updates=True)), 201
 
 # --- Notification Endpoints ---
 

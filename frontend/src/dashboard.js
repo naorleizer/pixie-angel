@@ -1,9 +1,20 @@
 import { state } from "./state.js";
-import { showScreen } from "./navigation.js";
+import { showScreen, navigate } from "./navigation.js";
 import { openChat } from "./chat.js";
 import { apiRequest } from "./api.js";
 
 let challenges = [];
+
+// Navigate to challenge detail from dashboard card
+export function navigateToChallengeDetail(challengeId) {
+  navigate('challenges');
+  // The challenges screen will handle showing the detail
+  setTimeout(() => {
+    if (window.showChallengeDetail) {
+      window.showChallengeDetail(challengeId);
+    }
+  }, 100);
+}
 
 export async function loadChallenges() {
   const track = document.getElementById("challenge-track");
@@ -96,45 +107,42 @@ function renderChallenges(items, track, dotsContainer) {
 }
 
 function updateChallengeBalanceWidget(items) {
-  const savedEl = document.getElementById("balance-saved");
-  const overspentEl = document.getElementById("balance-overspent");
+  const balanceAmountEl = document.getElementById("balance-amount");
   const savedBar = document.getElementById("balance-bar-saved");
   const overspentBar = document.getElementById("balance-bar-overspent");
   const summaryEl = document.getElementById("balance-summary");
 
-  let saved = 0;
-  let overspent = 0;
-
+  // Calculate total balance across all challenges
+  let totalBalance = 0;
   (items || []).forEach((c) => {
-    if (c.type === "savings") {
-      saved += Number(c.current_amount || 0);
-    } else if (c.type === "spending_limit") {
-      const curr = Number(c.current_amount || 0);
-      const target = Number(c.target_amount || 0);
-      if (curr > target) overspent += (curr - target);
-      else saved += (target - curr);
-    }
+    totalBalance += Number(c.current_amount || 0);
   });
 
-  const total = saved + overspent;
-  if (savedEl) savedEl.textContent = `Saved: ${Math.round(saved)}₪`;
-  if (overspentEl) overspentEl.textContent = `Overspent: ${Math.round(overspent)}₪`;
+  // Update amount display with color based on positive/negative
+  if (balanceAmountEl) {
+    if (totalBalance >= 0) {
+      balanceAmountEl.textContent = `Saved: ${Math.round(totalBalance)}₪`;
+      balanceAmountEl.className = "font-semibold text-emerald-700";
+    } else {
+      balanceAmountEl.textContent = `Overspent: ${Math.round(Math.abs(totalBalance))}₪`;
+      balanceAmountEl.className = "font-semibold text-rose-700";
+    }
+  }
 
-  if (total > 0) {
-    const savedPct = (saved / total) * 100;
-    const overspentPct = (overspent / total) * 100;
-    if (savedBar) savedBar.style.width = `${savedPct}%`;
-    if (overspentBar) overspentBar.style.width = `${overspentPct}%`;
+  // Update progress bars
+  if (totalBalance >= 0) {
+    if (savedBar) savedBar.style.width = "100%";
+    if (overspentBar) overspentBar.style.width = "0%";
   } else {
     if (savedBar) savedBar.style.width = "0%";
-    if (overspentBar) overspentBar.style.width = "0%";
+    if (overspentBar) overspentBar.style.width = "100%";
   }
 
   if (summaryEl) {
     let message = "";
-    if (saved > overspent) {
+    if (totalBalance > 0) {
       message = `Pixie summary: you're <span class="font-semibold text-emerald-700">on track</span>! Keep it up 💪`;
-    } else if (overspent > saved) {
+    } else if (totalBalance < 0) {
       message = `Pixie summary: you're <span class="font-semibold text-rose-700">off-track</span>. Want help turning this into a plan? Tap the chat bar below.`;
     } else {
       message = `Pixie summary: you're <span class="font-semibold text-slate-700">balanced</span>. Good work!`;
@@ -166,23 +174,41 @@ function createChallengeCard(c, index) {
   const wrapperClass = "min-w-full pr-2"; 
   const progressLabel = c.type === 'spending_limit' ? 'Spent' : 'Saved';
   const deadlineText = c.end_date ? `Ends ${new Date(c.end_date).toLocaleDateString()}` : 'Ongoing';
+  
+  // Status badge styling
+  let statusBadge = '';
+  if (c.status === 'completed') {
+    statusBadge = '<span class="text-[10px] bg-green-100 text-green-800 px-2 py-1 rounded-full uppercase tracking-wide">Completed</span>';
+  } else if (c.status === 'failed') {
+    statusBadge = '<span class="text-[10px] bg-red-100 text-red-800 px-2 py-1 rounded-full uppercase tracking-wide">Failed</span>';
+  } else if (c.progress_status === 'on_track') {
+    statusBadge = '<span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-1 rounded-full uppercase tracking-wide">On Track</span>';
+  } else {
+    statusBadge = '<span class="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full uppercase tracking-wide">Below Target</span>';
+  }
+  
+  // Amount display with arrow and color
+  const arrow = c.current_amount >= 0 ? '↑' : '↓';
+  const amountClass = c.current_amount >= 0 ? 'text-green-600' : 'text-red-600';
 
   return `
     <div class="${wrapperClass}" id="challenge-card-${index}">
-      <div class="rounded-2xl ${theme.bg} ${theme.border} px-4 py-4 border">
+      <div class="rounded-2xl ${theme.bg} ${theme.border} px-4 py-4 border cursor-pointer hover:shadow-md transition-shadow" onclick="showChallengeDetailOnDashboard(${c.id})">
         <div class="flex items-start justify-between gap-2">
           <div>
             <p class="text-sm font-semibold ${theme.text}">${c.title}</p>
             <p class="text-xs ${theme.sub} opacity-80 mt-1">${deadlineText}</p>
           </div>
-          <span class="text-[10px] ${theme.sub} bg-white/50 px-2 py-1 rounded-full uppercase tracking-wide">
-            ${c.status}
-          </span>
+          ${statusBadge}
+        </div>
+        <div class="mt-3 flex justify-between items-baseline">
+          <span class="${amountClass} font-bold text-xl">${arrow} ₪${Math.abs(c.current_amount).toFixed(0)}</span>
+          <span class="text-xs text-slate-500">/ ₪${c.target_amount.toFixed(0)}</span>
         </div>
         <div class="mt-3 space-y-1">
           <div class="flex justify-between text-[11px] text-slate-600">
-            <span>${progressLabel}</span>
-            <span>${c.current_amount} / ${c.target_amount}₪</span>
+            <span>Progress</span>
+            <span>${percent.toFixed(0)}%</span>
           </div>
           <div class="w-full h-2 rounded-full ${theme.barBg}">
             <div class="h-2 rounded-full ${theme.barFill}" style="width: ${percent}%"></div>
@@ -264,4 +290,215 @@ export function viewChallengeOnDashboard(event) {
 
   showScreen("screen-dashboard", true);
   setChallengeSlide(0);
+}
+
+// Show challenge detail modal on dashboard
+export async function showChallengeDetailOnDashboard(challengeId) {
+  try {
+    const { getChallengeDetail, addChallengeUpdate } = await import('./api.js');
+    const challenge = await getChallengeDetail(challengeId);
+    
+    const modal = document.getElementById('dashboard-challenge-detail-modal');
+    const content = document.getElementById('dashboard-challenge-detail-content');
+    
+    if (!modal || !content) return;
+    
+    // Render challenge detail (reuse rendering logic from challenges.js)
+    content.innerHTML = renderChallengeDetailContent(challenge);
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    
+    // Setup handlers
+    setupDashboardModalHandlers(challengeId);
+  } catch (error) {
+    console.error('Failed to load challenge detail:', error);
+  }
+}
+
+function renderChallengeDetailContent(challenge) {
+  const statusBadge = getChallengeStatusBadge(challenge);
+  const amountDisplay = getChallengeAmountDisplay(challenge);
+  const endDate = challenge.end_date ? new Date(challenge.end_date).toLocaleDateString() : 'No deadline';
+  
+  return `
+    <div class="mb-4 flex justify-between items-start">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-1">${challenge.title}</h2>
+        ${challenge.description ? `<p class="text-gray-600">${challenge.description}</p>` : ''}
+      </div>
+      <button id="close-dashboard-modal-btn" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="mb-6">
+      ${statusBadge}
+      <div class="mt-3 text-sm text-gray-600">
+        Deadline: ${endDate}
+      </div>
+    </div>
+    
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+      ${amountDisplay}
+      <div class="mt-2 text-sm text-gray-600">
+        Target: ₪${challenge.target_amount.toFixed(0)}
+      </div>
+    </div>
+    
+    ${challenge.status === 'active' ? renderDashboardAddUpdateForm() : ''}
+    
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 mb-3">Updates History</h3>
+      ${renderDashboardUpdatesTimeline(challenge.updates || [])}
+    </div>
+  `;
+}
+
+function getChallengeStatusBadge(challenge) {
+  const status = challenge.status;
+  const progressStatus = challenge.progress_status;
+  
+  if (status === 'completed') {
+    return `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>`;
+  } else if (status === 'failed') {
+    return `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Failed</span>`;
+  } else {
+    if (progressStatus === 'on_track') {
+      return `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">On Track</span>`;
+    } else {
+      return `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Below Target</span>`;
+    }
+  }
+}
+
+function getChallengeAmountDisplay(challenge) {
+  const current = challenge.current_amount;
+  const target = challenge.target_amount;
+  const arrow = current >= 0 ? '↑' : '↓';
+  const colorClass = current >= 0 ? 'text-green-600' : 'text-red-600';
+  
+  return `
+    <div class="flex justify-between items-baseline">
+      <div class="${colorClass} font-bold text-2xl">
+        <span class="mr-1">${arrow}</span>
+        ₪${Math.abs(current).toFixed(0)}
+      </div>
+      <div class="text-gray-500 text-sm">
+        / ₪${target.toFixed(0)}
+      </div>
+    </div>
+  `;
+}
+
+function renderDashboardAddUpdateForm() {
+  return `
+    <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+      <h3 class="font-semibold text-gray-900 mb-3">Add Update</h3>
+      <form id="dashboard-add-update-form">
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Amount (₪)</label>
+          <input type="number" id="dashboard-update-amount" step="0.01" required 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                 placeholder="Enter amount (positive for savings, negative for spending)">
+          <p class="text-xs text-gray-500 mt-1">Use positive numbers for savings, negative for spending</p>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <input type="text" id="dashboard-update-description" required 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                 placeholder="e.g., Saved 10 ILS by not buying coffee">
+        </div>
+        <button type="submit" class="btn-primary w-full">
+          Add Update
+        </button>
+      </form>
+    </div>
+  `;
+}
+
+function renderDashboardUpdatesTimeline(updates) {
+  if (!updates || updates.length === 0) {
+    return `<p class="text-gray-500 text-sm">No updates yet.</p>`;
+  }
+  
+  return `
+    <div class="space-y-3">
+      ${updates.map(update => {
+        const arrow = update.amount >= 0 ? '↑' : '↓';
+        const colorClass = update.amount >= 0 ? 'text-green-600' : 'text-red-600';
+        const date = new Date(update.created_at).toLocaleString();
+        
+        return `
+          <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+            <div class="${colorClass} font-bold text-xl">
+              ${arrow}
+            </div>
+            <div class="flex-1">
+              <div class="flex justify-between items-start">
+                <p class="text-gray-900">${update.description}</p>
+                <span class="${colorClass} font-semibold">₪${Math.abs(update.amount).toFixed(2)}</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">${date}</p>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function setupDashboardModalHandlers(challengeId) {
+  const closeBtn = document.getElementById('close-dashboard-modal-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDashboardModal);
+  }
+  
+  const form = document.getElementById('dashboard-add-update-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await handleDashboardAddUpdate(challengeId);
+    });
+  }
+  
+  // Close on background click
+  const modal = document.getElementById('dashboard-challenge-detail-modal');
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeDashboardModal();
+    }
+  });
+}
+
+function closeDashboardModal() {
+  const modal = document.getElementById('dashboard-challenge-detail-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  
+  // Reload challenges to reflect updates
+  loadChallenges();
+}
+
+async function handleDashboardAddUpdate(challengeId) {
+  const amount = parseFloat(document.getElementById('dashboard-update-amount').value);
+  const description = document.getElementById('dashboard-update-description').value;
+  
+  try {
+    const { addChallengeUpdate } = await import('./api.js');
+    const updatedChallenge = await addChallengeUpdate(challengeId, amount, description);
+    
+    // Re-render the modal with updated data
+    const content = document.getElementById('dashboard-challenge-detail-content');
+    if (content) {
+      content.innerHTML = renderChallengeDetailContent(updatedChallenge);
+      setupDashboardModalHandlers(challengeId);
+    }
+  } catch (error) {
+    console.error('Failed to add update:', error);
+    alert('Failed to add update. Please try again.');
+  }
 }

@@ -16,7 +16,8 @@ frontend/src/
 │   ├── login.html
 │   ├── dashboard.html
 │   ├── chat.html
-│   ├── challenge.html
+│   ├── challenge.html      # Challenge creation form
+│   ├── challenges.html     # All challenges list with filters
 │   ├── transactions.html
 │   ├── import-transactions.html
 │   └── ...
@@ -25,8 +26,9 @@ frontend/src/
 ├── api.js               # Backend API client wrapper
 ├── state.js             # Global app state
 ├── chat.js              # Chat UI logic & message handling
-├── dashboard.js         # Dashboard carousel & challenge display
-├── challenge.js         # Challenge form logic (currently mock)
+├── dashboard.js         # Dashboard carousel, challenge cards, modal
+├── challenge.js         # Challenge creation form logic
+├── challenges.js        # Challenges list, filters, detail modal
 ├── auth.js              # Login/register/auth logic
 ├── transactions.js      # Transactions UI & filtering
 ├── import-transactions.js # Import flow UI
@@ -66,155 +68,103 @@ frontend/src/
 ### API Communication Pattern
 **ALWAYS use `src/api.js`** — Never call `fetch()` directly in components.
 
-```javascript
-// ✅ CORRECT
-import { apiRequest, createChatSession } from "./api.js";
-const response = await apiRequest("/api/challenges");
-const session = await createChatSession("New Chat");
+See [src/api.js](../../frontend/src/api.js) for all backend communication functions. Key patterns:
+- All functions use `apiRequest()` for JWT injection and error handling
+- Signed amounts (positive=savings, negative=spending) passed as numbers
+- Filters (current/past/all) as query parameters
 
-// ❌ WRONG
-const response = await fetch("/api/challenges");
-```
-
-The `api.js` wrapper handles:
-- JWT token injection in headers
-- CORS
-- Error handling & 401 redirects to login
-- Response parsing
+**Challenge API Functions** available in [src/api.js](../../frontend/src/api.js):
+- `getChallenges(filter)` — List challenges (filter: current, past, all)
+- `getChallengeDetail(challengeId)` — Get single challenge with history
+- `createChallenge(data)` — Create new challenge
+- `addChallengeUpdate(challengeId, amount, description)` — Add signed amount update
 
 ### Navigation & URL Routing
 **Use `navigate()` for screen changes**, not `showScreen()`. This ensures the URL updates and the back button works.
 
-```javascript
-// ✅ CORRECT: Use navigate() for user-initiated navigation
-import { navigate } from "./navigation.js";
-navigate("chat");  // Updates URL to #/chat
+**Pattern**:
+- `navigate(screenName)` = user-initiated navigation → updates URL hash, enables back button
+- `showScreen(screenId, setHistory)` = internal app logic only → no URL update
 
-// ✅ OK: Use showScreen() internally only (for init, after auth checks, etc)
-showScreen("screen-dashboard", false);  // No URL update, no history push
+See [src/navigation.js](../../frontend/src/navigation.js) for implementation. Always use `navigate()` from user interactions (button clicks, sidebar links, etc.)
 
-// ❌ WRONG: Using showScreen() for user actions breaks back button
-button.onclick = () => showScreen("screen-chat", true);
-```
+### Challenge UI Patterns
 
-**Recent Updates (Jan 12, 2026)**: 
-- Transaction UI now uses compact 2-row layout for mobile readability
-- Dashboard displays recent transactions from real API
-- Chat and challenge forms use `navigate()` for proper back button support
+The app has three challenge-related screens/views. See [src/challenges.js](../../frontend/src/challenges.js) and [src/dashboard.js](../../frontend/src/dashboard.js) for implementation details:
+
+1. **Dashboard Challenge Carousel** ([src/dashboard.js](../../frontend/src/dashboard.js)):
+   - Swipeable carousel showing current challenges
+   - Cards display: title, deadline, status badge, current amount with arrow, progress bar
+   - Clicking card opens modal on dashboard (not navigation) for detail view
+   - Balance widget shows total: "Saved: X₪" (green) or "Overspent: X₪" (red)
+   - Auto-refreshes when returning to dashboard
+
+2. **All Challenges Screen** ([src/challenges.html](../../frontend/src/screens/challenges.html) + [src/challenges.js](../../frontend/src/challenges.js)):
+   - Filter tabs: Current / Past / All
+   - Card grid showing matching challenges
+   - Clicking card opens detail modal within this screen
+   - New Challenge button navigates to creation form
+
+3. **Challenge Detail Modal** (shared component on both screens):
+   - Shows title, status badge, deadline, current amount, target
+   - Updates timeline (newest first) with signed amounts and descriptions
+   - Add update form (only for active challenges)
+   - Close on background click or close button
+
+**Key UI Details**:
+- Status badges: On Track/Below Target (active), Completed/Failed (past)
+- Amount arrows: ↑ green for positive (savings), ↓ red for negative (spending)
+- Updates display signed amounts; frontend calculates from sum of all updates
 
 ### Component Patterns
 
-#### Page Initialization
-```javascript
-export function initMyScreen() {
-  const el = document.getElementById("my-screen");
-  if (!el) return;
-  
-  // Bind event listeners
-  el.querySelector("#my-button").onclick = handleClick;
-  
-  // Load initial data
-  loadMyData();
-}
+**Page Initialization** (see [src/challenges.js](../../frontend/src/challenges.js) or similar modules):
+- Export `initMyScreen()` function that sets up event listeners and loads initial data
+- Called from [src/main.js](../../frontend/src/main.js) or [src/navigation.js](../../frontend/src/navigation.js) after DOM ready
+- Always check element exists before binding events
 
-// Called from main.js after DOM ready
-```
+**Event Handling with API**:
+- Import API function from [src/api.js](../../frontend/src/api.js)
+- Wrap calls in try/catch
+- Update UI after successful response
+- Show error message to user on failure
 
-#### Event Handling with API
-```javascript
-async function handleSave() {
-  try {
-    const data = { title: input.value };
-    const result = await apiRequest("/api/endpoint", { method: "POST", body: data });
-    
-    // Update UI
-    state.myData = result;
-    renderMyData();
-  } catch (error) {
-    console.error("Save failed:", error);
-    showErrorMessage("Failed to save. Please try again.");
-  }
-}
-```
-
-#### DOM Rendering
-```javascript
-function renderItems(items) {
-  const container = document.getElementById("items-list");
-  container.innerHTML = items.map(item => `
-    <div class="item-card">
-      <h3>${item.title}</h3>
-      <button onclick="deleteItem(${item.id})">Delete</button>
-    </div>
-  `).join('');
-}
-```
+**DOM Rendering**:
+- Use `innerHTML` with template literals for dynamic content
+- Set `onclick` handlers directly on HTML elements or via event delegation
+- Keep rendering functions pure (no side effects except DOM updates)
 
 ## Common Tasks
 
 ### Transaction List Pattern (Mobile-Friendly 2-Row Layout)
-The transactions list uses a compact 2-row layout per transaction for optimal mobile readability:
+The transactions list uses a compact 2-row layout per transaction for optimal mobile readability. See [src/transactions.js](../../frontend/src/transactions.js) for implementation.
 
-**Row 1**: Date | Description | Category Dropdown
-**Row 2**: Account/Metadata | Amount (color-coded)
+**Layout**:
+- **Row 1**: Date | Description | Category Dropdown
+- **Row 2**: Account/Metadata | Amount (color-coded: green for income, red for expenses)
 
-Example implementation:
-```javascript
-// Each transaction renders as 2 table rows
-tbody.innerHTML = transactions.map(t => {
-  const date = new Date(t.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-  const isIncome = t.amount > 0;
-  
-  return `
-    <tr class="hover:bg-slate-50 border-b border-slate-100">
-      <td class="px-3 py-1 w-20"><div class="text-xs font-medium">${date}</div></td>
-      <td class="px-3 py-1"><div class="text-sm font-medium line-clamp-1">${t.description}</div></td>
-      <td class="px-3 py-1">
-        <select onchange="updateCategory(${t.id}, this.value)" class="text-xs border rounded px-2 py-0.5">
-          <option>Category</option>
-        </select>
-      </td>
-    </tr>
-    <tr class="hover:bg-slate-50 border-b border-slate-300">
-      <td colspan="2" class="px-3 py-1"><div class="text-xs text-slate-500">${t.account_name}</div></td>
-      <td class="px-3 py-1 text-right"><span class="text-sm font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}">${isIncome ? '+' : ''}${Math.abs(t.amount).toFixed(2)}₪</span></td>
-    </tr>
-  `;
-}).join('');
-```
-
-**Key Pattern Details**:
+**Key Patterns**:
 - Row 1 has light border (slate-100) separating related rows
-- Row 2 has darker border (slate-300) separating different transactions
-- Amounts are color-coded: green for income (+), red for expenses (-)
-- Metadata (account_name, card_last_4, country, recurring) shown below description
-- Compact padding: py-1 throughout, select dropdown py-0.5
-- No confidence badges or source indicators (backend-only concerns)
+- Row 2 has darker border (slate-300) separating transactions
+- Compact padding: py-1 throughout
+- Amounts color-coded based on sign (income positive green, expenses negative red)
 
 ### Adding an API Call
-1. Add function to `frontend/src/api.js`:
-   ```javascript
-   export async function getMyData() {
-     return apiRequest("/api/my-endpoint");
-   }
-   ```
-2. Import and use in your component:
-   ```javascript
-   import { getMyData } from "./api.js";
-   const data = await getMyData();
-   ```
+1. Add function to [src/api.js](../../frontend/src/api.js) that calls `apiRequest()`
+2. Import and use in your component
+3. Handle errors with try/catch
 
 ### Adding a New Screen
-1. Create `src/screens/my-screen.html`
-2. Import in `main.js`
-3. Add to `screenMap` in `navigation.js`
-4. Create init function in `my-screen.js` or relevant module
+1. Create `src/screens/my-screen.html` with root `<section id="screen-my-screen">`
+2. Import in [src/main.js](../../frontend/src/main.js)
+3. Add to `screenMap` in [src/navigation.js](../../frontend/src/navigation.js)
+4. Create init function in relevant module or main.js
 5. Call `navigate("my-screen")` to show it
 
 ### Updating Global State
-1. Modify `src/state.js`
-2. Update state directly in code: `state.myVar = value`
-3. Re-render UI after state change (manually, not reactive)
+1. Modify [src/state.js](../../frontend/src/state.js)
+2. Update state directly: `state.myVar = value`
+3. Re-render UI after state change (manually)
 
 ### Styling
 - Use Tailwind CSS classes in HTML
@@ -224,32 +174,13 @@ tbody.innerHTML = transactions.map(t => {
 ## Common Patterns to Follow
 
 ### Error Handling
-Always wrap async calls in try/catch:
-```javascript
-try {
-  await apiRequest("/api/endpoint");
-} catch (error) {
-  console.error("Error:", error);
-  // Show user-friendly message
-}
-```
+Always wrap async calls in try/catch and show user-friendly error messages.
 
 ### Loading States
-```javascript
-const button = document.getElementById("save-btn");
-button.disabled = true;
-button.textContent = "Saving...";
-
-try {
-  await apiRequest("/api/endpoint");
-  button.textContent = "Saved!";
-} finally {
-  button.disabled = false;
-}
-```
+Disable buttons and show "Loading..." text during API calls. Use finally to re-enable after completion.
 
 ### Authentication Check
-Auth is handled by `src/auth.js`. On page load, `checkAuthAndRedirect()` runs and sends logged-out users to login. Don't manually check tokens in components; trust the auth system.
+Auth is handled by [src/auth.js](../../frontend/src/auth.js). `checkAuthAndRedirect()` runs on page load and redirects logged-out users to login. Don't manually check tokens in components.
 
 ## Testing & Debugging
 
@@ -269,3 +200,46 @@ Auth is handled by `src/auth.js`. On page load, `checkAuthAndRedirect()` runs an
 ---
 
 **Remember**: Frontend is Vanilla JS with no build artifacts. Keep it simple, use patterns from existing code, and trust the navigation system for routing.
+
+## Maintaining These Instructions
+
+These instructions serve as **style guides and pattern references**, not comprehensive code documentation. Key principles for keeping them current:
+
+### Code Examples vs References
+- **Use code examples only for essential patterns** that can't be explained concisely (e.g., JSX-like rendering, event binding patterns)
+- **Replace full code blocks with source file references** — e.g., instead of copying entire function code, link to [src/challenges.js](../../frontend/src/challenges.js) and describe what it does
+- **Agents should read source code** for implementation details; instructions point them there
+
+### Single Source of Truth
+- **Keep actual implementations in source files**, not replicated in docs
+- **Update code first**, then update references in instructions
+- **Link to specific files** using markdown file paths: `[api.js](../../frontend/src/api.js)` for source references
+- Never copy/paste code that will drift from reality
+
+### Structure for New Features
+When adding documentation for a new screen or feature:
+1. **Create HTML file** in `src/screens/`
+2. **Create/update JS module** in `src/` with init function
+3. **Add API wrappers** to [src/api.js](../../frontend/src/api.js)
+4. **Document in instructions**:
+   - List new files in file organization section
+   - Describe UI patterns and behavior
+   - Link to implementation files
+   - Show only critical patterns (data flow, key state updates, modal behavior)
+
+### What to Document vs What to Link
+| Should Document | Should Link To Source |
+|---|---|
+| Navigation patterns (navigate vs showScreen) | Full navigation.js implementation |
+| API function signatures | Full function implementations |
+| UI layout patterns (2-row, carousel, modal) | Full screen HTML/JS |
+| State structure | Full state.js definitions |
+| Event handling patterns | Complete event handler code |
+| Styling classes & approach (Tailwind) | Full CSS/Tailwind usage |
+
+### Keeping References Fresh
+- When moving/renaming files, update all markdown links
+- When adding screens, add to the file organization section
+- When updating a component, update pattern description AND link to source
+- Test that links resolve before submitting
+

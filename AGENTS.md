@@ -12,9 +12,23 @@ This file provides essential context for AI coding agents working on the Pixie m
 
 ---
 
-## Current Project Status (Jan 12, 2026)
+## Current Project Status (Jan 17, 2026)
 
-### ✅ Recently Completed (Jan 12 Session - Part 2)
+### ✅ Recently Completed (Jan 17 Session - Challenge Updates Feature)
+- **Challenge Updates Model**: Created `ChallengeUpdate` table with signed amounts, descriptions, timestamps
+- **Computed Challenge Status**: Added `compute_current_amount()`, `compute_status()`, `get_progress_status()` methods
+- **Status Logic**: Active (before end_date), Completed/Failed (after end_date based on target achievement)
+- **Challenge API Enhanced**: 
+  - `GET /api/challenges?filter=current|past|all` with date-based filtering
+  - `GET /api/challenges/<id>` returns challenge with updates history
+  - `POST /api/challenges/<id>/updates` adds update and recalculates status
+- **Challenges List Screen**: New `challenges.html` with Current/Past/All filter tabs, card grid, detail modal
+- **Challenge Detail View**: Shows status badges, colored amounts with arrows (↑ green, ↓ red), updates timeline (newest first), add-update form
+- **Dashboard Integration**: "View All Challenges" button, clickable cards navigate to detail view
+- **Status-Aware UI**: On Track/Below Target badges for active, Completed/Failed for past challenges
+- **Navigation Wiring**: Added "All Challenges" to sidebar, screen routing in navigation.js
+
+### ✅ Previously Completed (Jan 12 Session - Part 2)
 - **Transaction Title Fix**: Fixed null/empty titles; backend priority: merchant_name > description > transaction_type > date
 - **Manual Category Corrections**: PATCH /api/transactions/<id> endpoint with logging
 - **Transaction UI Redesign**: 2-row compact layout (Date/Description/Category + Account/Metadata/Amount)
@@ -31,14 +45,13 @@ This file provides essential context for AI coding agents working on the Pixie m
 - **Account Model**: Normalization of financial accounts with composite key matching
 
 ### 🚧 In Progress / Blockers
+- **Testing Needed**: Full end-to-end test of new challenges feature (create, add updates, view history, filter)
 - **ML Model Artifacts**: Verify classifier.pkl exists in backend/app/ml_models/
-- **End-to-end Testing**: CSV import workflow with waterfall categorization
-- **Challenges API**: Backend exists, frontend needs full wiring with real API
 
 ### 📋 Next Priority Tasks
-1. End-to-end testing: Upload CSV file, verify waterfall categorization logs, test manual corrections UI
+1. Test challenges feature: Create challenge, add positive/negative updates, verify status calculation, test filters
 2. Verify ML model artifacts present (classifier.pkl, categories.json, model_metadata.json)
-3. Wire challenges API in challenge.js (replace mock data with real API calls)
+3. End-to-end testing: CSV import workflow with waterfall categorization
 4. Test all transaction features: filtering, manual corrections, account display
 
 

@@ -18,7 +18,7 @@
   </header>
 
   <!-- Scrollable content -->
-  <div class="flex-1 overflow-y-auto space-y-5 pb-4">
+  <div class="flex-1 overflow-y-auto space-y-3 pb-4">
 
     <!-- Welcome card -->
     <button
@@ -35,8 +35,10 @@
     <div class="rounded-3xl fa-card shadow-sm border border-slate-200 px-5 py-4">
       <div class="flex items-center justify-between mb-3">
         <p class="text-sm font-semibold text-slate-800">Your challenges</p>
-        <button class="text-xs text-indigo-600 font-semibold" onclick="openChat('challenge', true)">New via
-          chat</button>
+        <div class="flex gap-2">
+          <button class="text-xs text-indigo-600 font-semibold" onclick="navigate('challenges')">View All</button>
+          <button class="text-xs text-indigo-600 font-semibold" onclick="openChat('challenge', true)">New via chat</button>
+        </div>
       </div>
 
       <div class="overflow-hidden">
@@ -59,9 +61,8 @@
       </p>
 
       <div class="mt-4 space-y-3">
-        <div class="flex justify-between text-xs text-slate-600">
-          <span id="balance-saved" class="font-semibold text-emerald-700">Saved: 0₪</span>
-          <span id="balance-overspent" class="font-semibold text-slate-400">Overspent: 0₪</span>
+        <div class="text-center">
+          <span id="balance-amount" class="font-semibold text-emerald-700">Saved: 0₪</span>
         </div>
 
         <!-- Green/Gray balance bar placeholder -->
@@ -114,4 +115,13 @@
     <span class="flex-1 text-left text-white">Ask Pixie anything...</span>
     <span class="text-lg text-white">➤</span>
   </button>
+
+  <!-- Challenge Detail Modal (Hidden by default) -->
+  <div id="dashboard-challenge-detail-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div id="dashboard-challenge-detail-content"></div>
+      </div>
+    </div>
+  </div>
 </section>

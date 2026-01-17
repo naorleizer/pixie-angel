@@ -51,10 +51,14 @@ def get_chat_history(session_id):
     user_id = get_jwt_identity()
     session = ChatSession.query.filter_by(id=session_id, user_id=user_id).first_or_404()
     
+    # Get all messages but filter out 'tool' role messages from frontend view
     messages = session.messages.order_by(ChatMessage.timestamp.asc()).all()
+    # Only return user and assistant messages (tool messages are internal)
+    user_visible_messages = [m.to_dict() for m in messages if m.role != 'tool']
+    
     return jsonify({
         'session': session.to_dict(),
-        'messages': [m.to_dict() for m in messages]
+        'messages': user_visible_messages
     }), 200
 
 @bp.route('/chat/sessions/<int:session_id>/messages', methods=['POST'])
@@ -71,12 +75,22 @@ def send_message(session_id):
         return jsonify({'message': 'Message is required'}), 400
         
     try:
-        # Use LLM Service to handle chat logic + persistence
-        # Note: llm_service.chat_with_session handles saving both user and assistant messages
+        # Use LLM Service to handle chat logic + persistence + tool calling
+        # Note: llm_service.chat_with_session handles saving all messages including tool messages
+        default_system_prompt = """You are Pixie, a friendly AI money coach. You help users track finances, set savings challenges, and get personalized financial advice.
+
+You have access to a calculator tool for precise arithmetic and financial calculations. Use it when users ask about math, budgets, or financial projections. The calculator supports:
+- Basic arithmetic: +, -, *, /, %, **
+- Math functions: sqrt, abs, sin, cos, tan, log, exp, ceil, floor
+- Financial calculations: percentage_of, percentage_change, compound_interest, simple_interest
+
+Always use the calculator tool when numerical accuracy is important. After using the tool, incorporate the results naturally into your response."""
+        
         response_content = llm.chat_with_session(
             session_id=session.id,
             user_message=user_message,
-            system_prompt=system_prompt or "You are Pixie, a friendly AI money coach."
+            system_prompt=system_prompt or default_system_prompt,
+            use_tools=True
         )
         
         # Update session timestamp using a concrete UTC datetime

@@ -1,13 +1,12 @@
 {
-  "Food & Dining": ["restaurant", "food", "eating", "drinking", "bar", "cafe", "bakery", "caterer"],
-  "Groceries": ["grocery", "supermarket", "market"],
-  "Transportation": ["taxi", "parking", "toll", "transportation", "bus", "train", "airline", "travel"],
-  "Fuel": ["gas", "fuel", "service station"],
-  "Shopping": ["store", "shop", "retail", "clothing", "apparel", "department store"],
-  "Healthcare": ["hospital", "medical", "dental", "doctor", "pharmacy", "drug", "health"],
-  "Entertainment": ["theater", "movie", "entertainment", "recreation", "sport", "amusement"],
-  "Utilities": ["electric", "utility", "water", "gas utility"],
-  "Telecom": ["telephone", "telecommunication", "internet"],
-  "Professional Services": ["professional", "legal", "accounting", "consultant"],
-  "Home & Garden": ["hardware", "garden", "nursery", "home improvement", "furniture"]
+  "Food & Dining": ["restaurant", "food", "eating", "drinking", "bar", "cafe", "bakery", "caterer", "dining"],
+  "Transportation": ["taxi", "parking", "toll", "transportation", "bus", "train", "airline", "travel", "uber", "lyft"],
+  "Shopping & Retail": ["store", "shop", "retail", "clothing", "apparel", "department store", "amazon", "walmart", "target"],
+  "Entertainment & Recreation": ["theater", "movie", "entertainment", "recreation", "sport", "amusement", "gym", "fitness"],
+  "Healthcare & Medical": ["hospital", "medical", "dental", "doctor", "pharmacy", "drug", "health", "clinic"],
+  "Utilities & Services": ["electric", "utility", "water", "gas utility", "internet", "cable", "phone", "subscription"],
+  "Financial Services": ["bank", "atm", "transfer", "payment", "credit card", "loan", "investment", "insurance"],
+  "Government & Legal": ["tax", "dmv", "license", "permit", "court", "legal", "government", "fee"],
+  "Charity & Donations": ["charity", "donation", "nonprofit", "church", "temple", "mosque", "foundation"],
+  "Income": ["salary", "wage", "payroll", "income", "deposit", "dividend", "interest"]
 }

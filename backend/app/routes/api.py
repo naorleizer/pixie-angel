@@ -6,7 +6,7 @@ from app.models.chat import ChatSession, ChatMessage
 from app.models.transaction import Transaction
 from app.models.account import Account
 from app.services.llm_service import llm
-from app.services.categorization_service import categorize_transaction_waterfall, categorize_batch_llm
+from app.services.categorization_service import categorize_transaction_waterfall, categorize_batch_llm, categorize_batch_ml
 from app.services.account_service import get_or_create_account
 import csv
 import io
@@ -289,7 +289,7 @@ def upload_transactions():
 def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
     """
     Background task to process CSV upload with progress tracking.
-    Supports the new CSV format with account information.
+    Uses BATCH ML categorization for much faster processing.
     """
     with app.app_context():
         try:
@@ -308,49 +308,53 @@ def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
                 })
                 return
             
-            transactions_to_add = []
-            llm_needed = []
+            # PHASE 1: Parse all rows first (fast)
+            _upload_progress[upload_id]['message'] = 'Parsing CSV rows...'
+            
+            parsed_rows = []
+            merchants_for_ml = []
             skipped_count = 0
             invalid_count = 0
-            accounts_cache = {}  # Cache accounts by unique key
+            accounts_cache = {}
             
             for idx, row in enumerate(rows):
-                # Update progress
-                progress = int((idx / total_rows) * 85)  # Reserve 85% for parsing, 10% for LLM, 5% for save
-                _upload_progress[upload_id]['progress'] = progress
-                _upload_progress[upload_id]['message'] = f'Processing row {idx + 1} of {total_rows}...'
+                if idx % 100 == 0:
+                    progress = int((idx / total_rows) * 40)  # 40% for parsing
+                    _upload_progress[upload_id]['progress'] = progress
+                    _upload_progress[upload_id]['message'] = f'Parsing row {idx + 1} of {total_rows}...'
                 
                 try:
-                    # Parse amount (handle negative for expenses)
+                    # Parse amount
                     amount_str = row.get('Amount', '').replace('$', '').replace(',', '')
                     amount = float(amount_str)
                     
                     # Parse currency
                     currency = row.get('Currency', 'ILS').strip()
                     
-                    # Parse date - try new format first (YYYY-MM-DD or similar)
+                    # Parse date
                     date_str = row.get('Transaction Date', '').strip()
+                    transaction_date = None
+                    
                     if date_str:
-                        # Try common date formats
-                        transaction_date = None
                         for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y', '%Y/%m/%d']:
                             try:
                                 transaction_date = datetime.strptime(date_str, fmt)
                                 break
                             except ValueError:
                                 continue
-                        
-                        if not transaction_date:
-                            # Fallback to old format if exists
+                    
+                    # Fallback to Year/Month/Day columns if Transaction Date not parsed
+                    if not transaction_date:
+                        try:
                             year = int(row.get('Year', 0))
                             month = int(row.get('Month', 0))
                             day = int(row.get('Day', 0))
                             if 1900 <= year <= 2100 and 1 <= month <= 12 and 1 <= day <= 31:
                                 transaction_date = datetime(year, month, day)
-                            else:
-                                invalid_count += 1
-                                continue
-                    else:
+                        except (ValueError, TypeError):
+                            pass
+                    
+                    if not transaction_date:
                         invalid_count += 1
                         continue
                     
@@ -360,7 +364,7 @@ def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
                     institution = row.get('Institution', '').strip() or None
                     card_last_4 = row.get('Card Last 4', '').strip() or None
                     
-                    # Get or create account
+                    # Get or create account (cached)
                     account_key = f"{account_type}:{account_name}:{institution}:{card_last_4}"
                     if account_key not in accounts_cache:
                         account = get_or_create_account(
@@ -386,18 +390,16 @@ def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
                     is_recurring_str = row.get('Is Recurring', 'False').strip().lower()
                     is_recurring = is_recurring_str in ['true', '1', 'yes']
                     
-                    # For backwards compatibility, also check old fields
                     if not merchant_name:
                         merchant_name = row.get('Merchant', '').strip() or None
                     
-                    # Priority for title: merchant_name > description > transaction_type > date fallback
                     title = merchant_name or description or transaction_type or f'Transaction on {transaction_date.strftime("%Y-%m-%d")}'
                     
                     merchant_city = row.get('Merchant City', '').strip() or None
                     merchant_state = row.get('Merchant State', '').strip() or None
                     mcc_code = row.get('MCC', '').strip() or None
                     
-                    # Check for duplicates based on date, amount, description, and account
+                    # Check for duplicates
                     exists = Transaction.query.filter_by(
                         user_id=user_id,
                         account_id=account.id,
@@ -410,67 +412,96 @@ def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
                         skipped_count += 1
                         continue
                     
-                    # Categorization pipeline - waterfall with confidence scoring
-                    # Each transaction gets a category, confidence score, and source (heuristic/ml/llm/manual)
-                    category_val, confidence, source = categorize_transaction_waterfall(
-                        merchant_name=merchant_name or description,
-                        mcc_code=mcc_code,
-                        amount=amount,
-                        transaction_type=transaction_type,
-                        merchant_city=merchant_city,
-                        merchant_state=merchant_state,
-                        use_chip=None  # Not available in CSV, defaults to None
-                    )
+                    # Store parsed data for batch processing
+                    parsed_rows.append({
+                        'account': account,
+                        'date': transaction_date,
+                        'amount': amount,
+                        'currency': currency,
+                        'title': title,
+                        'balance_after': balance_after_val,
+                        'transaction_type': transaction_type,
+                        'merchant_name': merchant_name,
+                        'merchant_country': merchant_country,
+                        'merchant_city': merchant_city,
+                        'merchant_state': merchant_state,
+                        'mcc_code': mcc_code,
+                        'is_recurring': is_recurring,
+                        'is_fraud': row.get('Is Fraud?', 'No').strip().lower() == 'yes',
+                        'description': description,
+                    })
                     
-                    # If waterfall stages succeeded, mark category as set
-                    # If category is None, it means all stages either failed or had insufficient confidence
-                    # These will be categorized in a batch LLM call at the end
-                    
-                    transaction = Transaction(
-                        user_id=user_id,
-                        account_id=account.id,
-                        date=transaction_date,
-                        amount=amount,
-                        currency=currency,
-                        description=title,
-                        balance_after=balance_after_val,
-                        transaction_type=transaction_type,
-                        merchant=merchant_name,
-                        merchant_country=merchant_country,
-                        merchant_city=merchant_city,
-                        merchant_state=merchant_state,
-                        mcc=mcc_code,
-                        is_recurring=is_recurring,
-                        is_fraud=row.get('Is Fraud?', 'No').strip().lower() == 'yes',
-                        import_source='CSV Upload',
-                        category=category_val,
-                        categorization_confidence=confidence,
-                        categorization_source=source
-                    )
-                    
-                    # Queue for LLM if not categorized
-                    if not category_val:
-                        llm_needed.append({
-                            'index': len(transactions_to_add),
-                            'merchant': merchant_name or description,
-                            'amount': amount,
-                            'mcc': mcc_code,
-                            'transaction_type': transaction_type,
-                            'description': description,
-                            'merchant_country': merchant_country,
-                            'date': transaction_date.isoformat(),
-                        })
-                    
-                    transactions_to_add.append(transaction)
+                    # Collect merchant names for batch ML
+                    merchants_for_ml.append(merchant_name or description or 'unknown')
                     
                 except (ValueError, KeyError, InvalidOperation) as e:
                     invalid_count += 1
                     continue
             
-            # LLM categorization for remaining items (batch processing for efficiency)
+            if not parsed_rows:
+                _upload_progress[upload_id].update({
+                    'progress': 100,
+                    'status': 'completed',
+                    'message': f'No valid transactions found ({invalid_count} invalid, {skipped_count} skipped)'
+                })
+                return
+            
+            # PHASE 2: BATCH ML categorization (FAST!)
+            _upload_progress[upload_id]['progress'] = 50
+            _upload_progress[upload_id]['message'] = f'Categorizing {len(merchants_for_ml)} transactions with ML...'
+            
+            ml_results = categorize_batch_ml(merchants_for_ml, threshold=0.5)
+            
+            # PHASE 3: Build transactions and collect LLM needed
+            _upload_progress[upload_id]['progress'] = 70
+            _upload_progress[upload_id]['message'] = 'Building transactions...'
+            
+            transactions_to_add = []
+            llm_needed = []
+            
+            for idx, (parsed, ml_result) in enumerate(zip(parsed_rows, ml_results)):
+                category, confidence, needs_llm = ml_result
+                
+                transaction = Transaction(
+                    user_id=user_id,
+                    account_id=parsed['account'].id,
+                    date=parsed['date'],
+                    amount=parsed['amount'],
+                    currency=parsed['currency'],
+                    description=parsed['title'],
+                    balance_after=parsed['balance_after'],
+                    transaction_type=parsed['transaction_type'],
+                    merchant=parsed['merchant_name'],
+                    merchant_country=parsed['merchant_country'],
+                    merchant_city=parsed['merchant_city'],
+                    merchant_state=parsed['merchant_state'],
+                    mcc=parsed['mcc_code'],
+                    is_recurring=parsed['is_recurring'],
+                    is_fraud=parsed['is_fraud'],
+                    import_source='CSV Upload',
+                    category=category,
+                    categorization_confidence=confidence,
+                    categorization_source='ml' if category else None
+                )
+                
+                if needs_llm:
+                    llm_needed.append({
+                        'index': idx,
+                        'merchant': parsed['merchant_name'] or parsed['description'],
+                        'amount': parsed['amount'],
+                        'mcc': parsed['mcc_code'],
+                        'transaction_type': parsed['transaction_type'],
+                        'description': parsed['description'],
+                        'merchant_country': parsed['merchant_country'],
+                        'date': parsed['date'].isoformat(),
+                    })
+                
+                transactions_to_add.append(transaction)
+            
+            # PHASE 4: LLM for low-confidence items
             if llm_needed:
-                _upload_progress[upload_id]['progress'] = 90
-                _upload_progress[upload_id]['message'] = f'Categorizing {len(llm_needed)} items with AI...'
+                _upload_progress[upload_id]['progress'] = 85
+                _upload_progress[upload_id]['message'] = f'AI categorizing {len(llm_needed)} uncertain items...'
                 
                 try:
                     mapping = categorize_batch_llm(llm_needed)
@@ -479,7 +510,6 @@ def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
                         if idx in mapping:
                             result = mapping[idx]
                             try:
-                                # Update transaction with LLM categorization
                                 trans = transactions_to_add[idx]
                                 trans.category = result.get('category')
                                 trans.categorization_confidence = result.get('confidence', 0.0)

@@ -2,9 +2,8 @@
 Transaction categorization pipeline with waterfall strategy.
 
 Stages:
-1. Heuristic: Rule-based matching on merchant name/MCC and transaction type
-2. ML Model: RandomForest classifier with 0.7 confidence threshold
-3. LLM: Batch processing via Gemini API
+1. ML Model: RandomForest classifier with 0.7 confidence threshold
+2. LLM: Batch processing via Gemini API (fallback for low-confidence predictions)
 
 Each stage produces (category, confidence_score) where confidence ranges 0.0-1.0.
 Items that don't meet threshold are passed to the next stage.
@@ -16,8 +15,16 @@ import os
 import re
 import logging
 import joblib
+import pickle
+import numpy as np
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
+try:
+    from gensim.models import Word2Vec
+    GENSIM_AVAILABLE = True
+except ImportError:
+    GENSIM_AVAILABLE = False
 
 from app.services.llm_service import llm
 
@@ -25,7 +32,7 @@ from app.services.llm_service import llm
 logger = logging.getLogger(__name__)
 
 DEFAULT_TYPE = "purchase"
-ML_CONFIDENCE_THRESHOLD = 0.7  # Items below this threshold go to LLM
+ML_CONFIDENCE_THRESHOLD = 0.5  # Items below this threshold go to LLM
 
 
 def _load_categories_keywords() -> Dict[str, List[str]]:
@@ -80,27 +87,65 @@ def _load_mcc_map() -> Dict[str, str]:
 _MCC_MAP = _load_mcc_map()
 
 
-def _load_ml_model():
-    """Load pre-trained RandomForest model from classifier.ipynb.
+def _load_fasttext_model():
+    """Load pre-trained Word2Vec embeddings model.
     
-    The model is saved by the classifier.ipynb notebook and includes:
-    - Features: amount, month, day, hour, merchant_name, merchant_city, merchant_state, use_chip
-    - Algorithm: RandomForestClassifier with 100 estimators, max_depth=20
-    - Trained on: credit_card_transactions IBM dataset, grouped into category buckets
-    - Classes: Categories from categories.json mapped via MCC codes
+    Trained on Hugging Face mitulshah/transaction-categorization dataset.
+    Word2Vec model (no character n-grams) for smaller file size.
+    """
+    if not GENSIM_AVAILABLE:
+        logger.warning("Gensim not available, Word2Vec model disabled")
+        return None
+    try:
+        base = Path(__file__).resolve().parents[1] / "ml_models"
+        # Try Word2Vec model first
+        model_path = base / "word2vec_model_hf.model"
+        if model_path.exists():
+            model = Word2Vec.load(str(model_path))
+            logger.info(f"Loaded Word2Vec embeddings from {model_path} (vocab: {len(model.wv)})")
+            return model
+        # Fallback to old FastText model if exists
+        model_path = base / "fasttext_model_hf.model"
+        if model_path.exists():
+            from gensim.models import FastText
+            model = FastText.load(str(model_path))
+            logger.info(f"Loaded FastText embeddings from {model_path} (vocab: {len(model.wv)})")
+            return model
+    except Exception as e:
+        logger.warning(f"Failed to load Word2Vec model: {e}")
+    return None
+
+
+def _load_ml_model():
+    """Load pre-trained RandomForest classifier for Word2Vec embeddings.
+    
+    The model is trained on Word2Vec embeddings of merchant names.
+    - Features: 100-dimensional Word2Vec vectors
+    - Algorithm: RandomForestClassifier with 50 estimators
+    - Trained on: Hugging Face transaction-categorization dataset (3.6M samples)
+    - Classes: 10 categories from categories.json
     """
     try:
         base = Path(__file__).resolve().parents[1] / "ml_models"
+        # Try FastText-based model first
+        model_path = base / "transaction_classifier_ft_hf.pkl"
+        if model_path.exists():
+            with open(model_path, 'rb') as f:
+                model = pickle.load(f)
+            logger.info(f"Loaded FastText-based classifier from {model_path}")
+            return model
+        # Fallback to old model
         model_path = base / "transaction_classifier.pkl"
         if model_path.exists():
             model = joblib.load(model_path)
-            logger.info(f"Loaded ML classifier model from {model_path}")
+            logger.info(f"Loaded legacy ML classifier from {model_path}")
             return model
     except Exception as e:
         logger.warning(f"Failed to load ML model: {e}")
     return None
 
 
+_FASTTEXT_MODEL = _load_fasttext_model()
 _ML_MODEL = _load_ml_model()
 
 
@@ -150,6 +195,21 @@ def _load_model_weights() -> Optional[Dict[str, Dict[str, float]]]:
 _WEIGHTS = _load_model_weights()
 
 
+def _text_to_vector(text: str) -> Optional[np.ndarray]:
+    """Convert merchant name to Word2Vec embedding vector."""
+    if not _FASTTEXT_MODEL:
+        return None
+    try:
+        tokens = str(text).upper().split()
+        # Handle OOV words - Word2Vec doesn't have character n-grams
+        vectors = [_FASTTEXT_MODEL.wv[word] for word in tokens if word in _FASTTEXT_MODEL.wv]
+        if not vectors:
+            return None
+        return np.mean(vectors, axis=0)
+    except Exception:
+        return None
+
+
 def categorize_with_model(
     merchant: str, 
     mcc: Optional[str], 
@@ -159,45 +219,91 @@ def categorize_with_model(
     use_chip: Optional[bool] = None
 ) -> Optional[Tuple[str, float]]:
     """
-    Second-pass ML model categorization using trained RandomForest.
+    ML model categorization using Word2Vec embeddings + RandomForest.
     
-    Features: amount, month, day, hour, merchant_name, merchant_city, merchant_state, use_chip
-    Returns (category, confidence) if confidence >= ML_CONFIDENCE_THRESHOLD, else None
+    Features: 100-dimensional Word2Vec vectors from merchant name.
+    Trained on 3.6M transactions from Hugging Face dataset.
+    Returns (category, confidence) tuple, or None if model unavailable.
     """
-    if not _ML_MODEL:
+    if not _ML_MODEL or not _FASTTEXT_MODEL:
         return None
     
     try:
-        import pandas as pd
-        from datetime import datetime
+        # Convert merchant name to FastText vector
+        vector = _text_to_vector(merchant or 'unknown')
+        if vector is None:
+            return None
         
-        # Feature engineering from available data
-        now = datetime.utcnow()
-        features = pd.DataFrame([{
-            'amount': amount,
-            'month': now.month,
-            'day': now.day,
-            'hour': now.hour,
-            'merchant_name': merchant or 'Unknown',
-            'merchant_city': merchant_city or 'Unknown',
-            'merchant_state': merchant_state or 'Unknown',
-            'use_chip': 1 if use_chip else 0
-        }])
+        # Reshape for sklearn
+        features = vector.reshape(1, -1)
         
         # Get prediction and probability
         prediction = _ML_MODEL.predict(features)[0]
         probabilities = _ML_MODEL.predict_proba(features)[0]
         max_confidence = float(max(probabilities))
         
-        # Only return if confidence meets threshold
-        if max_confidence >= ML_CONFIDENCE_THRESHOLD:
-            return str(prediction), max_confidence
+        logger.debug(f"ML prediction: {prediction} (confidence={max_confidence:.3f})")
         
-        return None
+        return str(prediction), max_confidence
         
     except Exception as e:
         logger.error(f"ML model categorization failed: {e}")
         return None
+
+
+def categorize_batch_ml(merchants: List[str], threshold: float = 0.5) -> List[Tuple[Optional[str], Optional[float], bool]]:
+    """
+    FAST batch ML categorization for multiple merchants at once.
+    
+    This is much faster than calling categorize_with_model() in a loop because:
+    1. Vectorizes all merchants in one pass
+    2. Runs batch prediction on all vectors at once
+    
+    Args:
+        merchants: List of merchant names to categorize
+        threshold: Confidence threshold (below this -> needs LLM)
+    
+    Returns:
+        List of tuples: (category, confidence, needs_llm)
+        - category: predicted category or None if below threshold
+        - confidence: prediction confidence 0.0-1.0
+        - needs_llm: True if confidence < threshold
+    """
+    if not _ML_MODEL or not _FASTTEXT_MODEL or not merchants:
+        return [(None, None, True) for _ in merchants]
+    
+    try:
+        # Batch vectorize all merchants
+        vectors = []
+        for merchant in merchants:
+            vec = _text_to_vector(merchant or 'unknown')
+            if vec is not None:
+                vectors.append(vec)
+            else:
+                vectors.append(np.zeros(100))  # Fallback for OOV
+        
+        X = np.array(vectors)
+        
+        # Batch predict
+        predictions = _ML_MODEL.predict(X)
+        probabilities = _ML_MODEL.predict_proba(X)
+        confidences = probabilities.max(axis=1)
+        
+        # Build results
+        results = []
+        for i, (pred, conf) in enumerate(zip(predictions, confidences)):
+            conf_float = float(conf)
+            if conf_float >= threshold:
+                results.append((str(pred), conf_float, False))
+            else:
+                results.append((None, conf_float, True))
+        
+        logger.info(f"Batch ML categorization: {len(merchants)} items, {sum(1 for r in results if not r[2])} handled by ML")
+        return results
+        
+    except Exception as e:
+        logger.error(f"Batch ML categorization failed: {e}")
+        return [(None, None, True) for _ in merchants]
 
 
 def categorize_batch_llm(items: List[Dict]) -> Dict[int, Dict[str, any]]:
@@ -295,39 +401,8 @@ def categorize_transaction_waterfall(
         - source: 'heuristic', 'ml', 'llm', or None
     """
     
-    # Stage 1: Heuristic rules based on transaction_type hints
-    if transaction_type:
-        type_lower = transaction_type.lower()
-        
-        # Map common transaction types to categories
-        type_category_map = {
-            'salary': 'Income',
-            'bonus': 'Income',
-            'interest': 'Income',
-            'dividend': 'Income',
-            'bill_payment': 'Bills & Utilities',
-            'utility': 'Bills & Utilities',
-            'subscription': 'Entertainment',
-            'transfer_in': 'Transfers',
-            'transfer_out': 'Transfers',
-            'atm_withdrawal': 'Cash',
-            'fee': 'Fees',
-            'credit_card_payment': 'Credit Card Payment',
-        }
-        
-        if type_lower in type_category_map:
-            category = type_category_map[type_lower]
-            logger.debug(f"Heuristic (type): {merchant_name} -> {category} (confidence=1.0)")
-            return (category, 1.0, 'heuristic')
-    
-    # Stage 2: Heuristic rules based on merchant name/keywords
-    heuristic_result = categorize_heuristic(merchant_name, mcc_code)
-    if heuristic_result:
-        category, confidence = heuristic_result
-        logger.debug(f"Heuristic (keywords): {merchant_name} -> {category} (confidence={confidence})")
-        return (category, confidence, 'heuristic')
-    
-    # Stage 3: ML Model (if confidence >= threshold, return; else continue to LLM)
+    # Stage 1: ML Model (if confidence >= threshold, return; else continue to LLM)
+    # Note: Heuristics stage removed due to high false positive rate
     ml_result = categorize_with_model(
         merchant=merchant_name or '',
         mcc=mcc_code,
@@ -344,7 +419,7 @@ def categorize_transaction_waterfall(
         else:
             logger.debug(f"ML Model confidence {confidence} < {ML_CONFIDENCE_THRESHOLD}, deferring to LLM")
     
-    # Stage 4: LLM (defer to batch processing in CSV import)
+    # Stage 2: LLM (defer to batch processing in CSV import)
     # Return None to indicate this item needs LLM categorization
     logger.debug(f"No confident categorization for {merchant_name}, deferred to LLM batch")
     return (None, None, None)

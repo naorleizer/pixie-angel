@@ -8,9 +8,9 @@ python-dotenv==1.0.0
 litellm==1.80.11
 marshmallow==3.21.1
 numexpr>=2.10.0
-numpy==1.26.4
+numpy>=1.26.4
 gensim>=4.4.0
-scikit-learn>=1.6.0
+scikit-learn==1.6.1
 pandas>=2.0.0
 setuptools>=65.0.0
 # psycopg2-binary==2.9.9

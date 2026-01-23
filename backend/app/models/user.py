@@ -10,6 +10,8 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
     preferred_persona = db.Column(db.String(50), default='the_supportive')
+    interests = db.Column(db.JSON, default=list)
+    motivations = db.Column(db.JSON, default=list)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -31,6 +33,8 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'preferred_persona': self.preferred_persona,
+            'interests': self.interests or [],
+            'motivations': self.motivations or [],
             'created_at': self.created_at.isoformat()
         }
 

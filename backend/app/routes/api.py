@@ -5,6 +5,7 @@ from app.extensions import db
 from app.models.chat import ChatSession, ChatMessage
 from app.models.transaction import Transaction
 from app.models.account import Account
+from app.models.user import User
 from app.services.llm_service import llm
 from app.services.categorization_service import categorize_transaction_waterfall, categorize_batch_llm, categorize_batch_ml
 from app.services.account_service import get_or_create_account
@@ -100,18 +101,21 @@ def send_message(session_id):
         now_utc = datetime.utcnow().isoformat()
         
         # Get user's preferred persona and inject its guidelines
-        preferred_persona = user.preferred_persona if user else 'the_supportive'
+        preferred_persona = user.preferred_persona if user and user.preferred_persona else 'the_supportive'
         persona_prompt = llm.get_persona_prompt(preferred_persona)
         
         # Format interests and motivations for context injection
+        interests = getattr(user, 'interests', None) or []
+        motivations = getattr(user, 'motivations', None) or []
+
         interests_context = ""
-        if user.interests and len(user.interests) > 0:
-            interests_str = ", ".join([interest.replace('_', ' ').title() for interest in user.interests])
+        if interests:
+            interests_str = ", ".join([interest.replace('_', ' ').title() for interest in interests])
             interests_context = f"\n**User Interests:** {interests_str}"
         
         motivations_context = ""
-        if user.motivations and len(user.motivations) > 0:
-            motivations_str = ", ".join([motivation.replace('_', ' ').title() for motivation in user.motivations])
+        if motivations:
+            motivations_str = ", ".join([motivation.replace('_', ' ').title() for motivation in motivations])
             motivations_context = f"\n**User Motivations:** {motivations_str}"
         
         # Build user context if interests or motivations exist

@@ -32,8 +32,8 @@ const tourRegistry = {
  * Get tour configuration for the currently visible screen
  */
 function getCurrentPageTour() {
-  // Find which screen is currently visible (look for sections that end with "screen")
-  const screens = document.querySelectorAll('section[id$="screen"]');
+  // Find which screen is currently visible (match any section with "screen" in ID)
+  const screens = document.querySelectorAll('section[id*="screen"]');
   let activeScreenId = null;
 
   screens.forEach(screen => {

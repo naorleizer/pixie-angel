@@ -5,11 +5,13 @@
       <button class="text-slate-700 font-semibold" onclick="goBack()" aria-label="Back">←</button>
       <span class="text-sm font-semibold">New Challenge</span>
     </div>
-    <button class="text-xs text-slate-500 underline" onclick="goBack()">Cancel</button>
+    <button class="text-slate-500 hover:text-indigo-600" aria-label="Open help" onclick="openHelp()">
+      <span class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 text-slate-600">?</span>
+    </button>
   </header>
 
   <!-- Form -->
-  <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+  <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4" id="create_challenge_form">
     <div class="rounded-3xl bg-white border border-slate-200 shadow-sm px-5 py-4">
       <p class="text-sm font-semibold text-slate-800">Turning dreams into a plan 💸</p>
       <p class="text-xs text-slate-500 mt-1">Prefilled from chat. You can edit anything.</p>
@@ -25,7 +27,7 @@
 
       <div>
         <label class="block text-xs text-slate-500 mb-1">Type *</label>
-        <div class="inline-flex rounded-full bg-slate-50 border border-slate-200 p-1 text-xs">
+        <div class="inline-flex rounded-full bg-slate-50 border border-slate-200 p-1 text-xs" id="challenge_type">
           <button class="px-4 py-2 rounded-full bg-indigo-600 text-white font-semibold">Routine</button>
           <button class="px-4 py-2 rounded-full text-slate-600">One-time</button>
         </div>
@@ -38,7 +40,7 @@
           value="500" />
       </div>
 
-      <div class="space-y-2">
+      <div class="space-y-2" id = "challenge_duration_section">
         <label class="block text-xs text-slate-500 mb-1">Duration *</label>
 
         <div class="flex gap-2 text-xs">
@@ -63,7 +65,7 @@
 
   <!-- Create button -->
   <div class="px-4 pb-5 pt-2 bg-slate-50">
-    <button class="w-full rounded-full bg-emerald-500 text-white py-3 text-sm font-semibold shadow"
+    <button id="create-challenge-btn" class="w-full rounded-full bg-emerald-500 text-white py-3 text-sm font-semibold shadow"
       onclick="createChallenge()">
       Create Challenge
     </button>

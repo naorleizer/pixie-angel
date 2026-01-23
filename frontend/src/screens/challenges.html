@@ -5,9 +5,14 @@
       <button class="text-slate-700 font-semibold" onclick="goBack()" aria-label="Back">←</button>
       <span class="text-sm font-semibold">My Challenges</span>
     </div>
-    <button id="new-challenge-btn" class="text-xs text-indigo-600 font-semibold">
-      + New
-    </button>
+    <div class="flex items-center gap-2">
+      <button class="text-slate-500 hover:text-indigo-600" aria-label="Open help" onclick="openHelp()">
+        <span class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 text-slate-600">?</span>
+      </button>
+      <button id="new-challenge-btn" class="text-xs text-indigo-600 font-semibold">
+        + New
+      </button>
+    </div>
   </header>
 
   <!-- Filter Tabs -->

@@ -125,3 +125,168 @@
 .speech-bubble { border-radius: 1rem; padding: 0.6rem; box-shadow: 0 6px 18px rgba(var(--fa-primary-rgb), 0.06); }
 .soft-shadow { box-shadow: 0 10px 30px rgba(var(--fa-primary-rgb), 0.06) !important; }
 
+/* --- Shepherd.js Tour Styling (Mobile Optimized) --- */
+.shepherd-element {
+  max-width: 100%;
+  z-index: 10000;
+}
+
+.shepherd-theme-custom {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.16);
+  padding: 1rem;
+  border: none;
+  font-family: inherit;
+}
+
+.shepherd-theme-custom .shepherd-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--fa-primary);
+  margin-bottom: 0.5rem;
+}
+
+.shepherd-theme-custom .shepherd-text {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.shepherd-theme-custom .shepherd-button {
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shepherd-theme-custom .shepherd-button.shepherd-button-primary {
+  background-color: var(--fa-success);
+  color: white;
+}
+
+.shepherd-theme-custom .shepherd-button.shepherd-button-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.shepherd-theme-custom .shepherd-button.shepherd-button-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.shepherd-theme-custom .shepherd-button.shepherd-button-secondary:hover {
+  background-color: #e8e8e8;
+}
+
+.shepherd-theme-custom .shepherd-cancel-icon button {
+  color: #999;
+  font-size: 1.5rem;
+}
+
+/* Position cancel button (X) in top right corner */
+.shepherd-theme-custom .shepherd-cancel-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  left: auto;
+  margin: 0;
+}
+
+.shepherd-theme-custom .shepherd-cancel-icon button {
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.shepherd-theme-custom .shepherd-cancel-icon button:hover {
+  background-color: #e8e8e8;
+  color: #333;
+}
+
+/* Highlight element styling - Hide broken SVG, use box-shadow instead */
+.shepherd-modal-overlay-container {
+  z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  display: none !important;
+}
+
+.shepherd-modal-mask-backdrop {
+  display: none !important;
+}
+
+/* Highlight the target element with a glow effect */
+.shepherd-target {
+  outline: 2px solid var(--fa-success) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+  position: relative !important;
+  z-index: 10001 !important;
+}
+
+/* Prevent body scroll when tour is active */
+body.shepherd-active {
+  overflow: hidden;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .shepherd-theme-custom {
+    padding: 0.875rem;
+    font-size: 1rem;
+    max-width: 90vw;
+  }
+
+  .shepherd-theme-custom .shepherd-title {
+    font-size: 1rem;
+  }
+
+  .shepherd-theme-custom .shepherd-text {
+    font-size: 0.9rem;
+  }
+
+  .shepherd-theme-custom .shepherd-button {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 40px;
+  }
+
+  /* Position tooltip at bottom on mobile by default */
+  .shepherd-element {
+    margin-top: 1rem !important;
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  /* Ensure buttons wrap on small screens */
+  .shepherd-theme-custom .shepherd-buttons {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .shepherd-theme-custom .shepherd-button {
+    flex: 1 1 auto;
+  }
+}
+

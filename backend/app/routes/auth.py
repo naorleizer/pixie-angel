@@ -37,6 +37,17 @@ VALID_MOTIVATIONS = [
     "goal_achievement"
 ]
 
+@bp.route('/personas', methods=['GET'])
+def get_personas():
+    """Return available personas with their descriptions."""
+    return jsonify({
+        persona_key: {
+            'display_name': persona_data['display_name'],
+            'description': persona_data['description']
+        }
+        for persona_key, persona_data in PERSONAS.items()
+    }), 200
+
 @bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -113,6 +124,7 @@ def update_user_preferences():
                 'message': f'Invalid persona type. Must be one of: {", ".join(PERSONAS.keys())}'
             }), 400
         user.preferred_persona = preferred_persona
+        user.has_completed_persona_quiz = True
     
     # Update interests if provided
     if 'interests' in data:

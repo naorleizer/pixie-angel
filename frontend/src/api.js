@@ -144,6 +144,10 @@ export async function getCurrentUser() {
   return apiRequest('/api/auth/me');
 }
 
+export async function getPersonas() {
+  return apiRequest('/api/auth/personas');
+}
+
 // --- Chat API ---
 
 export async function createChatSession(title = 'New Chat') {

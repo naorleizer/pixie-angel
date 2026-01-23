@@ -8,6 +8,7 @@ const screenMap = {
   notifications: "screen-notifications",
   "chat-history": "screen-chat-history",
   chat: "screen-chat",
+  "persona-quiz": "screen-persona-quiz",
   challenge: "screen-challenge",
   challenges: "screen-challenges",
   "import-transactions": "import-transactions-screen",
@@ -61,11 +62,28 @@ function initScreenHandlers(screenId) {
       loadChallenges();
       loadRecentTransactions();
     }).catch(err => console.error('Failed to refresh dashboard:', err));
+  } else if (screenId === 'screen-persona-quiz') {
+    import('./persona-quiz.js').then(({ initPersonaQuiz }) => {
+      initPersonaQuiz();
+    }).catch(err => console.error('Failed to init persona quiz:', err));
   } else if (screenId === 'screen-account-management') {
     // Initialize account management preferences
     import('./auth.js').then(({ initAccountManagement }) => {
       initAccountManagement();
     }).catch(err => console.error('Failed to init account management:', err));
+  } else if (screenId === 'screen-profile') {
+    // Update profile username from state
+    import('./state.js').then(({ state }) => {
+      const user = state.currentUser;
+      if (user && user.username) {
+        const usernameEl = document.getElementById('profile-username');
+        const handleEl = document.getElementById('profile-handle');
+        const avatarEl = document.getElementById('profile-avatar');
+        if (usernameEl) usernameEl.textContent = user.username;
+        if (handleEl) handleEl.textContent = `@${user.username}`;
+        if (avatarEl) avatarEl.textContent = user.username.charAt(0).toUpperCase();
+      }
+    }).catch(err => console.error('Failed to update profile:', err));
   }
 }
 

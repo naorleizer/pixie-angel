@@ -12,6 +12,7 @@ class User(db.Model):
     preferred_persona = db.Column(db.String(50), default='the_supportive')
     interests = db.Column(db.JSON, default=list)
     motivations = db.Column(db.JSON, default=list)
+    has_completed_persona_quiz = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -35,6 +36,7 @@ class User(db.Model):
             'preferred_persona': self.preferred_persona,
             'interests': self.interests or [],
             'motivations': self.motivations or [],
+            'has_completed_persona_quiz': self.has_completed_persona_quiz,
             'created_at': self.created_at.isoformat()
         }
 

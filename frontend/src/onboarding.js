@@ -75,7 +75,11 @@ export function showOnboardingSlide(n) {
       } else {
         topExit.textContent = "Skip";
         topExit.setAttribute('aria-label', 'Skip');
-        topExit.onclick = () => { try { window.goToScreen('screen-dashboard'); } catch (e) {} };
+        topExit.onclick = () => { 
+          try { 
+            window.goToScreen('screen-persona-quiz'); 
+          } catch (e) {} 
+        };
       }
     }
   } catch (e) {
@@ -88,7 +92,13 @@ export function nextOnboardingSlide() {
   const next = state.currentOnboardingSlide + 1;
   
   if (next > maxSlides) {
-    goToScreen('screen-dashboard');
+    // After onboarding, new users go to persona quiz
+    try {
+      const { navigate } = require('./navigation.js');
+      navigate('persona-quiz');
+    } catch (e) {
+      goToScreen('screen-persona-quiz');
+    }
   } else {
     showOnboardingSlide(next);
   }

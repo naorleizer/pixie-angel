@@ -3,6 +3,7 @@ import "./styles.css";
 // Import HTML screens
 import loginHtml from "./screens/login.html?raw";
 import onboardingHtml from "./screens/onboarding.html?raw";
+import personaQuizHtml from "./screens/persona-quiz.html?raw";
 import dashboardHtml from "./screens/dashboard.html?raw";
 import notificationsHtml from "./screens/notifications.html?raw";
 import chatHistoryHtml from "./screens/chat-history.html?raw";
@@ -190,12 +191,6 @@ const sidebarHtml = `
           <div id="notification-title" class="text-xs text-slate-500">Profile</div>
         </div>
       </div>
-      <!-- Onboarding CTA fixed to bottom-right of sidebar -->
-      <div class="absolute right-4 bottom-4">
-        <button onclick="showOnboardingSlide(1); goToScreen('screen-onboarding'); toggleSidebar()" class="bg-slate-100 text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-200">
-          Onboarding
-        </button>
-      </div>
     </div>
   </aside>
 `;
@@ -284,6 +279,7 @@ window.addEventListener("DOMContentLoaded", () => {
         sidebarHtml +
         loginHtml +
         onboardingHtml +
+        personaQuizHtml +
         dashboardHtml +
         profileHtml +
         aboutHtml +
@@ -332,7 +328,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const sidebarName = document.getElementById("sidebar-username");
   const dashName = document.getElementById("dashboard-username");
   if (sidebarName) {
-    sidebarName.textContent = dashName ? dashName.textContent.trim() : "RutSavi";
+    sidebarName.textContent = dashName ? dashName.textContent.trim() : "User";
   }
 
   // Load sidebar chats initially

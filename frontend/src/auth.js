@@ -1,5 +1,6 @@
 import { login, register, isAuthenticated, getCurrentUser, clearAuthToken, updateUserPreferences } from './api.js';
 import { resetTo } from './navigation.js';
+import { state } from './state.js';
 
 // Valid enum values for user preferences
 const VALID_INTERESTS = [
@@ -106,20 +107,35 @@ export async function checkAuthAndRedirect() {
     try {
       const user = await getCurrentUser();
       console.log('Logged in as:', user.username);
+      state.currentUser = user;
       
       // Update dashboard username
       const usernameEl = document.getElementById('dashboard-username');
       if (usernameEl) {
         usernameEl.textContent = `Hi ${user.username} 👋`;
       }
+      
+      // Update sidebar username
+      const sidebarUsernameEl = document.getElementById('sidebar-username');
+      if (sidebarUsernameEl) {
+        sidebarUsernameEl.textContent = `Hi ${user.username}`;
+      }
 
-      // Reset app root to dashboard so Back never reveals onboarding
-      resetTo('dashboard');
+      if (!user.has_completed_persona_quiz) {
+        // New users see onboarding first, then quiz
+        resetTo('onboarding');
+        // Onboarding will navigate to quiz on completion
+      } else {
+        // Reset app root to dashboard so Back never reveals onboarding
+        resetTo('dashboard');
+      }
     } catch (e) {
       console.error('Session invalid', e);
+      state.currentUser = null;
       resetTo('login');
     }
   } else {
+    state.currentUser = null;
     resetTo('login');
   }
 }

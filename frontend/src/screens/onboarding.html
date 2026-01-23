@@ -1,4 +1,4 @@
-<section id="screen-onboarding" class="hidden flex-col flex-1 px-6 py-6 text-white" style="background: #264653;">
+<section id="screen-onboarding" class="hidden min-h-screen flex flex-col px-6 py-6 text-white relative" style="background: #264653;">
   <!-- Top bar: logo  skip -->
   <div class="flex items-center justify-between">
     <!-- Replace this logo with a Flaticon SVG later if you want -->
@@ -81,7 +81,7 @@
   </div>
 
   <!-- Bottom controls: Back (left), dots (center), Next (right) -->
-  <div class="mt-6">
+  <div class="absolute bottom-6 left-6 right-6">
     <div class="flex items-center justify-between">
       <button id="onboarding-back-bottom"
         class="px-4 py-2 rounded-full text-black font-medium opacity-50 pointer-events-none"

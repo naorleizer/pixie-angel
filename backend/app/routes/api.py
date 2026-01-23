@@ -88,17 +88,37 @@ def send_message(session_id):
         lines = []
         for c in all_challenges:
             c_dict = c.to_dict()
+            challenge_id = c_dict.get('id')
             title = c_dict.get('title')
+            description = c_dict.get('description')
             status = c_dict.get('status')
             target = c_dict.get('target_amount')
             current = c_dict.get('current_amount')
             end_date = c_dict.get('end_date')
-            lines.append(f"- {title} | status: {status} | progress: {current}₪ / {target}₪ | end: {end_date}")
+            challenge_type = c_dict.get('type')
+            
+            # Build detailed challenge info for LLM to distinguish between challenges
+            desc_str = f" ({description})" if description else ""
+            lines.append(
+                f"ID #{challenge_id}: '{title}'{desc_str}\n"
+                f"  Type: {challenge_type} | Status: {status} | Progress: {current}₪ / {target}₪ | Deadline: {end_date}"
+            )
 
         challenge_summary = "\n".join(lines) if lines else "(No challenges yet)"
 
+        # Build user and time context for the LLM
+        now_utc = datetime.utcnow()
+        day_of_week = now_utc.strftime("%A")  # Monday, Tuesday, etc.
+        formatted_date = now_utc.strftime("%B %d, %Y")  # January 23, 2026
+        formatted_time = now_utc.strftime("%H:%M:%S")  # HH:MM:SS
+        user_name = user.username if user else "Friend"
+        
+        user_context_header = f"""**User Session Context:**
+- User: {user_name}
+- Date & Time: {day_of_week}, {formatted_date} at {formatted_time} UTC"""
+        
         # Add current datetime (UTC) to give time context
-        now_utc = datetime.utcnow().isoformat()
+        now_utc_iso = now_utc.isoformat()
         
         # Get user's preferred persona and inject its guidelines
         preferred_persona = user.preferred_persona if user and user.preferred_persona else 'the_supportive'
@@ -125,6 +145,9 @@ def send_message(session_id):
 
         dynamic_system_prompt = f"""You are Pixie, a personal financial "Guardian Angel." Your mission is to help users turn dreams into plans through smart budgeting, expense analysis, and challenges.
 
+{user_context_header}
+{user_context}
+
 **Core Constraints:**
 - **Focus:** Only answer questions related to personal finance, budgeting, and expenses. If a user asks about non-financial topics (e.g., politics, health, recipes), acknowledge the input briefly but redirect: "I'm here to focus on your financial journey. How can we look at your budget today?"
 - **Brevity:** Keep responses concise and scannable. Use a **maximum of 3-4 sentences.**
@@ -143,9 +166,7 @@ def send_message(session_id):
 **Available Tools:**
 - calculator: For precise arithmetic, budgeting math, and financial projections.
 - challenge_manager: To manage user challenges (actions: list, get_details, create, add_update). Always use it for challenge operations.
-
-**Current datetime (UTC):** {now_utc}
-{user_context}
+- transaction_history: Fetch recent transactions with optional filters (limit, date range, category, merchant search, amount range, recurring/essential).
 
 **Current user's challenges:**
 {challenge_summary}
@@ -154,6 +175,7 @@ def send_message(session_id):
 - When the user asks to view or reference challenges, use challenge_manager with action="list" or "get_details".
 - When the user wants to create a challenge, call action="create" with title, target_amount, end_date, and optional description/type/color.
 - When the user logs savings or spending, call action="add_update" with challenge_id, signed amount (positive=savings, negative=spending), and description.
+- When the user asks about spending, budgets, categories, merchants, or specific transactions, use transaction_history with flexible filtering (start_date/end_date/category/merchant_query/min_amount/max_amount) and sorting (sort_by: date|amount|category|merchant; sort_order: asc|desc). Default limit is 20; keep it small unless user asks for more.
 - Use the calculator tool whenever numerical accuracy matters.
 """
 
@@ -681,6 +703,64 @@ def add_challenge_update(challenge_id):
     
     # Return updated challenge with new computed values
     return jsonify(challenge.to_dict(include_updates=True)), 201
+
+@bp.route('/challenges/<int:challenge_id>', methods=['DELETE'])
+@jwt_required()
+def delete_challenge(challenge_id):
+    user_id = get_jwt_identity()
+    challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
+
+    # Save data for confirmation response
+    deleted_data = challenge.to_dict(include_updates=True)
+
+    db.session.delete(challenge)
+    db.session.commit()
+
+    return jsonify({"status": "deleted", "challenge": deleted_data}), 200
+
+@bp.route('/challenges/<int:challenge_id>/updates/<int:update_id>', methods=['DELETE'])
+@jwt_required()
+def delete_challenge_update(challenge_id, update_id):
+    user_id = get_jwt_identity()
+    challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
+    update = ChallengeUpdate.query.filter_by(id=update_id, challenge_id=challenge.id).first_or_404()
+
+    db.session.delete(update)
+    db.session.commit()
+
+    return jsonify({"status": "deleted", "challenge": challenge.to_dict(include_updates=True)}), 200
+
+@bp.route('/challenges/<int:challenge_id>/undo-delete', methods=['POST'])
+@jwt_required()
+def undo_delete_challenge(challenge_id):
+    """Restore a deleted challenge (will be created fresh since DB row was deleted)."""
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    # Reconstruct challenge from backup data sent by frontend
+    challenge_data = data.get('challenge_data')
+    if not challenge_data:
+        return jsonify({'error': 'Challenge data required for undo'}), 400
+    
+    try:
+        challenge = Challenge(
+            user_id=user_id,
+            title=challenge_data.get('title'),
+            description=challenge_data.get('description'),
+            type=challenge_data.get('type', 'spending_limit'),
+            target_amount=challenge_data.get('target_amount', 0),
+            color=challenge_data.get('color', 'indigo'),
+            end_date=datetime.fromisoformat(challenge_data['end_date']) if challenge_data.get('end_date') else None,
+            start_date=datetime.fromisoformat(challenge_data['start_date']) if challenge_data.get('start_date') else datetime.utcnow()
+        )
+        
+        db.session.add(challenge)
+        db.session.commit()
+        
+        return jsonify({'status': 'restored', 'challenge': challenge.to_dict()}), 201
+    except Exception as e:
+        current_app.logger.error(f"Failed to restore challenge: {e}")
+        return jsonify({'error': f'Failed to restore challenge: {str(e)}'}), 500
 
 # --- Notification Endpoints ---
 

@@ -1,4 +1,4 @@
-import { createChatSession, getChatHistory, sendChatMessage, getChatSessions } from "./api.js";
+import { createChatSession, getChatHistory, sendChatMessage, getChatSessions, apiRequest } from "./api.js";
 const DEBUG = (import.meta.env.VITE_DEBUG === 'true') || (localStorage.getItem('pixie_debug') === 'true');
 import { showScreen, navigate } from "./navigation.js";
 
@@ -263,14 +263,49 @@ function appendMessage(role, content) {
     div.appendChild(bubble);
     div.appendChild(editBtn);
   } else {
+    // Check if message contains a challenge widget
+    const widgetMatch = content.match(/<CHALLENGE_WIDGET>(.*?)<\/CHALLENGE_WIDGET>/s);
+    let textContent = content.replace(/<CHALLENGE_WIDGET>.*?<\/CHALLENGE_WIDGET>/s, '').trim();
+    
+    // Debug: log if widget found
+    if (widgetMatch) {
+      if (DEBUG) console.log('Widget detected in message:', widgetMatch[1]);
+    } else {
+      if (DEBUG) console.log('No widget tags found in content');
+    }
+    
     div.innerHTML = `
       <div class="w-8 h-8 rounded-2xl flex items-center justify-center overflow-hidden bg-indigo-100 flex-shrink-0">
         <img src="assets/images/pixie_avatar_icon.png" alt="Pixie" class="w-6 h-6 object-contain" />
       </div>
-      <div class="max-w-[82%] rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
-        <p class="text-slate-800 text-sm leading-relaxed">${formatMessage(content)}</p>
+      <div class="flex flex-col gap-2 max-w-[82%]">
+        <div class="rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+          <p class="text-slate-800 text-sm leading-relaxed">${formatMessage(textContent)}</p>
+        </div>
       </div>
     `;
+    
+    // If widget found, render challenge card
+    if (widgetMatch) {
+      try {
+        const widgetData = JSON.parse(widgetMatch[1]);
+        if (DEBUG) console.log('Parsed widget data:', widgetData);
+        
+        if (widgetData.type === 'challenge_widget' && widgetData.challenge) {
+          const card = createChallengeCard(widgetData);
+          const msgContent = div.querySelector('.flex.flex-col');
+          if (msgContent) {
+            msgContent.appendChild(card);
+            if (DEBUG) console.log('Challenge card appended successfully');
+          } else {
+            if (DEBUG) console.warn('Could not find message content container');
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse challenge widget:', e);
+        if (DEBUG) console.error('Widget content was:', widgetMatch[1]);
+      }
+    }
   }
   // Append message
   container.appendChild(div);
@@ -324,6 +359,129 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function createChallengeCard(widgetData) {
+  const challenge = widgetData.challenge || {};
+  const action = widgetData.action || 'update';
+  const deleted = widgetData.deleted || false;
+  
+  const title = challenge.title || 'Challenge';
+  const status = deleted ? 'deleted' : (challenge.status || 'active');
+  const target = challenge.target_amount || 0;
+  const current = challenge.current_amount || 0;
+  const endDate = challenge.end_date ? new Date(challenge.end_date).toLocaleDateString() : 'No deadline';
+  const progress = target > 0 ? Math.round((current / target) * 100) : 0;
+  
+  // Status-based color
+  let statusColor = 'bg-blue-100 text-blue-800';
+  if (deleted) statusColor = 'bg-gray-100 text-gray-800';
+  else if (status === 'completed') statusColor = 'bg-emerald-100 text-emerald-800';
+  else if (status === 'failed') statusColor = 'bg-rose-100 text-rose-800';
+  else if (status === 'active') statusColor = 'bg-indigo-100 text-indigo-800';
+  
+  // Progress indicator color
+  let progressColor = 'bg-indigo-500';
+  if (progress >= 100) progressColor = 'bg-emerald-500';
+  else if (progress < 25) progressColor = 'bg-rose-500';
+  
+  // Action-specific title
+  let actionText = 'Challenge Updated';
+  if (action === 'create') actionText = '✨ Challenge Created';
+  else if (action === 'add_update') actionText = '📝 Challenge Updated';
+  else if (action === 'get_details') actionText = '📊 Challenge Details';
+  else if (action === 'delete') actionText = '🗑️ Challenge Deleted';
+  
+  const card = document.createElement('div');
+  card.className = 'mt-3 p-4 rounded-xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white shadow-md';
+  
+  // Create unique ID for this action (for undo/redo tracking)
+  const actionId = `${action}_${Math.random().toString(36).substr(2, 9)}`;
+  card.dataset.actionId = actionId;
+  
+  // Build undo/redo button
+  const undoBtn = document.createElement('button');
+  undoBtn.type = 'button';
+  undoBtn.className = 'mt-3 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors';
+  undoBtn.textContent = action === 'delete' ? 'Undo Delete' : 'Undo';
+  undoBtn.dataset.actionId = actionId;
+  undoBtn.dataset.isRedo = 'false';
+  undoBtn.dataset.action = action;
+  undoBtn.dataset.challengeData = JSON.stringify(challenge);
+  
+  undoBtn.onclick = async (e) => {
+    e.preventDefault();
+    const isRedo = undoBtn.dataset.isRedo === 'true';
+    const btn = e.target;
+    
+    try {
+      if (action === 'delete') {
+        if (!isRedo) {
+          // Undo: restore deleted challenge
+          const result = await apiRequest(`/api/challenges/${challenge.id}/undo-delete`, {
+            method: 'POST',
+            body: JSON.stringify({ challenge_data: challenge })
+          });
+          btn.textContent = 'Redo Delete';
+          btn.dataset.isRedo = 'true';
+          card.style.opacity = '0.6';
+          appendMessage('assistant', `✅ Challenge "${challenge.title}" has been restored.`);
+        } else {
+          // Redo: delete again
+          await apiRequest(`/api/challenges/${challenge.id}`, { method: 'DELETE' });
+          btn.textContent = 'Undo Delete';
+          btn.dataset.isRedo = 'false';
+          card.style.opacity = '1';
+          appendMessage('assistant', `🗑️ Challenge "${challenge.title}" has been deleted again.`);
+        }
+      } else if (action === 'add_update') {
+        // For add_update, we need to undo by removing the last update
+        const lastUpdate = (challenge.updates && challenge.updates.length > 0) ? challenge.updates[0] : null;
+        if (lastUpdate && !isRedo) {
+          // Delete the last update (undo)
+          await apiRequest(`/api/challenges/${challenge.id}/updates/${lastUpdate.id}`, { method: 'DELETE' });
+          btn.textContent = 'Redo';
+          btn.dataset.isRedo = 'true';
+          appendMessage('assistant', `↩️ Update to "${challenge.title}" has been undone.`);
+        }
+      }
+    } catch (error) {
+      console.error('Undo/Redo failed:', error);
+      appendMessage('assistant', '❌ Failed to undo/redo action. Please try again.');
+    }
+  };
+  
+  card.innerHTML = `
+    <div class="flex items-center gap-2 mb-3">
+      <div class="text-lg font-bold text-indigo-600">${actionText}</div>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <h3 class="font-bold text-slate-800 text-sm">${escapeHtml(title)}</h3>
+        <span class="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">
+          ${status.charAt(0).toUpperCase() + status.slice(1)}
+        </span>
+      </div>
+      ${deleted ? '' : `
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-xs font-medium text-slate-600">Progress</span>
+          <span class="text-xs font-bold text-slate-800">${current}₪ / ${target}₪</span>
+        </div>
+        <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+          <div class="h-full ${progressColor} transition-all" style="width: ${Math.min(progress, 100)}%"></div>
+        </div>
+        <div class="text-xs text-slate-500 mt-1">${progress}% complete</div>
+      </div>
+      `}
+      <div class="flex justify-between text-xs text-slate-600">
+        <span>📅 Deadline: ${endDate}</span>
+      </div>
+    </div>
+  `;
+  
+  card.appendChild(undoBtn);
+  return card;
 }
 
 function formatMessage(text) {

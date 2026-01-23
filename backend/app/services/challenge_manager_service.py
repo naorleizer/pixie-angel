@@ -18,7 +18,7 @@ class ChallengeManagerService:
     def execute(self, user_id: int, **arguments) -> Dict[str, Any]:
         """
         Dispatch based on the 'action' argument.
-        Supported actions: create, add_update, get_details, list
+        Supported actions: create, add_update, get_details, list, delete
         """
         action = arguments.get("action")
         if not action:
@@ -59,6 +59,12 @@ class ChallengeManagerService:
                 return self.list_challenges(
                     user_id=user_id,
                     filter_type=arguments.get("filter", "current"),
+                )
+
+            elif action == "delete":
+                return self.delete_challenge(
+                    user_id=user_id,
+                    challenge_id=arguments.get("challenge_id"),
                 )
 
             else:
@@ -121,7 +127,15 @@ class ChallengeManagerService:
             f"Created challenge '{result.get('title')}' targeting {result.get('target_amount')}₪ by {end_str}. "
             f"Current progress: {result.get('current_amount')}₪ / {result.get('target_amount')}₪. Status: {result.get('status')}"
         )
-        return {"status": "success", "result": result, "message": msg, "error_message": None}
+        # Embed challenge widget data for frontend to render
+        import json
+        widget_data = {
+            "type": "challenge_widget",
+            "action": "create",
+            "challenge": result
+        }
+        msg_with_widget = f"{msg}\n\n<CHALLENGE_WIDGET>{json.dumps(widget_data)}</CHALLENGE_WIDGET>"
+        return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}
 
     def add_update(self, user_id: int, challenge_id: Optional[int], amount: Optional[float], description: Optional[str]) -> Dict[str, Any]:
         """Add a signed update (positive=savings, negative=spending) to a challenge."""
@@ -155,7 +169,15 @@ class ChallengeManagerService:
             f"Added update of {amount_val}₪ to '{result.get('title')}'. "
             f"Current progress: {result.get('current_amount')}₪ / {result.get('target_amount')}₪. Status: {result.get('status')}"
         )
-        return {"status": "success", "result": result, "message": msg, "error_message": None}
+        # Embed challenge widget data
+        import json
+        widget_data = {
+            "type": "challenge_widget",
+            "action": "add_update",
+            "challenge": result
+        }
+        msg_with_widget = f"{msg}\n\n<CHALLENGE_WIDGET>{json.dumps(widget_data)}</CHALLENGE_WIDGET>"
+        return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}
 
     def get_details(self, user_id: int, challenge_id: Optional[int]) -> Dict[str, Any]:
         """Get a single challenge details including updates."""
@@ -171,7 +193,15 @@ class ChallengeManagerService:
             f"Challenge '{result.get('title')}' details: target {result.get('target_amount')}₪, "
             f"current {result.get('current_amount')}₪, status {result.get('status')}."
         )
-        return {"status": "success", "result": result, "message": msg, "error_message": None}
+        # Embed challenge widget data
+        import json
+        widget_data = {
+            "type": "challenge_widget",
+            "action": "get_details",
+            "challenge": result
+        }
+        msg_with_widget = f"{msg}\n\n<CHALLENGE_WIDGET>{json.dumps(widget_data)}</CHALLENGE_WIDGET>"
+        return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}
 
     def list_challenges(self, user_id: int, filter_type: str = "current") -> Dict[str, Any]:
         """List challenges for the user with optional filter: current|past|all."""
@@ -189,6 +219,36 @@ class ChallengeManagerService:
         count = len(items)
         msg = f"Found {count} {filter_type} challenge(s)."
         return {"status": "success", "result": items, "message": msg, "error_message": None}
+
+    def delete_challenge(self, user_id: int, challenge_id: Optional[int]) -> Dict[str, Any]:
+        """Delete a challenge and all its updates."""
+        if challenge_id is None:
+            return {"status": "error", "result": None, "error_message": "challenge_id is required", "error_code": "MISSING_FIELD"}
+
+        challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first()
+        if not challenge:
+            return {"status": "error", "result": None, "error_message": "Challenge not found", "error_code": "CHALLENGE_NOT_FOUND"}
+
+        # Store challenge data before deletion for display
+        deleted_challenge = challenge.to_dict()
+        
+        # Delete the challenge (cascades to updates)
+        db.session.delete(challenge)
+        db.session.commit()
+
+        # Build message with widget
+        result = deleted_challenge
+        msg = f"Deleted challenge '{result.get('title')}'. You can undo this action."
+        
+        import json
+        widget_data = {
+            "type": "challenge_widget",
+            "action": "delete",
+            "challenge": result,
+            "deleted": True
+        }
+        msg_with_widget = f"{msg}\n\n<CHALLENGE_WIDGET>{json.dumps(widget_data)}</CHALLENGE_WIDGET>"
+        return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}
 
 
 # Singleton instance

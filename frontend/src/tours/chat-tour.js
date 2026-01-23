@@ -1,26 +1,20 @@
 /**
  * Chat Tour Configuration
- * Guides users through the chat/AI assistant features
+ * Guides users through the chat interface with Pixie
  */
 export const chatTour = {
-  title: "Chat Tour",
+  title: "Chat with Pixie",
   steps: [
     {
-      target: "#chat-messages-container",
-      title: "Chat History",
-      description: "Your conversation with Pixie appears here. She's your AI money coach!",
+      target: "#chat-scroll",
+      title: "Welcome to Chat",
+      description: "This is the place to talk with Pixie, your AI financial angel! Ask anything about your finances, and Pixie will provide personalized advice and guidance.",
       position: "bottom"
     },
     {
-      target: "#chat-input-form",
-      title: "Send a Message",
-      description: "Type your question or tell Pixie about your financial goals. She'll provide advice.",
-      position: "top"
-    },
-    {
-      target: "#create-challenge-from-chat-btn",
-      title: "Create Challenge",
-      description: "Quickly create a new savings challenge from your chat. Pixie can help you set it up.",
+      target: "#chat-input",
+      title: "Type Your Message",
+      description: "This is where you write your questions or messages. Just type anything you want to discuss with Pixie!",
       position: "top"
     }
   ]

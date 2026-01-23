@@ -30,6 +30,7 @@ import { openNotifications, openOverspendNotification, updateNotificationBadges,
 import { initAuth, checkAuthAndRedirect } from "./auth.js";
 import { initImportTransactions } from "./import-transactions.js";
 import { openTransactions } from "./transactions.js";
+import { openHelp } from "./services/tour-service.js";
 
 // Expose functions for existing inline onclick="" handlers in the HTML.
 // This keeps the markup unchanged while allowing modular JS.
@@ -61,6 +62,7 @@ window.openNotifications = openNotifications;
 window.openOverspendNotification = openOverspendNotification;
 window.chooseAdjustment = chooseAdjustment;
 window.openTransactions = openTransactions;
+window.openHelp = openHelp;
 
 // Toggle the dashboard hamburger menu visibility
 export function toggleDashboardMenu() {

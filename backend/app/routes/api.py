@@ -117,8 +117,6 @@ def send_message(session_id):
 - User: {user_name}
 - Date & Time: {day_of_week}, {formatted_date} at {formatted_time} UTC"""
         
-        # Add current datetime (UTC) to give time context
-        now_utc_iso = now_utc.isoformat()
         
         # Get user's preferred persona and inject its guidelines
         preferred_persona = user.preferred_persona if user and user.preferred_persona else 'the_supportive'

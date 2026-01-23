@@ -42,13 +42,13 @@ TOOLS_REGISTRY = {
         "type": "function",
         "function": {
             "name": "calculator",
-            "description": "Perform mathematical calculations. \nSUPPORTED OPERATIONS:\n1. Standard Math: '+', '-', '*', '/', 'sqrt(x)', 'log(x)', etc.\n2. Financial Functions (Available as direct calls):\n   - simple_interest(principal, rate_percent, years)\n   - compound_interest(principal, rate_percent, years, times_per_year)\n   - percentage_of(part, whole)\n   - percentage_change(old_val, new_val)\n\nNOTE: 'rate_percent' should be a number like 5 for 5%. 'times_per_year' defaults to 1 (annual) if omitted.",
+            "description": "Perform mathematical calculations. \nSUPPORTED OPERATIONS:\n1. Standard Math: '+', '-', '*', '/', 'sqrt(x)', 'log(x)', etc.\n2. Financial Functions (use positional or keyword arguments):\n   - simple_interest(principal, rate, time)\n   - compound_interest(principal, rate, time, frequency=1)\n   - percentage_of(part, whole)\n   - percentage_change(old_val, new_val)\n\nNOTE: 'rate' should be a number like 5 for 5%. 'frequency' defaults to 1 (annual) if omitted.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "expression": {
                         "type": "string",
-                        "description": "The Python-syntax expression to evaluate. Example: 'compound_interest(1000, 5, 10)' or '500 * 1.17'"
+                        "description": "The Python-syntax expression to evaluate. Examples: 'compound_interest(1000, 5, 10)', 'compound_interest(principal=1000, rate=5, time=10)', or '500 * 1.17'"
                     }
                 },
                 "required": ["expression"]
@@ -94,6 +94,14 @@ TOOLS_REGISTRY = {
                         "enum": ["spending_limit", "savings"],
                         "default": "spending_limit"
                     },
+                    "description": {
+                        "type": "string",
+                        "description": "Optional description for challenge (used with create) or required for add_update"
+                    },
+                    "color": {
+                        "type": "string",
+                        "description": "Optional color tag for UI (e.g. 'indigo', 'red', 'green')"
+                    },
                     "filter": {
                         "type": "string",
                         "enum": ["current", "past", "all"],
@@ -120,7 +128,7 @@ TOOLS_REGISTRY = {
                     "merchant_query": { "type": "string", "description": "Partial match for merchant name" },
                     "min_amount": { "type": "number" },
                     "max_amount": { "type": "number" },
-                    "sort_by": { "type": "string", "enum": ["date", "amount"], "default": "date" },
+                    "sort_by": { "type": "string", "enum": ["date", "amount", "category", "merchant"], "default": "date" },
                     "sort_order": { "type": "string", "enum": ["asc", "desc"], "default": "desc" }
                 },
                 "required": []
@@ -346,7 +354,11 @@ class LLMService:
                             msg_text = tool_result.get("message") or str(tool_result.get("result"))
                             if msg_text: last_tool_success_message = str(msg_text)
                         
-                        logger.info(f"Tool executed: {tool_name} - {tool_result.get('status')}")
+                        # Log tool execution with full details for debugging
+                        if tool_result.get("status") == "error":
+                            logger.error(f"Tool '{tool_name}' failed: {tool_result.get('error_message')}")
+                        else:
+                            logger.info(f"Tool executed: {tool_name} - {tool_result.get('status')}")
                         
                     except Exception as e:
                         logger.error(f"Tool execution error: {e}")

@@ -42,6 +42,11 @@ class CalculatorService:
             
             expression = expression.strip()
             
+            # Log the expression for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Calculator evaluating expression: {expression}")
+            
             # 1. Try to parse as a financial function call first
             # We use AST to safely inspect the call without executing it blindly
             try:
@@ -83,7 +88,7 @@ class CalculatorService:
         func_name = call_node.func.id
         func = self.financial_functions[func_name]
         
-        # Extract arguments safely
+        # Extract positional arguments
         args = []
         for arg in call_node.args:
             if isinstance(arg, (ast.Num, ast.Constant)): # Handle python < 3.8 and >= 3.8
@@ -94,15 +99,33 @@ class CalculatorService:
                 args.append(-val)
             else:
                 raise ValueError(f"Arguments for {func_name} must be numbers")
+        
+        # Extract keyword arguments
+        kwargs = {}
+        for keyword in call_node.keywords:
+            if isinstance(keyword.value, (ast.Num, ast.Constant)):
+                val = keyword.value.n if hasattr(keyword.value, 'n') else keyword.value.value
+                kwargs[keyword.arg] = val
+            elif isinstance(keyword.value, ast.UnaryOp) and isinstance(keyword.value.op, ast.USub) and isinstance(keyword.value.operand, (ast.Num, ast.Constant)):
+                val = keyword.value.operand.n if hasattr(keyword.value.operand, 'n') else keyword.value.operand.value
+                kwargs[keyword.arg] = -val
+            else:
+                raise ValueError(f"Arguments for {func_name} must be numbers")
 
         # Execute
         try:
-            return func(*args)
+            return func(*args, **kwargs)
         except TypeError as e:
-             return {
+            import logging
+            logger = logging.getLogger(__name__)
+            arg_str = ', '.join(map(str, args))
+            kwarg_str = ', '.join(f"{k}={v}" for k, v in kwargs.items())
+            call_str = f"{func_name}({', '.join(filter(None, [arg_str, kwarg_str]))})"
+            logger.error(f"Function {call_str} failed: {str(e)}")
+            return {
                 "status": "error", 
                 "result": None, 
-                "error_message": f"Incorrect number of arguments for {func_name}. Details: {str(e)}"
+                "error_message": f"{call_str} failed: {str(e)}"
             }
 
     def percentage_of(self, part: Union[int, float], whole: Union[int, float]) -> Dict[str, Any]:

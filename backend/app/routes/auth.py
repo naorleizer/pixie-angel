@@ -164,9 +164,13 @@ def update_user_preferences():
     if 'location_enabled' in data:
         user.location_enabled = bool(data['location_enabled'])
 
-    # Update interests_and_motivation_enabled if provided
-    if 'interests_and_motivation_enabled' in data:
-        user.interests_and_motivation_enabled = bool(data['interests_and_motivation_enabled'])
+    # Update interests_enabled if provided
+    if 'interests_enabled' in data:
+        user.interests_enabled = bool(data['interests_enabled'])
+
+    # Update motivations_enabled if provided
+    if 'motivations_enabled' in data:
+        user.motivations_enabled = bool(data['motivations_enabled'])
 
     # Update communication_style if provided
     if 'communication_style' in data:

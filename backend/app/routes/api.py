@@ -118,25 +118,29 @@ def send_message(session_id):
 - Date & Time: {day_of_week}, {formatted_date} at {formatted_time} UTC"""
         
         
-        # Get user's preferred persona and inject its guidelines
+        # Get user's preferred persona and inject its guidelines (only if communication_style enabled)
         preferred_persona = user.preferred_persona if user and user.preferred_persona else 'the_supportive'
-        persona_prompt = llm.get_persona_prompt(preferred_persona)
+        # Check if user has enabled communication style preference
+        use_persona = getattr(user, 'communication_style', False)
+        persona_prompt = llm.get_persona_prompt(preferred_persona) if use_persona else llm.get_persona_prompt('the_supportive')
         
-        # Format interests and motivations for context injection
+        # Format interests and motivations for context injection (only if respective flags enabled)
         interests = getattr(user, 'interests', None) or []
         motivations = getattr(user, 'motivations', None) or []
+        interests_enabled = getattr(user, 'interests_enabled', False)
+        motivations_enabled = getattr(user, 'motivations_enabled', False)
 
         interests_context = ""
-        if interests:
+        if interests and interests_enabled:
             interests_str = ", ".join([interest.replace('_', ' ').title() for interest in interests])
             interests_context = f"\n**User Interests:** {interests_str}"
         
         motivations_context = ""
-        if motivations:
+        if motivations and motivations_enabled:
             motivations_str = ", ".join([motivation.replace('_', ' ').title() for motivation in motivations])
             motivations_context = f"\n**User Motivations:** {motivations_str}"
         
-        # Build user context if interests or motivations exist
+        # Build user context if interests or motivations are enabled and exist
         user_context = ""
         if interests_context or motivations_context:
             user_context = f"\n**User Profile:**{interests_context}{motivations_context}\n"

@@ -73,6 +73,10 @@ function initScreenHandlers(screenId) {
       initAccountManagement();
     }).catch(err => console.error('Failed to init account management:', err));
   } else if (screenId === 'screen-privacy') {
+    // Initialize privacy settings from backend
+    if (window.initPrivacySettings) {
+      window.initPrivacySettings().catch(err => console.error('Failed to init privacy settings:', err));
+    }
     // Sync location permission when entering privacy settings
     import('./services/location-service.js').then(({ syncLocationPermission }) => {
       syncLocationPermission().catch(err => console.error('Failed to sync location:', err));

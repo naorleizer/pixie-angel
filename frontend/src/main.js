@@ -23,7 +23,7 @@ import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from 
 import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide, authorizeLocationAccess, skipLocationAccess } from "./onboarding.js";
 import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges, loadRecentTransactions, navigateToChallengeDetail, showChallengeDetailOnDashboard } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI, loadChatSession } from "./chat.js";
-import { apiRequest, getChatSessions, getChatHistory, updateUserPreferences } from "./api.js";
+import { apiRequest, getChatSessions, getChatHistory, updateUserPreferences, getCurrentUser } from "./api.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 import { initChallenges } from "./challenges.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
@@ -435,35 +435,74 @@ window.addEventListener("DOMContentLoaded", () => {
       const commStyleEnabled = getState('communication_style');
       const interestsOn = getState('interests');
       const motivationsOn = getState('motivations');
-      const interestsAndMotivations = interestsOn || motivationsOn;
 
       await updateUserPreferences({
         location_enabled: locationEnabled,
         communication_style: commStyleEnabled,
-        interests_and_motivation_enabled: interestsAndMotivations,
+        interests_enabled: interestsOn,
+        motivations_enabled: motivationsOn,
       });
     } catch (err) {
       console.error('Failed to save preferences', err);
     }
   };
 
-  // Restore saved preferences
-  try {
-    const prefs = ['interests','location','motivations','communication_style'];
-    prefs.forEach((k) => {
-      const btn = document.querySelector(`[data-pref="${k}"]`);
-      if (!btn) return;
-      const v = localStorage.getItem('pref_' + k);
-      if (v === '1') {
-        btn.classList.add('bg-indigo-600');
+  // Initialize Privacy Settings from backend
+  window.initPrivacySettings = async function() {
+    try {
+      const user = await getCurrentUser();
+      if (!user) return;
+      
+      // Map backend fields to toggle keys
+      const toggleStates = {
+        'interests': user.interests_enabled,
+        'motivations': user.motivations_enabled,
+        'location': user.location_enabled,
+        'communication_style': user.communication_style
+      };
+      
+      // Set toggle states from backend
+      Object.entries(toggleStates).forEach(([key, enabled]) => {
+        const btn = document.querySelector(`[data-pref="${key}"]`);
+        if (!btn) return;
+        
+        // Remove all state classes first
+        btn.classList.remove('bg-indigo-600', 'bg-slate-300');
         const knob = btn.querySelector('.toggle-knob');
-        if (knob) knob.classList.add('translate-x-5');
-        btn.setAttribute('aria-pressed', 'true');
-      }
-    });
-  } catch (e) {
-    // ignore
-  }
+        if (knob) knob.classList.remove('translate-x-5');
+        
+        // Apply correct state
+        if (enabled) {
+          btn.classList.add('bg-indigo-600');
+          if (knob) knob.classList.add('translate-x-5');
+          btn.setAttribute('aria-pressed', 'true');
+        } else {
+          btn.classList.add('bg-slate-300');
+          btn.setAttribute('aria-pressed', 'false');
+        }
+        
+        // Sync to localStorage
+        try {
+          localStorage.setItem('pref_' + key, enabled ? '1' : '0');
+        } catch (e) {}
+      });
+    } catch (err) {
+      console.error('Failed to load privacy settings:', err);
+      // Fallback to localStorage if backend fails
+      const prefs = ['interests','location','motivations','communication_style'];
+      prefs.forEach((k) => {
+        const btn = document.querySelector(`[data-pref="${k}"]`);
+        if (!btn) return;
+        const v = localStorage.getItem('pref_' + k);
+        if (v === '1') {
+          btn.classList.add('bg-indigo-600');
+          const knob = btn.querySelector('.toggle-knob');
+          if (knob) knob.classList.add('translate-x-5');
+          btn.setAttribute('aria-pressed', 'true');
+        }
+      });
+    }
+  };
 
   // Populate Account Management screen fields from localStorage (with fallbacks)
   try {

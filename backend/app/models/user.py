@@ -10,12 +10,13 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
     preferred_persona = db.Column(db.String(50), default='the_supportive')
-    interests = db.Column(db.JSON, default=list)
-    motivations = db.Column(db.JSON, default=list)
-    location_enabled = db.Column(db.Boolean, default=False)
-    interests_and_motivation_enabled = db.Column(db.Boolean, default=False)
-    communication_style = db.Column(db.Boolean, default=False)
+    interests = db.Column(db.JSON, nullable=False, default=list)
+    motivations = db.Column(db.JSON, nullable=False, default=list)
     has_completed_persona_quiz = db.Column(db.Boolean, default=False)
+    location_enabled = db.Column(db.Boolean, default=False)
+    interests_enabled = db.Column(db.Boolean, default=False)
+    motivations_enabled = db.Column(db.Boolean, default=False)
+    communication_style = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -39,10 +40,10 @@ class User(db.Model):
             'preferred_persona': self.preferred_persona,
             'interests': self.interests or [],
             'motivations': self.motivations or [],
+            'has_completed_persona_quiz': bool(self.has_completed_persona_quiz),
             'location_enabled': bool(self.location_enabled),
-            'interests_and_motivation_enabled': bool(self.interests_and_motivation_enabled),
+            'interests_enabled': bool(self.interests_enabled),
+            'motivations_enabled': bool(self.motivations_enabled),
             'communication_style': bool(self.communication_style),
-            'has_completed_persona_quiz': self.has_completed_persona_quiz,
             'created_at': self.created_at.isoformat()
         }
-

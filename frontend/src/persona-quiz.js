@@ -341,7 +341,11 @@ async function submitPersonaQuiz() {
     await updateUserPreferences({ 
       preferred_persona: persona,
       interests: selectedInterests,
-      motivations: selectedMotivations
+      motivations: selectedMotivations,
+      // Enable all privacy toggles after quiz completion
+      interests_enabled: true,
+      motivations_enabled: true,
+      communication_style: true
     });
     const user = await syncUser();
     setStatus("");

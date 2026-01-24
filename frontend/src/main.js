@@ -217,6 +217,18 @@ export function toggleSidebar() {
 
 window.toggleSidebar = toggleSidebar;
 
+// Shared challenge detail modal (used by both dashboard and challenges screen)
+const challengeDetailModalHtml = `
+  <div id="challenge-detail-view" class="hidden fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <!-- Detail content will be inserted dynamically -->
+        <div id="challenge-detail-content"></div>
+      </div>
+    </div>
+  </div>
+`;
+
 // Populate the sidebar with chat sessions
 export async function loadSidebarChats() {
   const container = document.getElementById('sidebar-chat-list');
@@ -293,7 +305,8 @@ window.addEventListener("DOMContentLoaded", () => {
         challengeHtml +
         challengesHtml +
         importTransactionsHtml + 
-        transactionsHtml;
+        transactionsHtml +
+        challengeDetailModalHtml;
   }
 
   // Initialize Chat UI (greetings, observers)

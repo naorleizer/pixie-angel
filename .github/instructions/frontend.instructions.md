@@ -18,9 +18,19 @@ frontend/src/
 │   ├── chat.html
 │   ├── challenge.html      # Challenge creation form
 │   ├── challenges.html     # All challenges list with filters
+│   ├── account-settings.html # Combined settings (privacy + account mgmt)
 │   ├── transactions.html
 │   ├── import-transactions.html
 │   └── ...
+├── services/             # Shared services
+│   ├── tour-manager.js   # Shepherd.js wrapper for interactive tours
+│   ├── tour-service.js   # Tour registry + help button handler
+│   └── location-service.js # Geolocation permissions
+├── tours/                # Tour configurations (one per screen)
+│   ├── dashboard-tour.js
+│   ├── chat-tour.js
+│   ├── challenges-tour.js
+│   └── transactions-tour.js
 ├── main.js              # App initialization & screen injection
 ├── navigation.js        # URL routing & back button support
 ├── api.js               # Backend API client wrapper
@@ -28,8 +38,8 @@ frontend/src/
 ├── chat.js              # Chat UI logic & message handling
 ├── dashboard.js         # Dashboard carousel, challenge cards, modal
 ├── challenge.js         # Challenge creation form logic
-├── challenges.js        # Challenges list, filters, detail modal
-├── auth.js              # Login/register/auth logic
+├── challenges.js        # Challenges list, filters, detail modal (REAL-TIME UPDATES)
+├── auth.js              # Login/register/auth logic + account settings init
 ├── transactions.js      # Transactions UI & filtering
 ├── import-transactions.js # Import flow UI
 ├── budget.js            # Budget adjustment logic
@@ -135,6 +145,86 @@ The app has three challenge-related screens/views. See [src/challenges.js](../..
 - Keep rendering functions pure (no side effects except DOM updates)
 
 ## Common Tasks
+
+### Account Settings Screen ([src/screens/account-settings.html](../../frontend/src/screens/account-settings.html))
+Unified settings screen combining data personalization toggles and user preference management. See [src/auth.js](../../frontend/src/auth.js) for initialization logic.
+
+**Structure** (initialized by `initAccountManagement()` function):
+1. **Data Personalization Section** — 4 toggle switches (Interests, Location, Motivations, Communication Style)
+   - Each toggle persists preference via API
+   - Includes link to privacy policy
+   - Toggles managed by `togglePreference()` function
+
+2. **Your Interests Section** — Dynamic pill buttons for interest selection
+   - Pills generated from `VALID_INTERESTS` array
+   - Click toggles selection (adds ✕ symbol when selected)
+   - Save button updates user preferences via `updateUserPreferences()` API call
+
+3. **Financial Persona Section** — Dropdown selector
+   - Options: The Analyst, The Driver, The Promoter, The Supportive
+   - Loaded from user's `preferred_persona` field
+   - Save button persists choice
+
+4. **Your Motivations Section** — Dynamic pill buttons for motivation selection
+   - Pills generated from `VALID_MOTIVATIONS` array
+   - Same toggle behavior as interests
+   - Save button updates via API
+
+**Key Implementation Notes**:
+- Replaces old separate `screen-privacy` and `screen-account-management` screens
+- Navigation handler in [src/navigation.js](../../frontend/src/navigation.js) calls combined initialization
+- `initAccountManagement()` loads both preference toggles and interest/motivation pills on screen load
+- All API calls use `updateUserPreferences()` from [src/api.js](../../frontend/src/api.js)
+- Location permission syncing via `syncLocationPermission()` from location-service.js
+
+### Tour System (Interactive Walkthroughs)
+Shepherd.js-based guided tours for each screen. Users click the **"?"** help button to start. See [src/services/tour-manager.js](../../frontend/src/services/tour-manager.js) for core implementation.
+
+**Architecture**:
+- `tour-manager.js` — Wraps Shepherd.js with mobile optimizations (auto-positioning, scroll-to-view, large touch targets)
+- `tour-service.js` — Registry mapping screen IDs to tour configs; `openHelp()` handler for help button
+- `tours/*.js` — Individual tour configurations (dashboard, chat, challenges, transactions)
+
+**Adding a New Tour** (2-step process):
+1. Create config file `tours/my-screen-tour.js`:
+   ```javascript
+   export const myScreenTour = {
+     title: "My Screen Tour",
+     steps: [
+       {
+         target: "#element-id",        // CSS selector
+         title: "Feature Name",         // Bold heading
+         description: "Friendly explanation.",  // 2-3 sentences max
+         position: "bottom"             // Auto-adjusted for mobile
+       }
+     ]
+   };
+   ```
+
+2. Register in `tour-service.js`:
+   ```javascript
+   import { myScreenTour } from '../tours/my-screen-tour.js';
+   
+   const tourRegistry = {
+     'screen-my-screen': myScreenTour  // Map screen ID to config
+   };
+   ```
+
+**Mobile Optimizations** (automatic):
+- Tooltips auto-position to bottom on screens < 768px
+- Elements scroll into view when highlighted
+- 48px+ touch-friendly buttons
+- Responsive text sizing
+
+**Current Tours**:
+- ✅ Dashboard, Chat, Challenges, Transactions configured
+- ⭕ Other screens show "Help for this page is coming soon!" message
+
+**Best Practices**:
+- Keep tours 2-6 steps (focus on high-value features only)
+- Use plain English ("Save your progress" not "Persist state")
+- Target interactive elements (buttons, inputs, key sections)
+- Descriptions should be 1-2 sentences max
 
 ### Transaction List Pattern (Mobile-Friendly 2-Row Layout)
 The transactions list uses a compact 2-row layout per transaction for optimal mobile readability. See [src/transactions.js](../../frontend/src/transactions.js) for implementation.

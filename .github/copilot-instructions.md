@@ -7,7 +7,7 @@ You are an expert AI programming assistant working on **Pixie**, an AI-powered f
 - **Frontend**: Vanilla JavaScript (ES Modules), Vite 5.4+, Tailwind CSS 3.4+
 - **Backend**: Python Flask 3.1+, SQLAlchemy 3.1+, LiteLLM (Gemini Flash 2.0)
 - **Database**: SQLite (Development), PostgreSQL (Production ready)
-- **Status**: Feature-complete mockup with real auth, chat, challenges API, and transaction import; backend fully functional, frontend UI mostly wired
+- **Status**: Production-ready features include: user auth, AI chat with 3 tools, challenges (create/update/filter), transaction import with ML categorization, account settings, real-time dashboard widgets. Frontend fully wired to backend APIs.
 
 ## Tech Stack & Key Conventions
 
@@ -42,7 +42,7 @@ You are an expert AI programming assistant working on **Pixie**, an AI-powered f
 | Task | Command | Notes |
 |------|---------|-------|
 | Frontend dev | `npm run dev` (in `frontend/`) | Vite @ http://localhost:5173; HMR enabled |
-| Backend dev | `uv run run.py` (in `backend/`) | Flask @ http://localhost:5000; restart on route/model changes |
+| Backend dev | `uv run run.py` (in `backend/`) | Flask @ http://localhost:35000; restart on route/model changes |
 | DB upgrade | `uv run flask db upgrade` | Apply pending migrations after model changes |
 | Seed test data | `uv run seed.py` | Populate with demo users, chats, challenges |
 | Reset DB | `uv run clear_db.py` | Wipe all data (dev only) |
@@ -255,9 +255,34 @@ except Exception as e:
 4. ✅ **URL Navigation**: New screens use `navigate()` to ensure back button works
 5. ✅ **API Integration**: Verify frontend calls via `api.js`, backend returns consistent JSON shape
 6. ✅ **Console/Logs**: Check browser console (F12) and backend terminal for errors
-7. ✅ **Documentation**: Update `AGENTS.md` if architecture changed or new patterns added
+7. ✅ **Documentation**: Update instruction files per maintenance protocol below
+
+## Documentation Maintenance Protocol
+
+**When to Update Documentation:**
+- After implementing significant features (new screens, API endpoints, tool calling changes)
+- After architectural changes (consolidating screens, refactoring patterns)
+- After bugfixes that affect gotchas or known issues
+- When clarifying patterns that caused confusion during development
+
+**Which Files to Update (in order):**
+1. **AGENTS.md** — Update "Recently Completed" section, move tasks between "In Progress" and "Next Priority"
+2. **agent.md** — Update "Current Features" and "Known Issues & Workarounds" sections
+3. **.github/copilot-instructions.md** — Update project status, add/remove gotchas, update patterns if changed
+4. **.github/instructions/backend.instructions.md** — Only update if backend patterns/conventions changed
+5. **.github/instructions/frontend.instructions.md** — Only update if frontend patterns/conventions changed
+
+**How to Update:**
+- Use clear, actionable language
+- Include specific file paths and line numbers when referencing code
+- Keep sections concise but complete
+- Cross-reference related sections
+- Always include timestamps/session dates for context
+
+**Critical Rule:**
+Never let documentation fall out of sync. Spend 5 minutes updating docs after each session so the next agent can hit the ground running.
 
 ---
 
-**Last Updated**: January 12, 2026  
-**Authority**: Primary source of truth for Pixie development. Use alongside `AGENTS.md` for current status.
+**Last Updated**: January 24, 2026  
+**Authority**: Primary source of truth for Pixie development. Use alongside `AGENTS.md` for current status and `agent.md` for quick reference.

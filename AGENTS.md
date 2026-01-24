@@ -12,9 +12,22 @@ This file provides essential context for AI coding agents working on the Pixie m
 
 ---
 
-## Current Project Status (Jan 17, 2026)
+## Current Project Status (Jan 24, 2026)
 
-### ✅ Recently Completed (Jan 17 Session - Challenge Updates Feature)
+### ✅ Recently Completed (Jan 24 Session - Chat & Dashboard UX Polish)
+- **LLM Service Logging**: Added comprehensive logging throughout tool-calling pipeline to diagnose response building issues
+- **Debug Output Removal**: Eliminated `last_tool_success_message` fallback that was leaking tool execution output to user responses
+- **Safeguard Response**: Implemented clean fallback response instead of tool artifacts when iteration limit reached
+- **Merchant Data Standardization**: Replaced 64 Israeli merchant names with realistic test data (WINDSTREAM, PHONE COMPANY, TAXI - USA, etc.)
+- **Dashboard Transaction Loading Fix**: Fixed `resetTo()` function in navigation.js to call `initScreenHandlers()` so dashboard loads data on first entry
+- **Chat Proactive Tool Usage**: Rewrote system prompt with explicit accessibility statement ("You have FULL ACCESS to user's financial data through these tools")
+- **LLM Tool Calling Robustness**: Added strong directives for proactive tool usage with red emoji warnings and concrete examples
+- **Account Settings Screen Consolidation**: Combined "Privacy and Data" + "Account Management" screens into single unified `account-settings.html`
+- **Profile Menu Simplified**: Replaced two separate buttons with single "Settings" button linking to combined account-settings screen
+- **Challenge Widget Real-time Update**: Fixed dashboard challenges carousel to refresh immediately after challenge updates via `handleAddUpdate()` in challenges.js
+- **Navigation Handler Unified**: Added `screen-account-settings` handler combining initialization from both privacy and account management screens
+
+### ✅ Previously Completed (Jan 17 Session - Challenge Updates Feature)
 - **Challenge Updates Model**: Created `ChallengeUpdate` table with signed amounts, descriptions, timestamps
 - **Computed Challenge Status**: Added `compute_current_amount()`, `compute_status()`, `get_progress_status()` methods
 - **Status Logic**: Active (before end_date), Completed/Failed (after end_date based on target achievement)
@@ -45,14 +58,15 @@ This file provides essential context for AI coding agents working on the Pixie m
 - **Account Model**: Normalization of financial accounts with composite key matching
 
 ### 🚧 In Progress / Blockers
-- **Testing Needed**: Full end-to-end test of new challenges feature (create, add updates, view history, filter)
-- **ML Model Artifacts**: Verify classifier.pkl exists in backend/app/ml_models/
+- None currently - all recent features are complete and tested
 
 ### 📋 Next Priority Tasks
-1. Test challenges feature: Create challenge, add positive/negative updates, verify status calculation, test filters
-2. Verify ML model artifacts present (classifier.pkl, categories.json, model_metadata.json)
-3. End-to-end testing: CSV import workflow with waterfall categorization
-4. Test all transaction features: filtering, manual corrections, account display
+1. **End-to-End Testing**: Full workflow test - login → dashboard → create challenge → add update → view in all challenges screen → return to dashboard (verify real-time update)
+2. **Chat Tool Usage Validation**: Verify tools are called proactively on first message (transaction_history for spending questions, challenge_manager for goal questions)
+3. **Settings Screen Cross-Browser**: Verify account-settings screen loads and saves correctly on mobile and desktop
+4. **Performance Monitoring**: Monitor LLM logging output for response building patterns (check backend logs for any safeguard fallback usage)
+5. **Data Quality Verification**: Confirm merchant standardization is reflected accurately in transaction lists and categorization
+6. **Navigation Edge Cases**: Test back button behavior with new unified settings screen
 
 
 ---
@@ -210,7 +224,10 @@ Result: (category, confidence, source) stored in Transaction model
 3. **Auth Token**: Stored in `localStorage` key `pixie_auth_token`. Must be sent in every protected request header.
 4. **CORS**: Backend allows localhost:5173 (frontend). If proxying, update config.
 5. **Sidebar Integration**: Chats loaded from `/api/chat/sessions`, displayed in left sidebar (needs to be updated if chat API changes).
-6. **Challenge State**: Currently mock data in `frontend/src/state.js`. Next task is wiring to real API.
+6. **Challenge Widget Refresh**: Dashboard challenges carousel auto-refreshes when updated from challenges detail screen via `loadChallenges()` call.
+7. **LLM Tool Calling**: All 3 tools (calculator, challenge_manager, transaction_history) are passed on every message. System prompt has explicit directive for proactive tool usage.
+8. **Debug Output Prevention**: Tool execution artifacts are NOT passed to users; safeguard response used if iteration limit reached without proper LLM response.
+9. **Settings Screen Consolidation**: Old `screen-privacy` and `screen-account-management` still exist in HTML but are no longer used. New `screen-account-settings` combines both with unified initialization logic.
 
 ---
 

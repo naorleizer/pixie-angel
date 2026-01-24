@@ -235,6 +235,31 @@ When a user sends a message to `/api/chat/sessions/<id>/messages`:
 - Used for audit trail and debugging; filtered from user view
 - Tool results never shown in frontend message history
 
+#### Debugging Tool Calling (Comprehensive Logging)
+The tool-calling pipeline includes comprehensive logging at each step to diagnose issues. Check backend terminal logs when debugging response building:
+
+```
+[Session 123] Starting chat loop - use_tools=True
+[Session 123] Iteration 1/5
+[Session 123] LLM response received - has_tool_calls=True
+[Session 123] Processing 2 tool calls
+[Session 123] Executing tool 'calculator' with args: {'expression': '100 * 1.17'}
+[Session 123] Tool 'calculator' returned status=success
+[Session 123] Tool executed: calculator - success
+[Session 123] Iteration 2/5
+[Session 123] LLM response received - has_tool_calls=False
+[Session 123] No tool calls in response - using LLM content directly
+[Session 123] Using final_response from LLM loop (len=245)
+[Session 123] Persisting final response to database
+[Session 123] Chat session complete - returning response to user
+```
+
+**Key Log Lines for Troubleshooting**:
+- `has_tool_calls=False` when expecting tools? Check system prompt or tool_choice parameter
+- `Iteration limit reached` errors? LLM may not be generating proper responses after tool calls
+- `Tool execution error` with specific error message? Check tool arguments and error handling
+- Multiple iterations expected? Set `use_tools=True` explicitly when calling `chat_with_session()`
+
 #### Testing Tools
 See `backend/test_tool_calling.py` for validation suite. Key tests:
 - Tool registry configuration

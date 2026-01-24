@@ -60,13 +60,13 @@ TOOLS_REGISTRY = {
         "type": "function",
         "function": {
             "name": "challenge_manager",
-            "description": "Manage user savings/spending challenges. \nREQUIRED ARGS BY ACTION:\n- 'create': needs 'title', 'target_amount', 'end_date', optional 'description', 'type', 'color'.\n- 'add_update': needs 'challenge_id' (use ID from challenge list), 'amount' (positive=save, negative=spend), 'description' (REQUIRED).\n- 'delete'/'get_details': needs 'challenge_id' (use ID from challenge list).\n- 'list': optional 'filter' (current|past|all).",
+            "description": "Manage user savings/spending challenges. \nREQUIRED ARGS BY ACTION:\n- 'create': needs 'title', 'target_amount', 'end_date', optional 'description', 'type', 'color'.\n- 'add_update': needs 'challenge_id' (use ID from challenge list), 'amount' (positive=save, negative=spend), 'description' (REQUIRED).\n- 'delete'/'get_details': needs 'challenge_id' (use ID from challenge list). Delete performs a soft-delete (moves to Recycle Bin).\n- 'restore'/'purge': needs 'challenge_id'. Restore undoes soft-delete; purge permanently deletes.\n- 'list': optional 'filter' (current|past|all|deleted).",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
-                        "enum": ["create", "add_update", "get_details", "list", "delete"],
+                        "enum": ["create", "add_update", "get_details", "list", "delete", "restore", "purge"],
                         "description": "Operation to perform"
                     },
                     "challenge_id": {
@@ -104,7 +104,7 @@ TOOLS_REGISTRY = {
                     },
                     "filter": {
                         "type": "string",
-                        "enum": ["current", "past", "all"],
+                        "enum": ["current", "past", "all", "deleted"],
                         "default": "current"
                     }
                 },

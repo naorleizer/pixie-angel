@@ -1,5 +1,13 @@
-import { getChallenges, getChallengeDetail, addChallengeUpdate } from './api.js';
+import { getChallenges, getChallengeDetail, addChallengeUpdate, restoreChallenge, purgeChallenge, deleteChallenge } from './api.js';
 import { navigate } from './navigation.js';
+import { showToast, showConfirmation } from './main.js';
+
+// Helper to truncate text to max length
+function truncate(text, maxLength = 100) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
 
 let currentFilter = 'current';
 let currentDetailId = null;
@@ -7,11 +15,14 @@ let currentDetailId = null;
 export function initChallenges() {
   setupFilterTabs();
   setupNewChallengeButton();
+  setupRecycleBinButton();
   loadChallenges(currentFilter);
 }
 
 function setupFilterTabs() {
   const tabs = document.querySelectorAll('.filter-tab');
+  const recycleBinBtn = document.getElementById('open-recycle-bin-btn');
+  
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       const filter = tab.dataset.filter;
@@ -25,6 +36,12 @@ function setupFilterTabs() {
       tab.classList.remove('border', 'border-slate-300', 'text-slate-600');
       tab.classList.add('border-indigo-600', 'bg-indigo-600', 'text-white');
       
+      // Remove active state from Recycle Bin button
+      if (recycleBinBtn) {
+        recycleBinBtn.classList.remove('border-indigo-600', 'bg-indigo-600', 'text-white');
+        recycleBinBtn.classList.add('border', 'border-slate-300', 'text-slate-600');
+      }
+      
       loadChallenges(filter);
     });
   });
@@ -35,6 +52,30 @@ function setupNewChallengeButton() {
   if (btn) {
     btn.addEventListener('click', () => {
       navigate('challenge');
+    });
+  }
+}
+
+function setupRecycleBinButton() {
+  const btn = document.getElementById('open-recycle-bin-btn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      currentFilter = 'deleted';
+      
+      // Update Recycle Bin button styling to active
+      btn.classList.remove('border', 'border-slate-300', 'text-slate-600');
+      btn.classList.add('border-indigo-600', 'bg-indigo-600', 'text-white');
+      
+      // Deactivate all filter tabs
+      const tabs = document.querySelectorAll('.filter-tab');
+      if (tabs.length) {
+        tabs.forEach(t => {
+          t.classList.remove('border-indigo-600', 'bg-indigo-600', 'text-white');
+          t.classList.add('border', 'border-slate-300', 'text-slate-600');
+        });
+      }
+      
+      loadChallenges('deleted');
     });
   }
 }
@@ -85,7 +126,7 @@ function renderChallengeCard(challenge) {
   return `
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 cursor-pointer hover:shadow-md transition-shadow" data-challenge-id="${challenge.id}">
       <div class="flex justify-between items-start mb-3">
-        <h3 class="font-semibold text-slate-900 text-sm">${challenge.title}</h3>
+        <h3 class="font-semibold text-slate-900 text-sm">${truncate(challenge.title, 100)}</h3>
         ${statusBadge}
       </div>
       
@@ -112,6 +153,9 @@ function getStatusBadge(challenge) {
   const status = challenge.status;
   const progressStatus = challenge.progress_status;
   
+  if (challenge.is_deleted || status === 'cancelled') {
+    return `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-700">Deleted</span>`;
+  }
   if (status === 'completed') {
     return `<span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>`;
   } else if (status === 'failed') {
@@ -164,11 +208,12 @@ function renderChallengeDetail(challenge) {
   const amountDisplay = getAmountDisplay(challenge);
   const endDate = challenge.end_date ? new Date(challenge.end_date).toLocaleDateString() : 'No deadline';
   
+  const isDeleted = !!challenge.is_deleted || challenge.status === 'cancelled';
   content.innerHTML = `
     <div class="mb-4 flex justify-between items-start">
       <div>
-        <h2 class="text-xl font-bold text-slate-900 mb-1">${challenge.title}</h2>
-        ${challenge.description ? `<p class="text-sm text-slate-600">${challenge.description}</p>` : ''}
+        <h2 class="text-xl font-bold text-slate-900 mb-1">${truncate(challenge.title, 100)}</h2>
+        ${challenge.description ? `<p class="text-sm text-slate-600">${truncate(challenge.description, 100)}</p>` : ''}
       </div>
       <button id="close-detail-btn" class="text-slate-400 hover:text-slate-600">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +236,7 @@ function renderChallengeDetail(challenge) {
       </div>
     </div>
     
-    ${challenge.status === 'active' ? renderAddUpdateForm() : ''}
+    ${(!isDeleted && challenge.status === 'active') ? renderAddUpdateForm() : ''}
     
     <div class="mb-4">
       <h3 class="text-sm font-semibold text-slate-900 mb-3">Updates History</h3>
@@ -202,9 +247,12 @@ function renderChallengeDetail(challenge) {
       <button id="back-to-challenges-btn" class="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200">
         Close
       </button>
-      <button id="delete-challenge-btn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
-        Delete
-      </button>
+      ${isDeleted ? `
+        <button id="restore-challenge-btn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Restore</button>
+        <button id="purge-challenge-btn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Delete Permanently</button>
+      ` : `
+        <button id="delete-challenge-btn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">Delete</button>
+      `}
     </div>
   `;
   
@@ -256,7 +304,7 @@ function renderUpdatesTimeline(updates) {
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex justify-between items-start gap-2">
-                <p class="text-sm text-slate-900 flex-1">${update.description}</p>
+                <p class="text-sm text-slate-900 flex-1">${truncate(update.description, 100)}</p>
                 <span class="${colorClass} font-semibold text-sm whitespace-nowrap">₪${Math.abs(update.amount).toFixed(2)}</span>
               </div>
               <p class="text-xs text-slate-500 mt-1">${date}</p>
@@ -282,6 +330,14 @@ function setupDetailHandlers() {
   const deleteBtn = document.getElementById('delete-challenge-btn');
   if (deleteBtn) {
     deleteBtn.addEventListener('click', handleDeleteChallenge);
+  }
+  const restoreBtn = document.getElementById('restore-challenge-btn');
+  if (restoreBtn) {
+    restoreBtn.addEventListener('click', handleRestoreChallenge);
+  }
+  const purgeBtn = document.getElementById('purge-challenge-btn');
+  if (purgeBtn) {
+    purgeBtn.addEventListener('click', handlePurgeChallenge);
   }
   
   const form = document.getElementById('add-update-form');
@@ -321,41 +377,67 @@ async function handleAddUpdate(e) {
     
     // Clear form
     document.getElementById('add-update-form').reset();
+    showToast('Update added successfully!', 'success');
   } catch (error) {
     console.error('Failed to add update:', error);
-    alert('Failed to add update. Please try again.');
+    showToast('Failed to add update. Please try again.', 'error');
   }
 }
 
 async function handleDeleteChallenge() {
-  if (!confirm('Are you sure you want to delete this challenge? This action cannot be undone.')) {
-    return;
-  }
-  
-  try {
-    const { deleteChallenge } = await import('./api.js');
-    await deleteChallenge(currentDetailId);
-    
-    // Close the detail modal
-    closeChallengeDetail();
-    
-    // Refresh both the challenges list and dashboard if dashboard is open
+  showConfirmation('Move this challenge to Recycle Bin?', async () => {
     try {
-      const dashboardSection = document.getElementById('screen-dashboard');
-      if (dashboardSection && !dashboardSection.classList.contains('hidden')) {
-        const { loadChallenges: dashLoadChallenges } = await import('./dashboard.js');
-        dashLoadChallenges();
+      await deleteChallenge(currentDetailId);
+      
+      // Close the detail modal
+      closeChallengeDetail();
+      
+      // Refresh both the challenges list and dashboard if dashboard is open
+      try {
+        const dashboardSection = document.getElementById('screen-dashboard');
+        if (dashboardSection && !dashboardSection.classList.contains('hidden')) {
+          const { loadChallenges: dashLoadChallenges } = await import('./dashboard.js');
+          dashLoadChallenges();
+        }
+      } catch (e) {
+        console.error('Failed to refresh dashboard:', e);
       }
-    } catch (e) {
-      console.error('Failed to refresh dashboard:', e);
+      
+      // Reload challenges list
+      loadChallenges(currentFilter);
+      showToast('Challenge moved to Recycle Bin.', 'success');
+    } catch (error) {
+      console.error('Failed to delete challenge:', error);
+      showToast('Failed to delete challenge. Please try again.', 'error');
     }
-    
-    // Reload challenges list
+  });
+}
+
+async function handleRestoreChallenge() {
+  try {
+    await restoreChallenge(currentDetailId);
+    // close and refresh
+    closeChallengeDetail();
     loadChallenges(currentFilter);
+    showToast('Challenge restored successfully.', 'success');
   } catch (error) {
-    console.error('Failed to delete challenge:', error);
-    alert('Failed to delete challenge. Please try again.');
+    console.error('Failed to restore challenge:', error);
+    showToast('Failed to restore challenge. Please try again.', 'error');
   }
+}
+
+async function handlePurgeChallenge() {
+  showConfirmation('Permanently delete this challenge and its updates? This cannot be undone.', async () => {
+    try {
+      await purgeChallenge(currentDetailId);
+      closeChallengeDetail();
+      loadChallenges(currentFilter);
+      showToast('Challenge permanently deleted.', 'success');
+    } catch (error) {
+      console.error('Failed to purge challenge:', error);
+      showToast('Failed to purge challenge. Please try again.', 'error');
+    }
+  });
 }
 
 // Make function available globally for onclick handlers

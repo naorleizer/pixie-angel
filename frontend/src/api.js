@@ -219,6 +219,18 @@ export async function deleteChallenge(challengeId) {
   });
 }
 
+export async function restoreChallenge(challengeId) {
+  return apiRequest(`/api/challenges/${challengeId}/restore`, {
+    method: 'POST'
+  });
+}
+
+export async function purgeChallenge(challengeId) {
+  return apiRequest(`/api/challenges/${challengeId}/purge`, {
+    method: 'DELETE'
+  });
+}
+
 export async function updateUserPreferences(preferences) {
   return apiRequest('/api/auth/user/preferences', {
     method: 'PATCH',

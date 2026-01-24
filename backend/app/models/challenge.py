@@ -14,6 +14,10 @@ class Challenge(db.Model):
     end_date = db.Column(db.DateTime)
     color = db.Column(db.String(20), default='indigo') # indigo, emerald, rose, etc.
 
+    # Soft-delete fields
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+    deleted_at = db.Column(db.DateTime)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -28,6 +32,8 @@ class Challenge(db.Model):
     def compute_status(self):
         """Compute status based on end_date and current progress"""
         now = datetime.utcnow()
+        if self.is_deleted:
+            return 'cancelled'
         
         # Challenge is still active if end_date hasn't passed
         if self.end_date and now < self.end_date:
@@ -69,6 +75,9 @@ class Challenge(db.Model):
             'end_date': self.end_date.isoformat() if self.end_date else None,
             'color': self.color
         }
+        # Include soft-delete metadata
+        result['is_deleted'] = bool(self.is_deleted)
+        result['deleted_at'] = self.deleted_at.isoformat() if self.deleted_at else None
         
         if include_updates:
             result['updates'] = [update.to_dict() for update in sorted(self.updates, key=lambda x: x.created_at, reverse=True)]

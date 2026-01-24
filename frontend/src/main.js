@@ -33,6 +33,86 @@ import { initImportTransactions } from "./import-transactions.js";
 import { openTransactions } from "./transactions.js";
 import { openHelp } from "./services/tour-service.js";
 
+// ===== Toast & Confirmation UI Helpers =====
+export function showToast(message, type = 'info', duration = 3000) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none items-center';
+    document.body.appendChild(container);
+  }
+  
+  const toast = document.createElement('div');
+  const bgClass = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600';
+  toast.className = `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium pointer-events-auto animate-slide-up`;
+  toast.textContent = message;
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.classList.add('animate-fade-down');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+export function showConfirmation(message, onConfirm, onCancel) {
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black/40 z-50 flex items-center justify-center';
+  modal.id = 'confirmation-modal';
+  
+  const content = document.createElement('div');
+  content.className = 'bg-white rounded-lg shadow-lg max-w-sm mx-4 p-6';
+  
+  content.innerHTML = `
+    <p class="text-slate-900 text-sm font-medium mb-4">${message}</p>
+    <div class="flex gap-3 justify-end">
+      <button id="confirm-cancel-btn" class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200">
+        Cancel
+      </button>
+      <button id="confirm-ok-btn" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+        Confirm
+      </button>
+    </div>
+  `;
+  
+  modal.appendChild(content);
+  document.body.appendChild(modal);
+  
+  const cancelBtn = content.querySelector('#confirm-cancel-btn');
+  const okBtn = content.querySelector('#confirm-ok-btn');
+  
+  const closeModal = () => {
+    modal.remove();
+  };
+  
+  cancelBtn.addEventListener('click', () => {
+    closeModal();
+    if (onCancel) onCancel();
+  });
+  
+  okBtn.addEventListener('click', async () => {
+    closeModal();
+    if (onConfirm) {
+      try {
+        await onConfirm();
+      } catch (error) {
+        console.error('Error in confirmation callback:', error);
+      }
+    }
+  });
+  
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+      if (onCancel) onCancel();
+    }
+  });
+}
+
+window.showToast = showToast;
+window.showConfirmation = showConfirmation;
+
 // Expose functions for existing inline onclick="" handlers in the HTML.
 // This keeps the markup unchanged while allowing modular JS.
 window.showScreen = showScreen;
@@ -78,7 +158,7 @@ export function showAbout() {
 }
 
 export function showPrivacy() {
-  alert("Privacy policy: This is a mockup. No data is collected.");
+  showToast("Privacy policy: This is a mockup. No data is collected.", 'info');
 }
 
 window.toggleDashboardMenu = toggleDashboardMenu;
@@ -91,7 +171,7 @@ window.showPrivacy = showPrivacy;
     const feedback = document.getElementById('report-feedback')?.value || '';
 
     if (!feedback.trim()) {
-      try { alert('Please enter feedback before submitting.'); } catch (e) {}
+      showToast('Please enter feedback before submitting.', 'error');
       return;
     }
 
@@ -100,11 +180,11 @@ window.showPrivacy = showPrivacy;
         method: 'POST',
         body: JSON.stringify({ name: name.trim() || null, message: feedback.trim() })
       });
-      try { alert('Thanks for your feedback. Our team will get back to you promptly.'); } catch (e) {}
+      showToast('Thanks for your feedback. Our team will get back to you promptly.', 'success');
       try { goBack(); } catch (e) {}
     } catch (e) {
       console.error('Failed to submit feedback', e);
-      try { alert('Failed to submit feedback: ' + (e.message || e)); } catch (err) {}
+      showToast('Failed to submit feedback: ' + (e.message || e), 'error');
     }
   };
 

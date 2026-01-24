@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- Toast & Confirmation Animations --- */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 300ms ease-out;
+}
+
+.animate-fade-down {
+  animation: fadeDown 300ms ease-out;
+}
+
+/* Remove default button active state */
+button:active {
+  outline: none;
+}
+
 /* --- Migrated from original inline <style> --- */
 /* Animation for revealed chat steps */
     @keyframes chatPopIn {

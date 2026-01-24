@@ -18,7 +18,7 @@ class ChallengeManagerService:
     def execute(self, user_id: int, **arguments) -> Dict[str, Any]:
         """
         Dispatch based on the 'action' argument.
-        Supported actions: create, add_update, get_details, list, delete
+        Supported actions: create, add_update, get_details, list, delete, restore, purge
         """
         action = arguments.get("action")
         if not action:
@@ -63,6 +63,16 @@ class ChallengeManagerService:
 
             elif action == "delete":
                 return self.delete_challenge(
+                    user_id=user_id,
+                    challenge_id=arguments.get("challenge_id"),
+                )
+            elif action == "restore":
+                return self.restore_challenge(
+                    user_id=user_id,
+                    challenge_id=arguments.get("challenge_id"),
+                )
+            elif action == "purge":
+                return self.purge_challenge(
                     user_id=user_id,
                     challenge_id=arguments.get("challenge_id"),
                 )
@@ -155,6 +165,9 @@ class ChallengeManagerService:
         except (ValueError, TypeError):
             return {"status": "error", "result": None, "error_message": "Amount must be a number", "error_code": "INVALID_AMOUNT"}
 
+        if challenge.is_deleted:
+            return {"status": "error", "result": None, "error_message": "Challenge is deleted", "error_code": "CHALLENGE_DELETED"}
+
         update = ChallengeUpdate(
             challenge_id=challenge.id,
             amount=amount_val,
@@ -204,15 +217,19 @@ class ChallengeManagerService:
         return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}
 
     def list_challenges(self, user_id: int, filter_type: str = "current") -> Dict[str, Any]:
-        """List challenges for the user with optional filter: current|past|all."""
+        """List challenges for the user with optional filter: current|past|all|deleted."""
         query = Challenge.query.filter_by(user_id=user_id)
         now = datetime.utcnow()
 
         if filter_type == "current":
-            query = query.filter((Challenge.end_date >= now) | (Challenge.end_date == None))
+            query = query.filter(((Challenge.end_date >= now) | (Challenge.end_date == None)) & (Challenge.is_deleted == False))
         elif filter_type == "past":
-            query = query.filter(Challenge.end_date < now)
-        # 'all' returns all
+            query = query.filter((Challenge.end_date < now) & (Challenge.is_deleted == False))
+        elif filter_type == "deleted":
+            query = query.filter(Challenge.is_deleted == True)
+        else:
+            # 'all' returns all non-deleted
+            query = query.filter(Challenge.is_deleted == False)
 
         challenges = query.order_by(Challenge.end_date.asc()).all()
         items = [c.to_dict() for c in challenges]
@@ -221,7 +238,7 @@ class ChallengeManagerService:
         return {"status": "success", "result": items, "message": msg, "error_message": None}
 
     def delete_challenge(self, user_id: int, challenge_id: Optional[int]) -> Dict[str, Any]:
-        """Delete a challenge and all its updates."""
+        """Soft-delete a challenge (move to recycle bin)."""
         if challenge_id is None:
             return {"status": "error", "result": None, "error_message": "challenge_id is required", "error_code": "MISSING_FIELD"}
 
@@ -229,16 +246,14 @@ class ChallengeManagerService:
         if not challenge:
             return {"status": "error", "result": None, "error_message": "Challenge not found", "error_code": "CHALLENGE_NOT_FOUND"}
 
-        # Store challenge data before deletion for display
-        deleted_challenge = challenge.to_dict()
-        
-        # Delete the challenge (cascades to updates)
-        db.session.delete(challenge)
+        # Soft delete
+        challenge.is_deleted = True
+        challenge.deleted_at = datetime.utcnow()
         db.session.commit()
 
         # Build message with widget
-        result = deleted_challenge
-        msg = f"Deleted challenge '{result.get('title')}'. You can undo this action."
+        result = challenge.to_dict()
+        msg = f"Moved challenge '{result.get('title')}' to Recycle Bin."
         
         import json
         widget_data = {
@@ -249,6 +264,37 @@ class ChallengeManagerService:
         }
         msg_with_widget = f"{msg}\n\n<CHALLENGE_WIDGET>{json.dumps(widget_data)}</CHALLENGE_WIDGET>"
         return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}
+
+    def restore_challenge(self, user_id: int, challenge_id: Optional[int]) -> Dict[str, Any]:
+        """Restore a soft-deleted challenge."""
+        if challenge_id is None:
+            return {"status": "error", "result": None, "error_message": "challenge_id is required", "error_code": "MISSING_FIELD"}
+        challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first()
+        if not challenge:
+            return {"status": "error", "result": None, "error_message": "Challenge not found", "error_code": "CHALLENGE_NOT_FOUND"}
+        if not challenge.is_deleted:
+            return {"status": "error", "result": None, "error_message": "Challenge is not deleted", "error_code": "INVALID_STATE"}
+        challenge.is_deleted = False
+        challenge.deleted_at = None
+        db.session.commit()
+        result = challenge.to_dict()
+        import json
+        widget_data = {"type": "challenge_widget", "action": "restore", "challenge": result}
+        msg = f"Restored challenge '{result.get('title')}'."
+        msg_with_widget = f"{msg}\n\n<CHALLENGE_WIDGET>{json.dumps(widget_data)}</CHALLENGE_WIDGET>"
+        return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}
+
+    def purge_challenge(self, user_id: int, challenge_id: Optional[int]) -> Dict[str, Any]:
+        """Permanently delete a challenge and its updates."""
+        if challenge_id is None:
+            return {"status": "error", "result": None, "error_message": "challenge_id is required", "error_code": "MISSING_FIELD"}
+        challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first()
+        if not challenge:
+            return {"status": "error", "result": None, "error_message": "Challenge not found", "error_code": "CHALLENGE_NOT_FOUND"}
+        db.session.delete(challenge)
+        db.session.commit()
+        msg = "Challenge permanently deleted."
+        return {"status": "success", "result": None, "message": msg, "error_message": None}
 
 
 # Singleton instance

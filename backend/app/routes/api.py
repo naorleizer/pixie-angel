@@ -626,21 +626,27 @@ def _process_csv_upload(app, upload_id: str, user_id: int, file_content: str):
 @jwt_required()
 def get_challenges():
     user_id = get_jwt_identity()
-    filter_type = request.args.get('filter', 'current')  # current, past, all
+    filter_type = request.args.get('filter', 'current')  # current, past, all, deleted
     
     query = Challenge.query.filter_by(user_id=user_id)
     
     if filter_type == 'current':
-        # Active challenges with end_date in the future or not set
+        # Active challenges with end_date in the future or not set, excluding deleted
         now = datetime.utcnow()
         query = query.filter(
-            (Challenge.end_date >= now) | (Challenge.end_date == None)
+            ((Challenge.end_date >= now) | (Challenge.end_date == None)) &
+            (Challenge.is_deleted == False)
         )
     elif filter_type == 'past':
-        # Challenges with end_date in the past
+        # Challenges with end_date in the past, excluding deleted
         now = datetime.utcnow()
-        query = query.filter(Challenge.end_date < now)
-    # 'all' returns everything, no additional filter
+        query = query.filter((Challenge.end_date < now) & (Challenge.is_deleted == False))
+    elif filter_type == 'deleted':
+        # Only soft-deleted challenges
+        query = query.filter(Challenge.is_deleted == True)
+    else:
+        # 'all' returns everything except deleted by default
+        query = query.filter(Challenge.is_deleted == False)
     
     challenges = query.order_by(Challenge.end_date.asc()).all()
     return jsonify([c.to_dict() for c in challenges]), 200
@@ -678,6 +684,8 @@ def create_challenge():
 def add_challenge_update(challenge_id):
     user_id = get_jwt_identity()
     challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
+    if challenge.is_deleted:
+        return jsonify({'error': 'Challenge is deleted'}), 400
     
     data = request.get_json()
     amount = data.get('amount')
@@ -711,14 +719,13 @@ def add_challenge_update(challenge_id):
 def delete_challenge(challenge_id):
     user_id = get_jwt_identity()
     challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
-
-    # Save data for confirmation response
-    deleted_data = challenge.to_dict(include_updates=True)
-
-    db.session.delete(challenge)
+    
+    # Soft delete
+    challenge.is_deleted = True
+    challenge.deleted_at = datetime.utcnow()
     db.session.commit()
 
-    return jsonify({"status": "deleted", "challenge": deleted_data}), 200
+    return jsonify({"status": "deleted", "challenge": challenge.to_dict(include_updates=True)}), 200
 
 @bp.route('/challenges/<int:challenge_id>/updates/<int:update_id>', methods=['DELETE'])
 @jwt_required()
@@ -732,37 +739,29 @@ def delete_challenge_update(challenge_id, update_id):
 
     return jsonify({"status": "deleted", "challenge": challenge.to_dict(include_updates=True)}), 200
 
-@bp.route('/challenges/<int:challenge_id>/undo-delete', methods=['POST'])
+@bp.route('/challenges/<int:challenge_id>/restore', methods=['POST'])
 @jwt_required()
-def undo_delete_challenge(challenge_id):
-    """Restore a deleted challenge (will be created fresh since DB row was deleted)."""
+def restore_challenge(challenge_id):
+    """Restore a soft-deleted challenge by ID."""
     user_id = get_jwt_identity()
-    data = request.get_json()
+    challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
+    if not challenge.is_deleted:
+        return jsonify({'error': 'Challenge is not deleted'}), 400
     
-    # Reconstruct challenge from backup data sent by frontend
-    challenge_data = data.get('challenge_data')
-    if not challenge_data:
-        return jsonify({'error': 'Challenge data required for undo'}), 400
-    
-    try:
-        challenge = Challenge(
-            user_id=user_id,
-            title=challenge_data.get('title'),
-            description=challenge_data.get('description'),
-            type=challenge_data.get('type', 'spending_limit'),
-            target_amount=challenge_data.get('target_amount', 0),
-            color=challenge_data.get('color', 'indigo'),
-            end_date=datetime.fromisoformat(challenge_data['end_date']) if challenge_data.get('end_date') else None,
-            start_date=datetime.fromisoformat(challenge_data['start_date']) if challenge_data.get('start_date') else datetime.utcnow()
-        )
-        
-        db.session.add(challenge)
-        db.session.commit()
-        
-        return jsonify({'status': 'restored', 'challenge': challenge.to_dict()}), 201
-    except Exception as e:
-        current_app.logger.error(f"Failed to restore challenge: {e}")
-        return jsonify({'error': f'Failed to restore challenge: {str(e)}'}), 500
+    challenge.is_deleted = False
+    challenge.deleted_at = None
+    db.session.commit()
+    return jsonify({'status': 'restored', 'challenge': challenge.to_dict(include_updates=True)}), 200
+
+@bp.route('/challenges/<int:challenge_id>/purge', methods=['DELETE'])
+@jwt_required()
+def purge_challenge(challenge_id):
+    """Permanently delete a challenge and its updates."""
+    user_id = get_jwt_identity()
+    challenge = Challenge.query.filter_by(id=challenge_id, user_id=user_id).first_or_404()
+    db.session.delete(challenge)
+    db.session.commit()
+    return jsonify({'status': 'purged'}), 200
 
 # --- Notification Endpoints ---
 

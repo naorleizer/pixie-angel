@@ -5,6 +5,13 @@ import { apiRequest } from "./api.js";
 
 let challenges = [];
 
+// Helper to truncate text to max length
+function truncate(text, maxLength = 100) {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
+
 // Navigate to challenge detail from dashboard card
 export function navigateToChallengeDetail(challengeId) {
   navigate('challenges');
@@ -22,7 +29,7 @@ export async function loadChallenges() {
   if (!track) return;
   
   try {
-    challenges = await apiRequest("/api/challenges");
+    challenges = await apiRequest("/api/challenges?filter=current");
     renderChallenges(challenges, track, dotsContainer);
     updateChallengeBalanceWidget(challenges);
   } catch (error) {
@@ -227,7 +234,7 @@ function createChallengeCard(c, index) {
       <div class="rounded-2xl ${theme.bg} ${theme.border} px-4 py-4 border cursor-pointer hover:shadow-md transition-shadow" onclick="showChallengeDetailOnDashboard(${c.id})">
         <div class="flex items-start justify-between gap-2">
           <div>
-            <p class="text-sm font-semibold ${theme.text}">${c.title}</p>
+            <p class="text-sm font-semibold ${theme.text}">${truncate(c.title, 100)}</p>
             <p class="text-xs ${theme.sub} opacity-80 mt-1">${deadlineText}</p>
           </div>
           ${statusBadge}

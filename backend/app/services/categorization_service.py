@@ -332,22 +332,47 @@ Rules:
 
     user_message = json.dumps({"transactions": items}, ensure_ascii=False)
 
+    response_schema = {
+        "name": "transaction_categorizations",
+        "schema": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "index": {"type": "integer"},
+                    "category": {"type": "string"},
+                    "type": {"type": "string"},
+                    "confidence": {"type": "number"},
+                },
+                "required": ["index", "category", "type"],
+                "additionalProperties": False,
+            },
+        },
+    }
+
+    def _coerce_list(obj: any) -> Optional[List[Dict]]:
+        if isinstance(obj, list):
+            return obj
+        if isinstance(obj, str):
+            cleaned = obj.strip()
+            # Strip code fences if present
+            fence = re.search(r"```(?:json)?\s*(.*?)```", cleaned, re.DOTALL)
+            if fence:
+                cleaned = fence.group(1).strip()
+            try:
+                parsed = json.loads(cleaned)
+                return parsed if isinstance(parsed, list) else None
+            except Exception:
+                return None
+        return None
+
     def _attempt(user_msg: str, stricter: bool = False) -> Optional[List[Dict]]:
-        kwargs = {}
-        # If Gemini, ask for JSON mime type
-        provider = os.getenv("LLM_PROVIDER", "").lower()
-        if provider in ("google", "gemini"):
-            kwargs["response_mime_type"] = "application/json"
-        # tighten the prompt on retry
         sp = system_prompt if not stricter else system_prompt + "\nReturn ONLY the JSON array, no extra text."
-        resp = llm.chat_with_system(user_message=user_msg, system_prompt=sp, **kwargs)
         try:
-            data = json.loads(resp)
-            if isinstance(data, list):
-                return data
+            data = llm.chat_json(system_prompt=sp, user_message=user_msg, response_schema=response_schema)
+            return _coerce_list(data)
         except Exception:
             return None
-        return None
 
     parsed = _attempt(user_message, stricter=False)
     if not parsed:

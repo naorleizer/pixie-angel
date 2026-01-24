@@ -413,6 +413,48 @@ class LLMService:
         messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}]
         return completion(model=self.model, messages=messages, temperature=self.temperature, **kwargs).choices[0].message.content
 
+    def chat_json(self, system_prompt: str, user_message: str, response_schema: Optional[Dict[str, Any]] = None, **kwargs) -> Any:
+        """Call the model and enforce a JSON response via LiteLLM response_format.
+
+        If response_schema is provided, it should have shape:
+        {"name": "schema_name", "schema": <json schema dict>}.
+        """
+        messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}]
+
+        if response_schema:
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": response_schema.get("name", "response"),
+                    "schema": response_schema.get("schema", {}),
+                    "strict": True,
+                },
+            }
+        else:
+            response_format = {"type": "json_object"}
+
+        resp = completion(
+            model=self.model,
+            messages=messages,
+            temperature=self.temperature,
+            response_format=response_format,
+            **kwargs,
+        )
+
+        msg = resp.choices[0].message
+        # LiteLLM may surface parsed content directly
+        parsed = getattr(msg, "parsed", None)
+        if parsed is not None:
+            return parsed
+
+        content = getattr(msg, "content", None)
+        if content:
+            try:
+                return json.loads(content)
+            except Exception:
+                pass
+        return content
+
     def get_persona_prompt(self, persona_type: str) -> str:
         return PERSONAS.get(persona_type, PERSONAS['the_supportive'])['prompt']
         

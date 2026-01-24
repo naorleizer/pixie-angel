@@ -20,10 +20,10 @@ import reportIssueHtml from "./screens/report-issue.html?raw";
 import aboutHtml from "./screens/about.html?raw";
 
 import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from "./navigation.js";
-import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide } from "./onboarding.js";
+import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide, authorizeLocationAccess, skipLocationAccess } from "./onboarding.js";
 import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges, loadRecentTransactions, navigateToChallengeDetail, showChallengeDetailOnDashboard } from "./dashboard.js";
 import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI, loadChatSession } from "./chat.js";
-import { apiRequest, getChatSessions, getChatHistory } from "./api.js";
+import { apiRequest, getChatSessions, getChatHistory, updateUserPreferences } from "./api.js";
 import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
 import { initChallenges } from "./challenges.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
@@ -123,6 +123,8 @@ window.navigate = navigate;
 window.showOnboardingSlide = showOnboardingSlide;
 window.nextOnboardingSlide = nextOnboardingSlide;
 window.prevOnboardingSlide = prevOnboardingSlide;
+window.authorizeLocationAccess = authorizeLocationAccess;
+window.skipLocationAccess = skipLocationAccess;
 
 window.setChallengeSlide = setChallengeSlide;
 window.openChat = openChat;
@@ -414,14 +416,35 @@ window.addEventListener("DOMContentLoaded", () => {
   // Load sidebar chats initially
   try { loadSidebarChats(); } catch (err) { /* ignore */ }
 
-  // Preference toggles initialization
-  window.togglePreference = function(key, btn) {
+  // Preference toggles initialization with backend persistence
+  window.togglePreference = async function(key, btn) {
     if (!btn) return;
     const isOn = btn.classList.toggle('bg-indigo-600');
     const knob = btn.querySelector('.toggle-knob');
     if (knob) knob.classList.toggle('translate-x-5');
     btn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
     try { localStorage.setItem('pref_' + key, isOn ? '1' : '0'); } catch (e) {}
+
+    // Aggregate settings and persist to backend
+    try {
+      const getState = (prefKey) => {
+        const el = document.querySelector(`[data-pref="${prefKey}"]`);
+        return el ? el.getAttribute('aria-pressed') === 'true' : false;
+      };
+      const locationEnabled = getState('location');
+      const commStyleEnabled = getState('communication_style');
+      const interestsOn = getState('interests');
+      const motivationsOn = getState('motivations');
+      const interestsAndMotivations = interestsOn || motivationsOn;
+
+      await updateUserPreferences({
+        location_enabled: locationEnabled,
+        communication_style: commStyleEnabled,
+        interests_and_motivation_enabled: interestsAndMotivations,
+      });
+    } catch (err) {
+      console.error('Failed to save preferences', err);
+    }
   };
 
   // Restore saved preferences

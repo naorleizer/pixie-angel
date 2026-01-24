@@ -12,6 +12,9 @@ class User(db.Model):
     preferred_persona = db.Column(db.String(50), default='the_supportive')
     interests = db.Column(db.JSON, default=list)
     motivations = db.Column(db.JSON, default=list)
+    location_enabled = db.Column(db.Boolean, default=False)
+    interests_and_motivation_enabled = db.Column(db.Boolean, default=False)
+    communication_style = db.Column(db.Boolean, default=False)
     has_completed_persona_quiz = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -36,6 +39,9 @@ class User(db.Model):
             'preferred_persona': self.preferred_persona,
             'interests': self.interests or [],
             'motivations': self.motivations or [],
+            'location_enabled': bool(self.location_enabled),
+            'interests_and_motivation_enabled': bool(self.interests_and_motivation_enabled),
+            'communication_style': bool(self.communication_style),
             'has_completed_persona_quiz': self.has_completed_persona_quiz,
             'created_at': self.created_at.isoformat()
         }

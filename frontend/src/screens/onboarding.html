@@ -68,8 +68,23 @@
       </p>
     </div>
 
-    <!-- Slide 4 -->
+    <!-- Slide 4: Location permission -->
     <div data-onboarding-slide="4" class="hidden flex-col items-center text-center gap-4">
+      <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
+        <img src="assets/images/location_icon.png" alt="Location icon" class="w-12 h-12 object-contain" />
+      </div>
+      <h2 class="text-3xl font-semibold leading-tight">Share your location?</h2>
+      <p class="text-white/90">
+        We use your location only to suggest nearby options and keep recommendations relevant. You can change this anytime in Settings.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-center">
+        <button class="px-4 py-2 rounded-full bg-white text-slate-900 font-semibold shadow" onclick="authorizeLocationAccess()">Allow location access</button>
+        <button class="px-4 py-2 rounded-full bg-white/20 text-white border border-white/40" onclick="skipLocationAccess()">Continue without it</button>
+      </div>
+    </div>
+
+    <!-- Slide 5 -->
+    <div data-onboarding-slide="5" class="hidden flex-col items-center text-center gap-4">
       <div class="w-24 h-24 rounded-full bg-white/15 backdrop-blur flex items-center justify-center mx-auto">
         <img src="assets/images/explore_icon.png" alt="Explore icon" class="w-12 h-12 object-contain" />
       </div>
@@ -95,6 +110,7 @@
         <span data-onboarding-dot="2" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
         <span data-onboarding-dot="3" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
         <span data-onboarding-dot="4" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
+        <span data-onboarding-dot="5" class="h-2.5 w-2.5 rounded-full bg-white/40"></span>
       </div>
 
       <button id="onboarding-next-bottom" class="px-4 py-2 rounded-full text-black font-semibold text-sm shadow"

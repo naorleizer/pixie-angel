@@ -1,6 +1,7 @@
 import { createChatSession, getChatHistory, sendChatMessage, getChatSessions, apiRequest } from "./api.js";
 const DEBUG = (import.meta.env.VITE_DEBUG === 'true') || (localStorage.getItem('pixie_debug') === 'true');
 import { showScreen, navigate } from "./navigation.js";
+import { syncLocationPermission } from "./services/location-service.js";
 
 let currentSessionId = null;
 let isSendingMessage = false;
@@ -87,6 +88,13 @@ export async function loadChatSession(sessionId) {
 
 export async function openChat(arg, maybeReset = false) {
   navigate("chat");
+  
+  // Sync location permission state when entering chat
+  try {
+    await syncLocationPermission();
+  } catch (err) {
+    console.error('Failed to sync location permission on chat open', err);
+  }
   
   // Remove the demo click handler if it exists
   const chatScroll = document.getElementById("chat-scroll");

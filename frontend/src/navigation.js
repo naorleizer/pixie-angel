@@ -72,6 +72,11 @@ function initScreenHandlers(screenId) {
     import('./auth.js').then(({ initAccountManagement }) => {
       initAccountManagement();
     }).catch(err => console.error('Failed to init account management:', err));
+  } else if (screenId === 'screen-privacy') {
+    // Sync location permission when entering privacy settings
+    import('./services/location-service.js').then(({ syncLocationPermission }) => {
+      syncLocationPermission().catch(err => console.error('Failed to sync location:', err));
+    }).catch(err => console.error('Failed to load location service:', err));
   } else if (screenId === 'screen-profile') {
     // Update profile username from state
     import('./state.js').then(({ state }) => {

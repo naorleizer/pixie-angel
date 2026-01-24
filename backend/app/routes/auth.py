@@ -159,6 +159,18 @@ def update_user_preferences():
             }), 400
         
         user.motivations = motivations
+
+    # Update location_enabled if provided
+    if 'location_enabled' in data:
+        user.location_enabled = bool(data['location_enabled'])
+
+    # Update interests_and_motivation_enabled if provided
+    if 'interests_and_motivation_enabled' in data:
+        user.interests_and_motivation_enabled = bool(data['interests_and_motivation_enabled'])
+
+    # Update communication_style if provided
+    if 'communication_style' in data:
+        user.communication_style = bool(data['communication_style'])
     
     db.session.commit()
     

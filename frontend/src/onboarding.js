@@ -1,4 +1,5 @@
 import { state } from "./state.js";
+import { requestLocationPermission, saveLocationPreference } from "./services/location-service.js";
 
 export function showOnboardingSlide(n) {
   state.currentOnboardingSlide = n;
@@ -87,9 +88,16 @@ export function showOnboardingSlide(n) {
   }
 }
 
-export function nextOnboardingSlide() {
+export function nextOnboardingSlide(bypassLocationCheck = false) {
   const maxSlides = document.querySelectorAll("[data-onboarding-slide]").length || 1;
   const next = state.currentOnboardingSlide + 1;
+  
+  // Prevent advancing from location slide (slide 5 = index 4) without explicit choice
+  // Unless bypassed by authorize/skip handlers
+  if (state.currentOnboardingSlide === 5 && !bypassLocationCheck) {
+    window.showToast && window.showToast('Please choose whether to allow location access', 'info');
+    return;
+  }
   
   if (next > maxSlides) {
     // After onboarding, new users go to persona quiz
@@ -107,4 +115,59 @@ export function nextOnboardingSlide() {
 export function prevOnboardingSlide() {
   const prev = Math.max(state.currentOnboardingSlide - 1, 1);
   showOnboardingSlide(prev);
+}
+
+export async function authorizeLocationAccess() {
+  // Show loading state
+  const locationSlide = document.querySelector('[data-onboarding-slide="4"]');
+  const buttonsContainer = locationSlide?.querySelector('.flex.flex-col.sm\\:flex-row');
+  const originalButtons = buttonsContainer?.innerHTML;
+  
+  if (buttonsContainer) {
+    buttonsContainer.innerHTML = '<div class="text-center text-white text-sm py-2">Requesting permission...</div>';
+  }
+  
+  try {
+    await requestLocationPermission();
+    // Permission granted successfully
+    await saveLocationPreference(true);
+    window.showToast && window.showToast('Location access enabled', 'success');
+    nextOnboardingSlide(true); // Bypass location check
+  } catch (err) {
+    console.error("Location permission denied or unavailable", err);
+    
+    // Restore buttons
+    if (buttonsContainer && originalButtons) {
+      buttonsContainer.innerHTML = originalButtons;
+    }
+    
+    // Check if permission was explicitly denied or just unavailable
+    const errorMsg = err.code === 1 
+      ? 'Location access was denied. You can enable it later in Settings.'
+      : 'Location access is not available on this device.';
+    
+    window.showConfirmation && window.showConfirmation(
+      errorMsg + ' Would you like to try again?',
+      async () => {
+        // User wants to retry
+        await authorizeLocationAccess();
+      },
+      async () => {
+        // User chooses to continue without location
+        await saveLocationPreference(false);
+        nextOnboardingSlide(true); // Bypass location check
+      }
+    );
+  }
+}
+
+export async function skipLocationAccess() {
+  try {
+    await saveLocationPreference(false);
+  } catch (err) {
+    console.error("Failed to save skipped location preference", err);
+  } finally {
+    // Always advance even if save fails
+    nextOnboardingSlide(true); // Bypass location check
+  }
 }

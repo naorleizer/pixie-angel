@@ -1,102 +1,102 @@
 Transaction Date,Description,Amount,Currency,Balance After Transaction,Account Type,Account Name,Institution,Card Last 4,Transaction Type,Merchant Name,Merchant Country,Is Recurring
 2020-01-01,Salary - Employer Ltd.,18500.0,ILS,33000.0,checking,Main Checking,Hapoalim (mock),1023,salary,,,True
 2020-01-02,Transfer from Checking,2500.0,ILS,34500.0,savings,Savings,Hapoalim (mock),7781,transfer_in,,,True
-2020-01-02,Super-Pharm purchase,-107.02,ILS,-5838.11,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Super-Pharm,IL,False
+2020-01-02,WALGREENS #2456,-107.02,ILS,-5838.11,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
 2020-01-02,Transfer to Savings,-2500.0,ILS,35048.8,checking,Main Checking,Hapoalim (mock),1023,transfer_out,,,True
-2020-01-02,Super-Pharm purchase,-124.56,ILS,-5962.67,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Super-Pharm,IL,False
-2020-01-03,IKEA purchase,-958.39,ILS,-7103.98,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA,IL,False
+2020-01-02,OFFICE DEPOT #3867,-124.56,ILS,-5962.67,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,OFFICE DEPOT #3867,IL,False
+2020-01-03,IKEA ONLINE CENTER,-958.39,ILS,-7103.98,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
 2020-01-05,Rent - Apartment,-6200.0,ILS,45300.0,checking,Main Checking,Hapoalim (mock),1023,bill_payment,,,True
-2020-01-05,Arnona Municipality purchase,-94.97,ILS,-2872.0,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Arnona Municipality,IL,False
-2020-01-05,Cellcom purchase,-29.41,ILS,-2901.41,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Cellcom,IL,False
-2020-01-06,Netflix purchase,-38.22,ILS,-1778.79,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
+2020-01-05,Government License,-94.97,ILS,-2872.0,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,LICENSING #8843 - CANADA,IL,False
+2020-01-05,Phone Company,-29.41,ILS,-2901.41,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2020-01-06,Netflix,-38.22,ILS,-1778.79,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
 2020-01-07,ATM cash withdrawal,-612.65,ILS,31342.24,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
 2020-01-08,Netflix.com,-55.9,ILS,-55.9,credit_card,MAX Platinum,MAX (mock),4420,subscription,Netflix,US,True
-2020-01-08,Gett purchase,-256.25,ILS,-3157.66,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Gett,IL,False
+2020-01-08,Taxi Ride,-256.25,ILS,-3157.66,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
 2020-01-10,Electric Company - direct debit,-420.5,ILS,44879.5,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Electric Company,IL,True
-2020-01-10,Super-Pharm purchase,-171.15,ILS,-5532.7,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Super-Pharm,IL,False
-2020-01-10,Café Greg purchase,-102.27,ILS,-5634.97,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Café Greg,IL,False
-2020-01-11,Amazon purchase,-652.94,ILS,-4494.87,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Amazon,US,False
-2020-01-12,Gett purchase,-172.36,ILS,-1246.06,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Gett,IL,False
-2020-01-12,Bezeq - internet,-119.9,ILS,44759.6,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Bezeq,IL,True
-2020-01-12,Clalit purchase,-101.51,ILS,-1347.57,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Clalit,IL,False
-2020-01-14,Cellcom - mobile,-89.9,ILS,44669.7,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Cellcom,IL,True
-2020-01-15,McDonald's purchase,-45.59,ILS,-8991.04,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,McDonald's,IL,False
-2020-01-16,Cellcom purchase,-12.29,ILS,-962.13,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Cellcom,IL,False
-2020-01-17,Shufersal purchase,-177.75,ILS,-9332.8,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Shufersal,IL,False
-2020-01-18,Amazon purchase,-426.2,ILS,-7695.02,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Amazon,US,False
+2020-01-10,Walgreens,-171.15,ILS,-5532.7,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
+2020-01-10,Chipotle,-102.27,ILS,-5634.97,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CHIPOTLE,IL,False
+2020-01-11,Amazon,-652.94,ILS,-4494.87,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Amazon,US,False
+2020-01-12,Taxi Ride,-172.36,ILS,-1246.06,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2020-01-12,WINDSTREAM - internet,-119.9,ILS,44759.6,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WINDSTREAM,IL,True
+2020-01-12,Health Clinic,-101.51,ILS,-1347.57,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2020-01-14,Phone Company - mobile,-89.9,ILS,44669.7,checking,Main Checking,Hapoalim (mock),1023,bill_payment,PHONE COMPANY,IL,True
+2020-01-15,Popeyes,-45.59,ILS,-8991.04,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
+2020-01-16,Phone Company,-12.29,ILS,-962.13,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2020-01-17,Costco,-177.75,ILS,-9332.8,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COSTCO - CANADA CENTER - WEEKDAY,IL,False
+2020-01-18,Amazon,-426.2,ILS,-7695.02,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Amazon,US,False
 2020-01-18,Spotify,-21.9,ILS,-77.8,credit_card,MAX Platinum,MAX (mock),4420,subscription,Spotify,SE,True
-2020-01-18,Yellow purchase,-118.59,ILS,-7268.82,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Yellow,IL,False
-2020-01-19,Café Greg purchase,-100.22,ILS,-2516.27,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Café Greg,IL,False
-2020-01-19,Cellcom purchase,-47.98,ILS,-2564.25,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Cellcom,IL,False
-2020-01-20,Netflix purchase,-191.97,ILS,-949.84,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
-2020-01-20,Mekorot Water,-145.3,ILS,44524.4,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Mekorot Water,IL,True
-2020-01-20,Bezeq purchase,-144.22,ILS,-757.87,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Bezeq,IL,False
-2020-01-22,Bezeq purchase,-108.5,ILS,-2239.13,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Bezeq,IL,False
-2020-01-23,IKEA purchase,-262.33,ILS,-8525.08,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA,IL,False
-2020-01-24,Clalit purchase,-79.18,ILS,-613.65,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Clalit,IL,False
+2020-01-18,Taxi Service,-118.59,ILS,-7268.82,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2020-01-19,Shake Shack,-100.22,ILS,-2516.27,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHAKE SHACK - WEEKEND,IL,False
+2020-01-19,Phone Company,-47.98,ILS,-2564.25,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2020-01-20,Netflix,-191.97,ILS,-949.84,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
+2020-01-20,Water Company,-145.3,ILS,44524.4,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WATER COMPANY SHOPPING CENTER,IL,True
+2020-01-20,Windstream,-144.22,ILS,-757.87,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2020-01-22,Windstream,-108.5,ILS,-2239.13,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2020-01-23,IKEA Online,-262.33,ILS,-8525.08,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
+2020-01-24,Health Clinic,-79.18,ILS,-613.65,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
 2020-01-25,Payment to credit card (stmt_cc_01_2020),-6015.18,ILS,23000.05,checking,Main Checking,Hapoalim (mock),1023,credit_card_payment,,,True
-2020-01-25,Café Greg purchase,-46.25,ILS,-7150.23,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Café Greg,IL,False
+2020-01-25,Potbelly,-46.25,ILS,-7150.23,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POTBELLY,IL,False
 2020-01-25,Payment received (stmt_cc_01_2020),6015.18,ILS,-3931.02,credit_card,MAX Platinum,MAX (mock),4420,credit_card_payment,,,True
-2020-01-26,Cellcom purchase,-194.62,ILS,-8945.45,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Cellcom,IL,False
-2020-01-27,Yellow purchase,-190.1,ILS,-3841.93,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Yellow,IL,False
-2020-01-27,Yellow purchase,-209.41,ILS,-3651.83,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Yellow,IL,False
-2020-01-28,Wolt purchase,-113.83,ILS,-8146.06,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Wolt,IL,False
-2020-01-28,Wolt purchase,-116.69,ILS,-8262.75,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Wolt,IL,False
+2020-01-26,Phone Company,-194.62,ILS,-8945.45,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2020-01-27,Taxi Service,-190.1,ILS,-3841.93,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2020-01-27,Taxi Service,-209.41,ILS,-3651.83,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2020-01-28,Popeyes,-113.83,ILS,-8146.06,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
+2020-01-28,Popeyes,-116.69,ILS,-8262.75,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
 2020-01-28,Monthly interest,12.35,ILS,37012.35,savings,Savings,Hapoalim (mock),7781,interest,,,True
 2020-01-28,Monthly account fee,-15.0,ILS,29030.23,checking,Main Checking,Hapoalim (mock),1023,fee,,,True
 2020-01-28,ATM cash withdrawal,-233.24,ILS,29045.23,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
 2020-01-29,ATM cash withdrawal,-593.91,ILS,31954.89,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
-2020-01-29,Clalit purchase,-176.92,ILS,-2416.05,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Clalit,IL,False
-2020-01-30,Electric Company purchase,-132.95,ILS,-288.55,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Electric Company,IL,False
-2020-01-31,Clalit purchase,-215.72,ILS,-9946.2,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Clalit,IL,False
-2020-01-31,Bezeq purchase,-17.02,ILS,-9730.48,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Bezeq,IL,False
+2020-01-29,Health Clinic,-176.92,ILS,-2416.05,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2020-01-30,Electric Company,-132.95,ILS,-288.55,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Electric Company,IL,False
+2020-01-31,Health Clinic,-215.72,ILS,-9946.2,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2020-01-31,Windstream,-17.02,ILS,-9730.48,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
 2020-02-01,Salary - Employer Ltd.,18500.0,ILS,51500.0,checking,Main Checking,Hapoalim (mock),1023,salary,,,True
-2020-02-01,Clalit purchase,-203.26,ILS,-2130.63,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Clalit,IL,False
-2020-02-02,Yellow purchase,-218.0,ILS,-3375.66,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Yellow,IL,False
-2020-02-02,Café Greg purchase,-66.76,ILS,-3442.42,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Café Greg,IL,False
+2020-02-01,Health Clinic,-203.26,ILS,-2130.63,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2020-02-02,Taxi Service,-218.0,ILS,-3375.66,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2020-02-02,Chipotle,-66.76,ILS,-3442.42,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CHIPOTLE,IL,False
 2020-02-02,Transfer to Savings,-2500.0,ILS,32548.8,checking,Main Checking,Hapoalim (mock),1023,transfer_out,,,True
 2020-02-02,Transfer from Checking,2500.0,ILS,37000.0,savings,Savings,Hapoalim (mock),7781,transfer_in,,,True
-2020-02-03,McDonald's purchase,-70.67,ILS,-1927.37,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,McDonald's,IL,False
-2020-02-04,Sonol purchase,-147.34,ILS,-6145.59,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Sonol,IL,False
-2020-02-04,Wolt purchase,-35.58,ILS,-5998.25,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Wolt,IL,False
-2020-02-05,Cellcom purchase,-91.38,ILS,-8032.23,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Cellcom,IL,False
+2020-02-03,Mr Sub,-70.67,ILS,-1927.37,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,MR. SUB #7652,IL,False
+2020-02-04,Shell Station,-147.34,ILS,-6145.59,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHELL STORE TXN240495,IL,False
+2020-02-04,Shake Shack,-35.58,ILS,-5998.25,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHAKE SHACK - WEEKEND,IL,False
+2020-02-05,Phone Company,-91.38,ILS,-8032.23,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
 2020-02-05,Rent - Apartment,-6200.0,ILS,38324.4,checking,Main Checking,Hapoalim (mock),1023,bill_payment,,,True
-2020-02-06,Sonol purchase,-35.3,ILS,-1814.09,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Sonol,IL,False
-2020-02-07,Arnona Municipality purchase,-14.29,ILS,-302.84,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Arnona Municipality,IL,False
+2020-02-06,Shell Station,-35.3,ILS,-1814.09,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHELL STORE TXN240495,IL,False
+2020-02-07,Government License,-14.29,ILS,-302.84,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,LICENSING #8843 - CANADA,IL,False
 2020-02-08,Netflix.com,-55.9,ILS,-133.7,credit_card,MAX Platinum,MAX (mock),4420,subscription,Netflix,US,True
-2020-02-08,Shufersal purchase,-212.78,ILS,-2777.03,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Shufersal,IL,False
-2020-02-09,Yellow purchase,-73.17,ILS,-9405.97,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Yellow,IL,False
-2020-02-09,Mekorot Water purchase,-198.92,ILS,-9604.89,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Mekorot Water,IL,False
+2020-02-08,Costco,-212.78,ILS,-2777.03,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COSTCO - CANADA CENTER - WEEKDAY,IL,False
+2020-02-09,Taxi Service,-73.17,ILS,-9405.97,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2020-02-09,Water Company,-198.92,ILS,-9604.89,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WATER COMPANY SHOPPING CENTER,IL,False
 2020-02-10,Electric Company - direct debit,-420.5,ILS,37903.9,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Electric Company,IL,True
-2020-02-10,Wolt purchase,-22.41,ILS,-9627.3,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Wolt,IL,False
-2020-02-11,Bezeq purchase,-185.33,ILS,-7880.35,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Bezeq,IL,False
+2020-02-10,Popeyes,-22.41,ILS,-9627.3,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
+2020-02-11,Windstream,-185.33,ILS,-7880.35,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
 2020-02-11,ATM cash withdrawal,-575.27,ILS,29278.47,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
-2020-02-11,Wolt purchase,-60.5,ILS,-7940.85,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Wolt,IL,False
-2020-02-12,Bezeq purchase,-87.13,ILS,-9078.17,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Bezeq,IL,False
-2020-02-12,Yellow purchase,-76.88,ILS,-9155.05,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Yellow,IL,False
+2020-02-11,Chipotle,-60.5,ILS,-7940.85,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CHIPOTLE,IL,False
+2020-02-12,Windstream,-87.13,ILS,-9078.17,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2020-02-12,Taxi Service,-76.88,ILS,-9155.05,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
 2020-02-12,ATM cash withdrawal,-699.37,ILS,30642.87,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
-2020-02-12,Bezeq - internet,-119.9,ILS,37784.0,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Bezeq,IL,True
-2020-02-13,Clalit purchase,-50.54,ILS,-5361.55,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Clalit,IL,False
-2020-02-13,IKEA purchase,-816.14,ILS,-5311.01,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA,IL,False
-2020-02-14,Netflix purchase,-21.83,ILS,-1369.4,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
-2020-02-14,Cellcom - mobile,-89.9,ILS,37694.1,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Cellcom,IL,True
-2020-02-16,Arnona Municipality purchase,-13.7,ILS,-8642.52,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Arnona Municipality,IL,False
-2020-02-17,Wolt purchase,-24.21,ILS,-5731.09,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Wolt,IL,False
+2020-02-12,WINDSTREAM - internet,-119.9,ILS,37784.0,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WINDSTREAM,IL,True
+2020-02-13,Health Clinic,-50.54,ILS,-5361.55,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2020-02-13,IKEA Online,-816.14,ILS,-5311.01,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
+2020-02-14,Netflix,-21.83,ILS,-1369.4,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
+2020-02-14,Phone Company - mobile,-89.9,ILS,37694.1,checking,Main Checking,Hapoalim (mock),1023,bill_payment,PHONE COMPANY,IL,True
+2020-02-16,Government License,-13.7,ILS,-8642.52,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,LICENSING #8843 - CANADA,IL,False
+2020-02-17,Potbelly,-24.21,ILS,-5731.09,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POTBELLY,IL,False
 2020-02-18,Spotify,-21.9,ILS,-155.6,credit_card,MAX Platinum,MAX (mock),4420,subscription,Spotify,SE,True
-2020-02-19,Mekorot Water purchase,-124.14,ILS,-1493.54,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Mekorot Water,IL,False
-2020-02-20,Mekorot Water,-145.3,ILS,37548.8,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Mekorot Water,IL,True
-2020-02-20,Spotify purchase,-111.57,ILS,-1073.7,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Spotify,SE,False
-2020-02-21,Super-Pharm purchase,-71.91,ILS,-5706.88,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Super-Pharm,IL,False
+2020-02-19,Water Company,-124.14,ILS,-1493.54,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WATER COMPANY SHOPPING CENTER,IL,False
+2020-02-20,Water Company,-145.3,ILS,37548.8,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WATER COMPANY SHOPPING CENTER,IL,True
+2020-02-20,Spotify,-111.57,ILS,-1073.7,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SPOTIFY,SE,False
+2020-02-21,Walgreens,-71.91,ILS,-5706.88,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
 2020-02-22,ATM cash withdrawal,-789.13,ILS,29853.74,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
-2020-02-22,Super-Pharm purchase,-103.74,ILS,-8628.82,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Super-Pharm,IL,False
-2020-02-23,Mekorot Water purchase,-108.31,ILS,-8750.83,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Mekorot Water,IL,False
-2020-02-24,Sonol purchase,-247.03,ILS,-1740.57,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Sonol,IL,False
-2020-02-25,Yellow purchase,-42.61,ILS,-1856.7,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Yellow,IL,False
+2020-02-22,Walgreens,-103.74,ILS,-8628.82,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
+2020-02-23,Water Company,-108.31,ILS,-8750.83,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WATER COMPANY SHOPPING CENTER,IL,False
+2020-02-24,Shell Station,-247.03,ILS,-1740.57,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHELL STORE TXN240495,IL,False
+2020-02-25,Taxi Service,-42.61,ILS,-1856.7,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
 2020-02-26,Payment received (stmt_cc_02_2020),3931.02,ILS,0.0,credit_card,MAX Platinum,MAX (mock),4420,credit_card_payment,,,True
-2020-02-26,Café Greg purchase,-47.58,ILS,-9713.46,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Café Greg,IL,False
+2020-02-26,Shake Shack,-47.58,ILS,-9713.46,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHAKE SHACK - WEEKEND,IL,False
 2020-02-26,Payment to credit card (stmt_cc_02_2020),-3931.02,ILS,19069.03,checking,Main Checking,Hapoalim (mock),1023,credit_card_payment,,,True
-2020-02-27,McDonald's purchase,-38.58,ILS,-9665.88,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,McDonald's,IL,False
+2020-02-27,KFC,-38.58,ILS,-9665.88,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,KFC - UK STRIP MALL,IL,False
 2020-02-28,Monthly account fee,-15.0,ILS,29015.23,checking,Main Checking,Hapoalim (mock),1023,fee,,,True
 2020-02-28,Monthly interest,12.35,ILS,37024.7,savings,Savings,Hapoalim (mock),7781,interest,,,True
-2020-02-29,IKEA purchase,-146.03,ILS,-448.87,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA,IL,False
-2020-02-29,Cellcom purchase,-85.6,ILS,-534.47,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Cellcom,IL,False
+2020-02-29,IKEA Online,-146.03,ILS,-448.87,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
+2020-02-29,Phone Company,-85.6,ILS,-534.47,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False

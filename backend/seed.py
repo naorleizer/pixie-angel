@@ -27,13 +27,13 @@ def seed_data():
         # Clear existing transactions for demo user
         Transaction.query.filter_by(user_id=demo_user.id).delete()
         
-        # Mock categories and merchants
+        # Mock categories and merchants (from test_data.csv)
         categories = {
-            'Food': ['Supermarket', 'Restaurant', 'Coffee Shop', 'Bakery'],
-            'Transport': ['Gas Station', 'Bus', 'Train', 'Uber'],
-            'Entertainment': ['Cinema', 'Netflix', 'Spotify', 'Bowling'],
-            'Shopping': ['Amazon', 'Zara', 'H&M', 'IKEA'],
-            'Utilities': ['Electric Bill', 'Water Bill', 'Internet', 'Phone']
+            'Food & Dining': ['CHIPOTLE', 'POPEYES', 'KFC - UK STRIP MALL', 'SHAKE SHACK - WEEKEND', 'PIZZA HUT', 'POTBELLY', 'RAISING CANE\'S', 'WALMART SUPERCENTER STATION'],
+            'Transportation': ['BOLTBUS', 'TAXI - USA', '7-ELEVEN', 'TURO STATION', 'AMERICAN AIRLINES', 'LYFT #5255 STORE', 'HERTZ STORE ONLINE'],
+            'Entertainment & Recreation': ['SPOTIFY', 'HULU #4691 - EVENING', 'ARCADE', 'CONCERT TXN447568', 'CARNIVAL #4456', 'WATER PARK', 'CINEMA BRANCH', 'THEATER STORE'],
+            'Shopping & Retail': ['ZARA #8639 STORE', 'NIKE', 'APPLE STORE', 'NEIMAN MARCUS', 'WALGREENS #2456', 'OFFICE DEPOT #3867', 'BIG LOTS', 'NORDSTROM'],
+            'Utilities & Services': ['GAS COMPANY', 'PHONE COMPANY', 'SUDDENLINK #6615', 'WINDSTREAM', 'WIFI STORE', 'WATER COMPANY SHOPPING CENTER', 'MEDIACOM']
         }
         
         # Add recurring income (monthly salary deposits)

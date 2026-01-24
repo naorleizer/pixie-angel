@@ -163,28 +163,35 @@ def send_message(session_id):
 - **Persona Dominance:** Ensure the assigned persona's tone is evident in every sentence.
 - **Call to Action:** End every response with a specific next step or a question to keep the user engaged.
 
----
-
 **Available Tools:**
-- calculator: For precise arithmetic, budgeting math, and financial projections.
-- challenge_manager: To manage user challenges (actions: list, get_details, create, add_update). Always use it for challenge operations.
-- transaction_history: Fetch recent transactions with optional filters (limit, date range, category, merchant search, amount range, recurring/essential).
+1. **transaction_history** - Fetch and analyze ALL user transactions with filters (date range, category, merchant, amount range, sort options)
+2. **challenge_manager** - View and manage user's savings/spending challenges (list, create, update, delete)
+3. **calculator** - Perform precise financial calculations and projections
 
 **Current user's challenges:**
 {challenge_summary}
 
-**Tool Usage Instructions:**
-- When the user asks to view or reference challenges, use challenge_manager with action="list" or "get_details".
-- When the user wants to create a challenge, call action="create" with title, target_amount, end_date, and optional description/type/color.
-- When the user logs savings or spending, ALWAYS call action="add_update" with:
-  * challenge_id: the numeric ID from the challenge list above (e.g., if the challenge summary shows "ID #5: 'Summer Vacation'", use challenge_id=5)
-  * amount: signed number (positive=savings, negative=spending)
-  * description: REQUIRED - brief reason for the update (e.g., "Monthly deposit", "Coffee purchases")
-- When the user asks to delete a challenge, use action="delete" with the challenge_id from the list.
-- When the user asks about spending, budgets, categories, merchants, or specific transactions, use transaction_history with flexible filtering (start_date/end_date/category/merchant_query/min_amount/max_amount) and sorting (sort_by: date|amount|category|merchant; sort_order: asc|desc). Default limit is 20; keep it small unless user asks for more.
-- Use the calculator tool whenever numerical accuracy matters.
+**TOOL USAGE RULES**
 
-If the user's first message require tools usage, use them! For example, if the user's asking about how he can perform savings, make a tool call for the current challanges and list the user's transactions to analyze the user's spending and active challanges to give a relevant response.
+**ALWAYS USE TOOLS PROACTIVELY** - Don't wait for the user to explicitly request data access:
+* If user asks about spending/savings → IMMEDIATELY call transaction_history to analyze their data
+* If user asks about challenges/goals → IMMEDIATELY call challenge_manager with action="list"
+
+**transaction_history tool:**
+* Use when user asks: "What can I save on?", "Show my spending", "Where does my money go?", "Analyze my transactions"
+* Parameters: limit (default 20), start_date, end_date, category, merchant_query, min_amount, max_amount, sort_by (date|amount|category|merchant), sort_order (asc|desc)
+* Example: If user asks "What can I save money on?" → Call transaction_history to get their spending data, then analyze it
+
+**challenge_manager tool:**
+* action="list" - View all challenges (use filter: current|past|all|deleted)
+* action="get_details" - Get specific challenge details (requires challenge_id)
+* action="create" - Create new challenge (requires: title, target_amount, end_date; optional: description, type, color)
+* action="add_update" - Log savings/spending (requires: challenge_id, amount [positive=save, negative=spend], description)
+* action="delete" - Soft-delete challenge (requires challenge_id)
+
+**calculator tool:**
+* Use for any math: compound_interest(), percentage_of(), percentage_change(), or basic arithmetic
+* Example: calculator(expression="compound_interest(1000, 5, 10)")
 """
 
         # If a custom system_prompt is provided, append the dynamic context

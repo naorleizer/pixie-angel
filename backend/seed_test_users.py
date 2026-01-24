@@ -82,14 +82,14 @@ def create_test_users():
             days_offset = i * 30 // 35  # Spread over 30 days
             tx_date = base_date + timedelta(days=days_offset)
             
-            # Vary coffee shops and prices
-            coffee_shops = [
-                ('Landwer Cafe', 25.0, 'IL'),
-                ('Aroma Espresso Bar', 22.0, 'IL'),
-                ('Cofix', 6.0, 'IL'),
-                ('Cafe Joe', 28.0, 'IL')
+            # Vary food & dining merchants and prices
+            food_merchants = [
+                ('CHIPOTLE', 45.0, 'IL'),
+                ('POPEYES', 28.0, 'IL'),
+                ('KFC - UK STRIP MALL', 32.0, 'IL'),
+                ('SHAKE SHACK - WEEKEND', 38.0, 'IL')
             ]
-            shop, price, country = coffee_shops[i % len(coffee_shops)]
+            shop, price, country = food_merchants[i % len(food_merchants)]
             
             transaction = Transaction(
                 user_id=user1.id,
@@ -135,12 +135,12 @@ def create_test_users():
         
         # Generate recurring subscriptions (expenses should be negative)
         subscriptions = [
-            ('Netflix', 55.0, 'Entertainment'),
-            ('Spotify', 19.99, 'Entertainment'),
-            ('Apple iCloud', 39.0, 'Technology'),
-            ('Amazon Prime', 49.0, 'Shopping'),
-            ('New York Times', 89.0, 'News & Media'),
-            ('Adobe Creative Cloud', 99.0, 'Professional Services')
+            ('SPOTIFY', 19.99, 'Entertainment & Recreation'),
+            ('HULU #4691 - EVENING', 15.0, 'Entertainment & Recreation'),
+            ('NETFLIX', 55.0, 'Entertainment & Recreation'),
+            ('AMAZON PRIME', 49.0, 'Shopping & Retail'),
+            ('APPLE STORE', 39.0, 'Shopping & Retail'),
+            ('PHONE COMPANY', 89.0, 'Utilities & Services')
         ]
         
         base_date = datetime.now(timezone.utc) - timedelta(days=90)
@@ -212,12 +212,12 @@ def create_test_users():
         # Generate 20 impulse fashion/shopping purchases (expenses negative)
         base_date = datetime.now(timezone.utc) - timedelta(days=45)
         shopping_merchants = [
-            ('Zara', 'Fashion & Apparel', 150, 450),
-            ('H&M', 'Fashion & Apparel', 80, 300),
-            ('Castro', 'Fashion & Apparel', 200, 600),
-            ('Fox Home', 'Home & Garden', 100, 400),
-            ('Shein', 'Fashion & Apparel', 50, 250),
-            ('Amazon', 'Shopping', 100, 500)
+            ('ZARA #8639 STORE', 'Shopping & Retail', 150, 450),
+            ('NORDSTROM', 'Shopping & Retail', 80, 300),
+            ('NEIMAN MARCUS', 'Shopping & Retail', 200, 600),
+            ('IKEA ONLINE CENTER', 'Shopping & Retail', 100, 400),
+            ('BIG LOTS', 'Shopping & Retail', 50, 250),
+            ('APPLE STORE', 'Shopping & Retail', 100, 500)
         ]
         
         # Add 2 monthly salary deposits (income, positive)

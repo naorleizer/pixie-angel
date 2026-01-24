@@ -282,12 +282,14 @@ class LLMService:
         db.session.flush()
 
         final_response = None
-        last_tool_success_message = None
         max_iterations = 5
         iteration = 0
         
+        logger.info(f"[Session {session_id}] Starting chat loop - use_tools={use_tools}")
+        
         while iteration < max_iterations:
             iteration += 1
+            logger.info(f"[Session {session_id}] Iteration {iteration}/{max_iterations}")
             
             response = completion(
                 model=self.model,
@@ -300,8 +302,10 @@ class LLMService:
             )
             
             response_message = response.choices[0].message
+            logger.info(f"[Session {session_id}] LLM response received - has_tool_calls={hasattr(response_message, 'tool_calls') and bool(response_message.tool_calls)}")
             
             if hasattr(response_message, 'tool_calls') and response_message.tool_calls:
+                logger.info(f"[Session {session_id}] Processing {len(response_message.tool_calls)} tool calls")
                 tool_calls_list = []
                 for tool_call in response_message.tool_calls:
                     tool_calls_list.append({
@@ -335,7 +339,10 @@ class LLMService:
                     
                     try:
                         tool_args = json.loads(tool_call.function.arguments)
+                        logger.info(f"[Session {session_id}] Executing tool '{tool_name}' with args: {tool_args}")
+                        
                         tool_result = self._execute_tool_with_retry(tool_name, tool_args, session_id=session_id)
+                        logger.info(f"[Session {session_id}] Tool '{tool_name}' returned status={tool_result.get('status')}")
                         
                         messages.append({
                             "role": "tool",
@@ -354,8 +361,7 @@ class LLMService:
                         db.session.flush()
 
                         if tool_result.get("status") == "success":
-                            msg_text = tool_result.get("message") or str(tool_result.get("result"))
-                            if msg_text: last_tool_success_message = str(msg_text)
+                            logger.debug(f"[Session {session_id}] Tool '{tool_name}' succeeded")
                         
                         # Log tool execution with full details for debugging
                         if tool_result.get("status") == "error":
@@ -364,27 +370,35 @@ class LLMService:
                             logger.info(f"Tool executed: {tool_name} - {tool_result.get('status')}")
                         
                     except Exception as e:
-                        logger.error(f"Tool execution error: {e}")
+                        logger.error(f"[Session {session_id}] Tool execution error for '{tool_name}': {e}")
                         messages.append({
                             "role": "tool",
                             "tool_call_id": tool_id,
                             "content": json.dumps({"status": "error", "error_message": str(e)})
                         })
             else:
+                logger.info(f"[Session {session_id}] No tool calls in response - using LLM content directly")
                 final_response = response_message.content
+                logger.debug(f"[Session {session_id}] Final response set from LLM (len={len(final_response) if final_response else 0})")
                 break
         
+        # Determine which path we took to build the final response
         if final_response is None:
-            final_response = last_tool_success_message or response_message.content or "Processing issue."
+            logger.warning(f"[Session {session_id}] Iteration limit reached without final LLM response")
+            logger.warning(f"[Session {session_id}] response_message.content available: {bool(response_message.content)}")
+            # Use LLM's last message or a generic acknowledgment - NOT tool results
+            final_response = response_message.content or "I've processed your request. Is there anything else you'd like to know?"
+            logger.info(f"[Session {session_id}] Using safeguard response (len={len(final_response)})")
         else:
-            if last_tool_success_message:
-                final_response = final_response + "\n\n" + last_tool_success_message
+            logger.info(f"[Session {session_id}] Using final_response from LLM loop (len={len(final_response)})")
         
         # Persist final response
+        logger.info(f"[Session {session_id}] Persisting final response (len={len(final_response)}) to database")
         final_msg = ChatMessage(session_id=session_id, role='assistant', content=final_response)
         db.session.add(final_msg)
         db.session.commit()
-
+        
+        logger.info(f"[Session {session_id}] Chat session complete - returning response to user")
         return final_response
 
     def _execute_tool_with_retry(self, tool_name: str, arguments: Dict[str, Any], session_id: Optional[int] = None) -> Dict[str, Any]:

@@ -13,8 +13,7 @@ import challengesHtml from "./screens/challenges.html?raw";
 import importTransactionsHtml from "./screens/import-transactions.html?raw";
 import transactionsHtml from "./screens/transactions.html?raw";
 import profileHtml from "./screens/profile.html?raw";
-import accountManagementHtml from "./screens/account-management.html?raw";
-import privacyHtml from "./screens/privacy.html?raw";
+import accountSettingsHtml from "./screens/account-settings.html?raw";
 import privacyPolicyHtml from "./screens/privacy-policy.html?raw";
 import reportIssueHtml from "./screens/report-issue.html?raw";
 import aboutHtml from "./screens/about.html?raw";
@@ -365,8 +364,7 @@ window.addEventListener("DOMContentLoaded", () => {
         profileHtml +
         aboutHtml +
         reportIssueHtml +
-        accountManagementHtml +
-        privacyHtml +
+        accountSettingsHtml +
         privacyPolicyHtml +
         notificationsHtml +
         chatHistoryHtml +

@@ -378,6 +378,17 @@ async function handleAddUpdate(e) {
     // Clear form
     document.getElementById('add-update-form').reset();
     showToast('Update added successfully!', 'success');
+    
+    // Refresh dashboard challenges widget if dashboard is visible
+    try {
+      const dashboardSection = document.getElementById('screen-dashboard');
+      if (dashboardSection && !dashboardSection.classList.contains('hidden')) {
+        const { loadChallenges: dashLoadChallenges } = await import('./dashboard.js');
+        dashLoadChallenges();
+      }
+    } catch (e) {
+      console.error('Failed to refresh dashboard challenges:', e);
+    }
   } catch (error) {
     console.error('Failed to add update:', error);
     showToast('Failed to add update. Please try again.', 'error');

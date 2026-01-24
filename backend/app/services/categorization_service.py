@@ -320,6 +320,8 @@ def categorize_batch_llm(items: List[Dict]) -> Dict[int, Dict[str, any]]:
     allowed = ", ".join(CATEGORIES)
     system_prompt = """
 You are Pixie, a precise financial categorizer. Classify each transaction to a category and type.
+You will get a list of transactions, and you will determine a categorization for each of them based on the allowed categories
+Add a confidence measurment for each categorization made, based on how confidence you are in the category you decided on.
 Rules:
 - Only respond with a valid JSON array.
 - Each element must be an object: {"index": <int>, "category": <string>, "type": <string>, "confidence": <float 0.0-1.0>}.

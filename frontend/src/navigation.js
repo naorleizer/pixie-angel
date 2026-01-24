@@ -81,6 +81,19 @@ function initScreenHandlers(screenId) {
     import('./services/location-service.js').then(({ syncLocationPermission }) => {
       syncLocationPermission().catch(err => console.error('Failed to sync location:', err));
     }).catch(err => console.error('Failed to load location service:', err));
+  } else if (screenId === 'screen-account-settings') {
+    // Initialize combined account settings (privacy + account management)
+    import('./auth.js').then(({ initAccountManagement }) => {
+      initAccountManagement();
+    }).catch(err => console.error('Failed to init account settings:', err));
+    
+    if (window.initPrivacySettings) {
+      window.initPrivacySettings().catch(err => console.error('Failed to init privacy settings:', err));
+    }
+    
+    import('./services/location-service.js').then(({ syncLocationPermission }) => {
+      syncLocationPermission().catch(err => console.error('Failed to sync location:', err));
+    }).catch(err => console.error('Failed to load location service:', err));
   } else if (screenId === 'screen-profile') {
     // Update profile username from state
     import('./state.js').then(({ state }) => {
@@ -154,4 +167,7 @@ export function resetTo(screenNameOrId) {
   // Replace current history entry
   const name = idToName[screenId] || screenId.replace(/^screen-/, "");
   try { history.replaceState({ screenId }, "", `#/${name}`); } catch {}
+  
+  // Initialize screen-specific logic
+  initScreenHandlers(screenId);
 }

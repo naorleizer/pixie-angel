@@ -171,27 +171,56 @@ def send_message(session_id):
 **Current user's challenges:**
 {challenge_summary}
 
+**How Challenges Motivate the User:**
+Challenges are the app's core mechanism to help users reduce spending and save money. They are short-term (max 1 year), targeted goals that create **urgency and accountability** — preventing vague long-term goals and keeping momentum high. Whenever a user:
+* Expresses interest in saving money or reducing spending
+* Asks about budget improvements or financial goals
+* Mentions wants or dreams that require saving
+
+**You MUST actively invite them to create a challenge.** Use the transaction_history tool to analyze their spending patterns and identify high-impact savings opportunities. Match challenges to their stated interests and motivations for personal resonance.
+
+**Interest-to-Challenge Mapping Examples:**
+* Interest: "Travel" + wants to save → "Save ₪X for your next trip by cutting dining out"
+* Interest: "Health" + budget question → "Build a fitness fund by redirecting unused gym subscriptions"
+* Interest: "Independence" + saving goal → "Build your emergency fund to strengthen financial autonomy"
+
+**Challenge Type Guidance:**
+* `spending_limit`: Use when reducing a specific spending category (e.g., "Reduce dining out to ₪250/month")
+* `savings`: Use for accumulating toward a goal (e.g., "Save ₪500 for a vacation")
+* Default: Always match the type to the user's stated goal (savings for dreams/goals, spending_limit for budget reduction)
+
+**Personalization via Motivations:**
+When suggesting a challenge, reference their motivations to create resonance. E.g.:
+* Motivated by "growth"? → "This challenge builds better spending habits"
+* Motivated by "security"? → "This creates a financial safety net"
+* Motivated by "experiences"? → "Every ₪ saved brings your dream closer"
+
+Example flow:
+1. User: "I want to save money for a vacation" (motivation: experiences)
+2. You: Call transaction_history to find discretionary spending
+3. You: Suggest: "Looking at your dining budget, I see ₪250/month available. Let's redirect that toward your trip — bringing that dream closer!" (2-3 sentences, motivation-aligned)
+
 **TOOL USAGE RULES**
 
 **ALWAYS USE TOOLS PROACTIVELY** - Don't wait for the user to explicitly request data access:
-* If user asks about spending/savings → IMMEDIATELY call transaction_history to analyze their data
-* If user asks about challenges/goals → IMMEDIATELY call challenge_manager with action="list"
+* **Spending/Savings Questions** → Call transaction_history to analyze patterns
+* **Goal/Challenge Questions OR Saving Intent** → Call challenge_manager (action="list") + transaction_history, then propose a specific challenge
 
 **transaction_history tool:**
 * Use when user asks: "What can I save on?", "Show my spending", "Where does my money go?", "Analyze my transactions"
 * Parameters: limit (default 20), start_date, end_date, category, merchant_query, min_amount, max_amount, sort_by (date|amount|category|merchant), sort_order (asc|desc)
-* Example: If user asks "What can I save money on?" → Call transaction_history to get their spending data, then analyze it
+* Use to identify spending patterns, high-impact categories, and savings opportunities before proposing challenges
 
 **challenge_manager tool:**
 * action="list" - View all challenges (use filter: current|past|all|deleted)
 * action="get_details" - Get specific challenge details (requires challenge_id)
-* action="create" - Create new challenge (requires: title, target_amount, end_date; optional: description, type, color)
+* action="create" - Create new challenge (requires: title, target_amount, end_date; optional: description, type, color) — match type to user's goal (see Challenge Type Guidance above)
 * action="add_update" - Log savings/spending (requires: challenge_id, amount [positive=save, negative=spend], description)
 * action="delete" - Soft-delete challenge (requires challenge_id)
 
 **calculator tool:**
-* Use for any math: compound_interest(), percentage_of(), percentage_change(), or basic arithmetic
-* Example: calculator(expression="compound_interest(1000, 5, 10)")
+* Use for financial math: compound_interest(), percentage_of(), percentage_change(), or basic arithmetic
+* Call when proposing challenges with projections (e.g., "If you save ₪250/month for 2 months, you'll reach ₪500")
 """
 
         # If a custom system_prompt is provided, append the dynamic context
@@ -677,6 +706,14 @@ def create_challenge():
     user_id = get_jwt_identity()
     data = request.get_json()
     
+    # Validate end_date: must not exceed 1 year from now
+    end_date = None
+    if data.get('end_date'):
+        end_date = datetime.fromisoformat(data['end_date'])
+        one_year_from_now = datetime.now().replace(year=datetime.now().year + 1)
+        if end_date > one_year_from_now:
+            return jsonify({"error": "Challenges cannot exceed 1 year in duration"}), 400
+    
     challenge = Challenge(
         user_id=user_id,
         title=data.get('title'),
@@ -684,7 +721,7 @@ def create_challenge():
         type=data.get('type', 'spending_limit'),
         target_amount=data.get('target_amount', 0),
         color=data.get('color', 'indigo'),
-        end_date=datetime.fromisoformat(data['end_date']) if data.get('end_date') else None
+        end_date=end_date
     )
     
     db.session.add(challenge)

@@ -27,6 +27,14 @@ export async function createChallenge() {
   else if (durationUnit === "weeks") end.setDate(end.getDate() + durationValue * 7);
   else end.setMonth(end.getMonth() + durationValue); // months default
 
+  // Validate: maximum duration is 1 year
+  const oneYearFromNow = new Date(now);
+  oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+  if (end > oneYearFromNow) {
+    alert("Challenges cannot exceed 1 year in duration. Please choose a shorter timeframe.");
+    return;
+  }
+
   // For now, default to a savings-type challenge with indigo color
   const payload = {
     title,

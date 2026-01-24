@@ -191,8 +191,8 @@ window.showPrivacy = showPrivacy;
 // Sidebar HTML injected into the app container so it is present across screens.
 const sidebarHtml = `
   <div id="app-sidebar-overlay" class="hidden fixed inset-0 bg-black/40 z-30"></div>
-  <aside id="app-sidebar" class="fixed left-0 top-0 h-full w-64 transform -translate-x-full transition-transform duration-200 ease-out z-40 bg-white border-r border-slate-200">
-    <div class="p-4">
+  <aside id="app-sidebar" class="fixed left-0 top-0 h-full w-64 transform -translate-x-full transition-transform duration-200 ease-out z-40 bg-white border-r border-slate-200 flex flex-col">
+    <div class="p-4 flex-shrink-0">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <img src="assets/images/pixie_avatar_icon.png" alt="Pixie" class="w-9 h-9 rounded-xl" />
@@ -249,27 +249,14 @@ const sidebarHtml = `
         
       </nav>
 
-      <!-- Chats list rendered inline in sidebar -->
-      <div class="mt-4">
-        <h3 class="text-xs font-semibold text-slate-500 mb-2">Chats</h3>
-        <div id="sidebar-chat-list" class="space-y-2 max-h-40 overflow-auto">
-          <div class="text-xs text-slate-400">Loading...</div>
-        </div>
-      </div>
-      <!-- Profile shortcut fixed to bottom-left of sidebar -->
-      <div class="absolute left-4 bottom-4 flex items-center gap-3">
-        <div class="relative">
-          <button id="sidebar-profile-btn" aria-label="Profile" onclick="goToScreen('screen-profile'); toggleSidebar()" class="flex items-center gap-2 p-2 rounded-full hover:bg-slate-100 relative">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM6 20v-1a4 4 0 014-4h4a4 4 0 014 4v1" />
-            </svg>
-            <span id="notification-dot" class="hidden absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] leading-4 text-center font-semibold">1</span>
-          </button>
-        </div>
-        <div>
-          <div id="sidebar-username" class="text-sm font-medium text-slate-800">Hi there</div>
-          <div id="notification-title" class="text-xs text-slate-500">Profile</div>
-        </div>
+      <!-- Chats section header -->
+      <h3 class="text-xs font-semibold text-slate-500 mb-2 mt-4">Chats</h3>
+    </div>
+
+    <!-- Chats list - expands to fill available space -->
+    <div class="flex-1 overflow-auto px-4 pb-4">
+      <div id="sidebar-chat-list" class="space-y-2">
+        <div class="text-xs text-slate-400">Loading...</div>
       </div>
     </div>
   </aside>

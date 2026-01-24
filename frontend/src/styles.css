@@ -33,11 +33,6 @@
   animation: fadeDown 300ms ease-out;
 }
 
-/* Remove default button active state */
-button:active {
-  outline: none;
-}
-
 /* --- Migrated from original inline <style> --- */
 /* Animation for revealed chat steps */
     @keyframes chatPopIn {

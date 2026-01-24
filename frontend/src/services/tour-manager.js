@@ -25,6 +25,9 @@ class TourManager {
       this.tour.cancel();
     }
 
+    // Disable interactive elements on the page
+    this.disablePageElements();
+
     // Create new tour with mobile-optimized defaults
     this.tour = new Shepherd.Tour({
       defaultStepOptions: {
@@ -120,6 +123,8 @@ class TourManager {
   onTourEnd() {
     this.tour = null;
     this.currentPageTour = null;
+    // Re-enable interactive elements
+    this.enablePageElements();
   }
 
   /**
@@ -136,6 +141,42 @@ class TourManager {
    */
   isActive() {
     return this.tour !== null;
+  }
+
+  /**
+   * Disable interactive elements on the page (except sidebar close button)
+   */
+  disablePageElements() {
+    // Disable all interactive elements
+    const interactiveElements = document.querySelectorAll(
+      'button:not(.shepherd-button):not(.shepherd-cancel-icon), ' +
+      'a, [onclick]:not(.shepherd-button), ' +
+      'input, textarea, select, ' +
+      '[role="button"]'
+    );
+
+    interactiveElements.forEach(el => {
+      // Skip sidebar overlay and close button
+      if (el.id === 'app-sidebar-overlay' || el.getAttribute('aria-label') === 'Close sidebar') {
+        return;
+      }
+      // Mark as disabled for tour and apply opacity
+      el.setAttribute('data-tour-disabled', 'true');
+      el.style.pointerEvents = 'none';
+      el.style.opacity = '0.5';
+    });
+  }
+
+  /**
+   * Re-enable interactive elements after tour ends
+   */
+  enablePageElements() {
+    const disabledElements = document.querySelectorAll('[data-tour-disabled="true"]');
+    disabledElements.forEach(el => {
+      el.removeAttribute('data-tour-disabled');
+      el.style.pointerEvents = '';
+      el.style.opacity = '';
+    });
   }
 }
 

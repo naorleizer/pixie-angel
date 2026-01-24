@@ -30,11 +30,15 @@ export async function loadChallenges() {
   
   try {
     challenges = await apiRequest("/api/challenges?filter=current");
-    renderChallenges(challenges, track, dotsContainer);
+    if (challenges && challenges.length > 0) {
+      renderChallenges(challenges, track, dotsContainer);
+    } else {
+      renderEmptyState(track, dotsContainer);
+    }
     updateChallengeBalanceWidget(challenges);
   } catch (error) {
     console.error("Failed to fetch challenges:", error);
-    renderEmptyState(track);
+    renderEmptyState(track, dotsContainer);
     updateChallengeBalanceWidget([]);
   }
 }
@@ -169,15 +173,26 @@ function updateChallengeBalanceWidget(items) {
   }
 }
 
-function renderEmptyState(track) {
-  track.innerHTML = `
-    <div class="min-w-full pr-2">
-      <div class="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-8 text-center">
-        <p class="text-sm text-slate-600">No challenges yet</p>
-        <p class="text-xs text-slate-500 mt-1">Create your first challenge to get started!</p>
-      </div>
-    </div>
-  `;
+function renderEmptyState(track, dotsContainer) {
+  // Show the create new challenge card even when no challenges exist
+  const createNewCard = createNewChallengeCard(0);
+  track.innerHTML = createNewCard;
+  
+  // Update dots to show only the plus icon
+  if (dotsContainer) {
+    const plusDot = `
+      <button data-challenge-dot class="h-2.5 w-2.5 flex items-center justify-center text-indigo-600 hover:text-indigo-600" 
+        onclick="setChallengeSlide(0)" aria-label="Create new challenge">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+    `;
+    dotsContainer.innerHTML = plusDot;
+  }
+  
+  state.challengeCarouselIndex = 0;
+  track.style.transform = `translateX(0%)`;
 }
 
 function createNewChallengeCard(index) {

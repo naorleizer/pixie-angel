@@ -80,20 +80,31 @@ export async function loadRecentTransactions() {
 }
 
 function renderChallenges(items, track, dotsContainer) {
-  if (!items || items.length === 0) {
-    renderEmptyState(track);
-    if (dotsContainer) dotsContainer.innerHTML = '';
-    return;
-  }
-
-  track.innerHTML = items.map((c, i) => createChallengeCard(c, i)).join("");
+  const challenges = items || [];
+  
+  // Add cards for existing challenges + "create new" card
+  const challengeCards = challenges.map((c, i) => createChallengeCard(c, i)).join("");
+  const createNewCard = createNewChallengeCard(challenges.length);
+  track.innerHTML = challengeCards + createNewCard;
   
   if (dotsContainer) {
-    dotsContainer.innerHTML = items.map((_, i) => `
-      <button data-challenge-dot class="h-2.5 w-2.5 rounded-full ${i === 0 ? 'bg-indigo-600' : 'bg-slate-300'}" 
+    // Regular dots for challenges + plus icon for create card
+    const challengeDots = challenges.map((_, i) => `
+      <button data-challenge-dot class="h-2.5 w-2.5 rounded-full ${i === 0 && challenges.length > 0 ? 'bg-indigo-600' : 'bg-slate-300'}" 
         onclick="setChallengeSlide(${i})" aria-label="Slide ${i + 1}">
       </button>
     `).join("");
+    
+    const plusDot = `
+      <button data-challenge-dot class="h-2.5 w-2.5 flex items-center justify-center ${challenges.length === 0 ? 'text-indigo-600' : 'text-slate-400'} hover:text-indigo-600" 
+        onclick="setChallengeSlide(${challenges.length})" aria-label="Create new challenge">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+    `;
+    
+    dotsContainer.innerHTML = challengeDots + plusDot;
   }
   
   state.challengeCarouselIndex = 0;
@@ -156,7 +167,27 @@ function renderEmptyState(track) {
     <div class="min-w-full pr-2">
       <div class="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-8 text-center">
         <p class="text-sm text-slate-600">No challenges yet</p>
-        <p class="text-xs text-slate-500 mt-1">Tap "New via chat" to create your first challenge!</p>
+        <p class="text-xs text-slate-500 mt-1">Create your first challenge to get started!</p>
+      </div>
+    </div>
+  `;
+}
+
+function createNewChallengeCard(index) {
+  return `
+    <div class="min-w-full pr-2" id="challenge-card-${index}">
+      <div class="rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-dashed border-indigo-200 px-4 py-8 cursor-pointer hover:border-indigo-400 hover:shadow-md transition-all" onclick="navigate('challenge')">
+        <div class="flex flex-col items-center justify-center gap-3 text-center">
+          <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-indigo-900">Create New Challenge</p>
+            <p class="text-xs text-indigo-600 mt-1">Set a new savings or spending goal</p>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -233,8 +264,20 @@ export function setChallengeSlide(i) {
   const dots = document.querySelectorAll("[data-challenge-dot]");
   dots.forEach((d, idx) => {
     const active = idx === clamped;
-    d.classList.toggle("bg-indigo-600", active);
-    d.classList.toggle("bg-slate-300", !active);
+    // Regular dots
+    if (d.classList.contains('rounded-full')) {
+      d.classList.toggle("bg-indigo-600", active);
+      d.classList.toggle("bg-slate-300", !active);
+    } else {
+      // Plus icon - highlight when active
+      if (active) {
+        d.classList.add('text-indigo-600');
+        d.classList.remove('text-slate-400');
+      } else {
+        d.classList.add('text-slate-400');
+        d.classList.remove('text-indigo-600');
+      }
+    }
   });
 }
 

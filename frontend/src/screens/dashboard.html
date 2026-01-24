@@ -1,15 +1,22 @@
 <section id="screen-dashboard" class="hidden flex-1 flex flex-col px-4 pb-4 pt-4 bg-slate-50">
   <!-- Header -->
   <header class="relative flex items-center justify-between mb-4">
-    <div class="flex items-center gap-2">
-      <!-- (Previous hamburger menu is replaced by a sidebar toggle on the avatar) -->
-      <!-- App icon on top-left -->
-      <div id="app-avatar-btn" class="w-11 h-11 rounded-2xl bg-white shadow flex items-center justify-center cursor-pointer" onclick="toggleSidebar()">
-        <img src="assets/images/pixie_avatar_icon.png" alt="Pixie avatar" class="w-8 h-8 object-contain" />
-      </div>
+    <div class="flex items-center gap-3">
+      <!-- Hamburger menu icon -->
+      <button class="w-10 h-10 rounded-xl bg-white shadow flex items-center justify-center cursor-pointer" onclick="toggleSidebar()" aria-label="Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <!-- Profile icon -->
+      <button class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center cursor-pointer" onclick="navigate('profile')" aria-label="Profile">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM6 20v-1a4 4 0 014-4h4a4 4 0 014 4v1" />
+        </svg>
+      </button>
+      <!-- Greeting -->
       <div class="leading-tight">
-        <h1 class="text-base font-semibold">Pixie</h1>
-        <p class="text-[11px] text-slate-500">Your Guardian Angel</p>
+        <h1 class="text-base font-semibold" id="dashboard-username">Hi User</h1>
       </div>
     </div>
     <button id="help-btn" class="text-slate-500 hover:text-indigo-600" aria-label="Open help" onclick="openHelp()">
@@ -20,25 +27,12 @@
   <!-- Scrollable content -->
   <div class="flex-1 overflow-y-auto space-y-3 pb-4">
 
-    <!-- Welcome card -->
-    <button
-      class="w-full text-left rounded-3xl fa-card shadow-sm border border-slate-200 px-5 py-4 flex justify-between items-center"
-      title="Profile (not implemented)">
-      <div>
-        <p class="text-sm text-slate-600" id="dashboard-username">User</p>
-        <p class="text-xs text-slate-500 mt-0.5">Here’s your snapshot.</p>
-      </div>
-      <span class="text-xs text-indigo-600 font-semibold">Profile</span>
-    </button>
 
     <!-- Challenges carousel (bigger  dots  sliding) -->
     <div class="rounded-3xl fa-card shadow-sm border border-slate-200 px-5 py-4">
       <div class="flex items-center justify-between mb-3">
         <p class="text-sm font-semibold text-slate-800">Your challenges</p>
-        <div class="flex gap-2">
-          <button class="text-xs text-indigo-600 font-semibold" onclick="navigate('challenges')">View All</button>
-          <button class="text-xs text-indigo-600 font-semibold" onclick="openChat('challenge', true)">New via chat</button>
-        </div>
+        <button class="text-xs text-indigo-600 font-semibold" onclick="navigate('challenges')">View All</button>
       </div>
 
       <div class="overflow-hidden">

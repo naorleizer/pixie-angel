@@ -60,7 +60,7 @@ TOOLS_REGISTRY = {
         "type": "function",
         "function": {
             "name": "challenge_manager",
-            "description": "Manage user savings/spending challenges. \nREQUIRED ARGS BY ACTION:\n- 'create': needs 'title', 'target_amount', 'end_date'.\n- 'add_update': needs 'challenge_id', 'amount' (positive=save, negative=spend).\n- 'delete'/'get_details': needs 'challenge_id'.\n- 'list': 'filter' is optional.",
+            "description": "Manage user savings/spending challenges. \nREQUIRED ARGS BY ACTION:\n- 'create': needs 'title', 'target_amount', 'end_date', optional 'description', 'type', 'color'.\n- 'add_update': needs 'challenge_id' (use ID from challenge list), 'amount' (positive=save, negative=spend), 'description' (REQUIRED).\n- 'delete'/'get_details': needs 'challenge_id' (use ID from challenge list).\n- 'list': optional 'filter' (current|past|all).",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -96,7 +96,7 @@ TOOLS_REGISTRY = {
                     },
                     "description": {
                         "type": "string",
-                        "description": "Optional description for challenge (used with create) or required for add_update"
+                        "description": "REQUIRED for 'add_update': reason or note for this transaction (e.g., 'Weekly groceries', 'Salary deposit'). Optional for 'create' action."
                     },
                     "color": {
                         "type": "string",

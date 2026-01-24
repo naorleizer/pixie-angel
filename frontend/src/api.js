@@ -212,6 +212,13 @@ export async function addChallengeUpdate(challengeId, amount, description) {
     body: JSON.stringify({ amount, description })
   });
 }
+
+export async function deleteChallenge(challengeId) {
+  return apiRequest(`/api/challenges/${challengeId}`, {
+    method: 'DELETE'
+  });
+}
+
 export async function updateUserPreferences(preferences) {
   return apiRequest('/api/auth/user/preferences', {
     method: 'PATCH',

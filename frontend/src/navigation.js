@@ -13,6 +13,7 @@ const screenMap = {
   challenges: "screen-challenges",
   "import-transactions": "import-transactions-screen",
   transactions: "screen-transactions",
+  profile: "screen-profile",
 };
 const idToName = Object.entries(screenMap).reduce((acc, [name, id]) => {
   acc[id] = name;

@@ -202,6 +202,9 @@ function renderChallengeDetail(challenge) {
       <button id="back-to-challenges-btn" class="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200">
         Close
       </button>
+      <button id="delete-challenge-btn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+        Delete
+      </button>
     </div>
   `;
   
@@ -276,6 +279,11 @@ function setupDetailHandlers() {
     backBtn.addEventListener('click', closeChallengeDetail);
   }
   
+  const deleteBtn = document.getElementById('delete-challenge-btn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', handleDeleteChallenge);
+  }
+  
   const form = document.getElementById('add-update-form');
   if (form) {
     form.addEventListener('submit', handleAddUpdate);
@@ -316,6 +324,37 @@ async function handleAddUpdate(e) {
   } catch (error) {
     console.error('Failed to add update:', error);
     alert('Failed to add update. Please try again.');
+  }
+}
+
+async function handleDeleteChallenge() {
+  if (!confirm('Are you sure you want to delete this challenge? This action cannot be undone.')) {
+    return;
+  }
+  
+  try {
+    const { deleteChallenge } = await import('./api.js');
+    await deleteChallenge(currentDetailId);
+    
+    // Close the detail modal
+    closeChallengeDetail();
+    
+    // Refresh both the challenges list and dashboard if dashboard is open
+    try {
+      const dashboardSection = document.getElementById('screen-dashboard');
+      if (dashboardSection && !dashboardSection.classList.contains('hidden')) {
+        const { loadChallenges: dashLoadChallenges } = await import('./dashboard.js');
+        dashLoadChallenges();
+      }
+    } catch (e) {
+      console.error('Failed to refresh dashboard:', e);
+    }
+    
+    // Reload challenges list
+    loadChallenges(currentFilter);
+  } catch (error) {
+    console.error('Failed to delete challenge:', error);
+    alert('Failed to delete challenge. Please try again.');
   }
 }
 

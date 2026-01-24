@@ -172,7 +172,11 @@ def send_message(session_id):
 **Tool Usage Instructions:**
 - When the user asks to view or reference challenges, use challenge_manager with action="list" or "get_details".
 - When the user wants to create a challenge, call action="create" with title, target_amount, end_date, and optional description/type/color.
-- When the user logs savings or spending, call action="add_update" with challenge_id, signed amount (positive=savings, negative=spending), and description.
+- When the user logs savings or spending, ALWAYS call action="add_update" with:
+  * challenge_id: the numeric ID from the challenge list above (e.g., if the challenge summary shows "ID #5: 'Summer Vacation'", use challenge_id=5)
+  * amount: signed number (positive=savings, negative=spending)
+  * description: REQUIRED - brief reason for the update (e.g., "Monthly deposit", "Coffee purchases")
+- When the user asks to delete a challenge, use action="delete" with the challenge_id from the list.
 - When the user asks about spending, budgets, categories, merchants, or specific transactions, use transaction_history with flexible filtering (start_date/end_date/category/merchant_query/min_amount/max_amount) and sorting (sort_by: date|amount|category|merchant; sort_order: asc|desc). Default limit is 20; keep it small unless user asks for more.
 - Use the calculator tool whenever numerical accuracy matters.
 """

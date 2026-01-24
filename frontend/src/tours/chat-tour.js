@@ -8,13 +8,13 @@ export const chatTour = {
     {
       target: "#chat-scroll",
       title: "Welcome to Chat",
-      description: "This is the place to talk with Pixie, your AI financial angel! Ask anything about your finances, and Pixie will provide personalized advice and guidance.",
+      description: "A helping hand. This is where we talk through your numbers and turn them into a plan together.",
       position: "bottom"
     },
     {
       target: "#chat-input",
       title: "Type Your Message",
-      description: "This is where you write your questions or messages. Just type anything you want to discuss with Pixie!",
+      description: "Ready when you are. Type your message below to begin our journey toward your financial goals.",
       position: "top"
     }
   ]

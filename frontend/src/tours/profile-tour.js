@@ -8,49 +8,43 @@ export const profileTour = {
     {
       target: ".rounded-2xl.bg-slate-100",
       title: "Your Profile",
-      description: "This shows your username and profile information. You can view and manage your account here.",
+      description: "This is the heart of your personal financial journey. You can view and manage your account here.",
       position: "bottom"
     },
     {
       target: "button[onclick*='screen-privacy']",
       title: "Privacy and Data",
-      description: "Control how Pixie uses your data and personalization settings.",
+      description: "Your privacy, your rules. Adjust your data settings here.",
       position: "bottom"
     },
     {
       target: "button[onclick*='screen-account-management']",
       title: "Account Management",
-      description: "Customize your interests and choose your financial persona preference.",
+      description: "Adjust your data settings. Customize your profile to fit your style.",
       position: "bottom"
     },
     {
       target: "button[onclick*='logout']",
       title: "Log Out",
-      description: "Sign out of your account when you're done.",
+      description: "Signing off. I'll be right here whenever you're ready to pick up where we left off.",
       position: "bottom"
     },
     {
       target: "button[onclick*='screen-about']",
       title: "About",
-      description: "Learn more about Pixie and how it works.",
-      position: "bottom"
-    },
-    {
-      target: "button[onclick*='screen-onboarding']",
-      title: "Onboarding",
-      description: "Revisit the introductory tour to refresh your knowledge of Pixie.",
+      description: "Learn more about Pixie’s mission and how it works.",
       position: "bottom"
     },
     {
       target: "button[onclick*='screen-privacy-policy']",
       title: "Privacy Policy",
-      description: "Read our complete privacy policy and data handling practices.",
+      description: "Read our privacy policy and data handling practices.",
       position: "bottom"
     },
     {
       target: "button[onclick*='screen-report-issue']",
       title: "Report an Issue",
-      description: "Have feedback or found a bug? Let us know how we can improve!",
+      description: "Help us grow. Your feedback is the best way for us to become a better guardian.",
       position: "bottom"
     }
   ]

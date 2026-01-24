@@ -8,13 +8,13 @@ export const importTransactionsTour = {
     {
       target: "#drop-zone",
       title: "Upload Your CSV File",
-      description: "Click here or drag and drop your CSV file to upload your transaction history from your bank. This helps us understand your spending patterns and provide better financial advice.",
+      description: "Bring in your data. Simply drag and drop your file here. By uploading your history, I can provide much more personalized guidance for your goals.",
       position: "bottom"
     },
     {
       target: "#upload-btn",
       title: "Complete Your Import",
-      description: "Click this button to upload and import your transactions. Don't worry - you have full control! You can remove any file from the app anytime, and no data will be kept in our system after deletion.",
+      description: "Safety first. Click to import, knowing you can delete your data from our system anytime.",
       position: "top"
     }
   ]

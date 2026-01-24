@@ -8,37 +8,37 @@ export const challengeTour = {
     {
       target: "#create_challenge_form",
       title: "Create Your Challenge",
-      description: "This is your place to create new challenges! Fill in the form below to set your financial goals.",
+      description: "TYour goal, your rules. Fill in these details to turn your goal into a real plan.",
       position: "bottom"
     },
     {
       target: "#challenge-title",
       title: "Challenge Title",
-      description: "Give a personal title to your next challenge. Make it meaningful so you stay motivated!",
+      description: "Give it a name. Choose a title that reminds you exactly why you’re doing this.",
       position: "bottom"
     },
     {
       target: "#challenge_type",
       title: "Challenge Type",
-      description: "You can choose between a one-time challenge or a routine one that repeats regularly.",
+      description: "One-off or ongoing? Decide if this is a single goal or a habit you want to keep.",
       position: "bottom"
     },
     {
       target: "#challenge-amount",
       title: "Challenge Amount",
-      description: "Set your target amount in ₪. This is how much you want to save or track for your challenge.",
+      description: "Set the bar. Enter the amount in ₪ you need to cross the finish line.",
       position: "bottom"
     },
     {
       target: "#challenge_duration_section",
       title: "Challenge Duration",
-      description: "Specify how long you want your challenge to last. You can choose days, weeks, or months.",
+      description: "Choose a duration that makes this goal feel manageable. You can choose days, weeks, or months.",
       position: "bottom"
     },
     {
       target: "#create-challenge-btn",
       title: "Create Your Challenge",
-      description: "Here you submit your challenge. Don't worry, you can edit or cancel it anytime later!",
+      description: "Ready to launch? Submit your challenge now and let's start making progress. Don't worry, you can edit or cancel it anytime later.",
       position: "top"
     }
   ]

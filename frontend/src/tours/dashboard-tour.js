@@ -8,25 +8,25 @@ export const dashboardTour = {
     {
       target: "#app-avatar-btn",
       title: "Navigation Menu",
-      description: "Tap the Pixie avatar to open the menu and explore different sections.",
+      description: "Your personal space. Tap here to navigate through your goals and settings.",
       position: "bottom"
     },
     {
       target: "#challenge-track",
       title: "Your Challenges",
-      description: "Track your savings goals here. Tap a challenge to see more details or add progress.",
+      description: "Turning dreams into plans. Stay on track with your goals and celebrate every small win.",
       position: "bottom"
     },
     {
       target: "#transactions-section",
       title: "Recent Transactions",
-      description: "See your latest spending and savings activities. Tap to view all transactions.",
+      description: "Your money at a glance. A quick look at your recent spending.",
       position: "top"
     },
     {
       target: "#help-btn",
       title: "Need Help?",
-      description: "Stuck? Tap the question mark on any page to see a quick tour like this one.",
+      description: "I'm always here. Tap this whenever you need a quick refresher or a helping hand.",
       position: "bottom"
     }
   ]

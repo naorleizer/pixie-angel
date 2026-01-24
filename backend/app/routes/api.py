@@ -179,6 +179,8 @@ def send_message(session_id):
 - When the user asks to delete a challenge, use action="delete" with the challenge_id from the list.
 - When the user asks about spending, budgets, categories, merchants, or specific transactions, use transaction_history with flexible filtering (start_date/end_date/category/merchant_query/min_amount/max_amount) and sorting (sort_by: date|amount|category|merchant; sort_order: asc|desc). Default limit is 20; keep it small unless user asks for more.
 - Use the calculator tool whenever numerical accuracy matters.
+
+If the user's first message require tools usage, use them! For example, if the user's asking about how he can perform savings, make a tool call for the current challanges and list the user's transactions to analyze the user's spending and active challanges to give a relevant response.
 """
 
         # If a custom system_prompt is provided, append the dynamic context

@@ -36,8 +36,26 @@ def seed_data():
             'Utilities': ['Electric Bill', 'Water Bill', 'Internet', 'Phone']
         }
         
-        # Generate transactions for the last 30 days
-        print("Generating mock transactions...")
+        # Add recurring income (monthly salary deposits)
+        print("Adding recurring income transactions...")
+        base_salary_date = datetime.utcnow() - timedelta(days=90)
+        for month_offset in range(3):
+            date = base_salary_date + timedelta(days=month_offset * 30)
+            income_tx = Transaction(
+                user_id=demo_user.id,
+                date=date,
+                amount=20000.0,
+                category='Income',
+                merchant='Employer Ltd',
+                description='Monthly Salary',
+                transaction_type='salary',
+                is_recurring=True,
+                import_source='MockData'
+            )
+            db.session.add(income_tx)
+
+        # Generate expense transactions for the last 30 days (negative amounts)
+        print("Generating mock expense transactions...")
         for i in range(60): # 60 transactions
             days_ago = random.randint(0, 30)
             date = datetime.utcnow() - timedelta(days=days_ago)
@@ -51,7 +69,7 @@ def seed_data():
             tx = Transaction(
                 user_id=demo_user.id,
                 date=date,
-                amount=amount,
+                amount=-amount,
                 category=category,
                 merchant=merchant,
                 description=f"Purchase at {merchant}",

@@ -20,12 +20,14 @@ def create_test_users():
     with app.app_context():
         print("Creating test users for LLM evaluation...")
         
-        # Clear existing test users
+        # Clear existing test users and their transactions
         test_usernames = ['test_coffee_addict', 'test_subscription_hoarder', 'test_impulse_shopper']
         for username in test_usernames:
             existing_user = User.query.filter_by(username=username).first()
             if existing_user:
                 print(f"Deleting existing user: {username}")
+                # Delete all transactions for this user first (NOT NULL constraint)
+                Transaction.query.filter_by(user_id=existing_user.id).delete()
                 db.session.delete(existing_user)
         db.session.commit()
         
@@ -58,6 +60,24 @@ def create_test_users():
         
         # Generate 35 coffee purchases over 30 days (1-2 per day)
         base_date = datetime.now(timezone.utc) - timedelta(days=30)
+        # Add 3 monthly salary deposits (income, positive)
+        for month_offset in range(3):
+            salary_date = base_date + timedelta(days=month_offset * 30)
+            salary_tx = Transaction(
+                user_id=user1.id,
+                account_id=account1.id,
+                date=salary_date,
+                amount=12000.0,
+                transaction_type='salary',
+                category='Income',
+                description='Monthly Salary',
+                merchant='Employer Ltd',
+                merchant_country='IL',
+                is_recurring=True,
+                categorization_source='heuristic',
+                categorization_confidence=1.0
+            )
+            db.session.add(salary_tx)
         for i in range(35):
             days_offset = i * 30 // 35  # Spread over 30 days
             tx_date = base_date + timedelta(days=days_offset)
@@ -75,7 +95,7 @@ def create_test_users():
                 user_id=user1.id,
                 account_id=account1.id,
                 date=tx_date,
-                amount=price,
+                amount=-price,
                 transaction_type='regular_payment',
                 category='Food & Dining',
                 description=f'Coffee at {shop}',
@@ -113,7 +133,7 @@ def create_test_users():
         db.session.add(account2)
         db.session.commit()
         
-        # Generate recurring subscriptions
+        # Generate recurring subscriptions (expenses should be negative)
         subscriptions = [
             ('Netflix', 55.0, 'Entertainment'),
             ('Spotify', 19.99, 'Entertainment'),
@@ -124,6 +144,24 @@ def create_test_users():
         ]
         
         base_date = datetime.now(timezone.utc) - timedelta(days=90)
+        # Add 3 monthly salary deposits (income, positive)
+        for month_offset in range(3):
+            salary_date = base_date + timedelta(days=month_offset * 30)
+            salary_tx = Transaction(
+                user_id=user2.id,
+                account_id=account2.id,
+                date=salary_date,
+                amount=15000.0,
+                transaction_type='salary',
+                category='Income',
+                description='Monthly Salary',
+                merchant='Employer Ltd',
+                merchant_country='IL',
+                is_recurring=True,
+                categorization_source='heuristic',
+                categorization_confidence=1.0
+            )
+            db.session.add(salary_tx)
         for month_offset in range(3):  # 3 months of history
             for service, price, category in subscriptions:
                 tx_date = base_date + timedelta(days=month_offset * 30)
@@ -132,7 +170,7 @@ def create_test_users():
                     user_id=user2.id,
                     account_id=account2.id,
                     date=tx_date,
-                    amount=price,
+                    amount=-price,
                     transaction_type='recurring_payment',
                     category=category,
                     description=f'{service} Subscription',
@@ -171,7 +209,7 @@ def create_test_users():
         db.session.add(account3)
         db.session.commit()
         
-        # Generate 20 impulse fashion/shopping purchases
+        # Generate 20 impulse fashion/shopping purchases (expenses negative)
         base_date = datetime.now(timezone.utc) - timedelta(days=45)
         shopping_merchants = [
             ('Zara', 'Fashion & Apparel', 150, 450),
@@ -182,6 +220,24 @@ def create_test_users():
             ('Amazon', 'Shopping', 100, 500)
         ]
         
+        # Add 2 monthly salary deposits (income, positive)
+        for month_offset in range(2):
+            salary_date = base_date + timedelta(days=month_offset * 30)
+            salary_tx = Transaction(
+                user_id=user3.id,
+                account_id=account3.id,
+                date=salary_date,
+                amount=11000.0,
+                transaction_type='salary',
+                category='Income',
+                description='Monthly Salary',
+                merchant='Employer Ltd',
+                merchant_country='IL',
+                is_recurring=True,
+                categorization_source='heuristic',
+                categorization_confidence=1.0
+            )
+            db.session.add(salary_tx)
         for i in range(20):
             days_offset = i * 45 // 20
             tx_date = base_date + timedelta(days=days_offset)
@@ -193,7 +249,7 @@ def create_test_users():
                 user_id=user3.id,
                 account_id=account3.id,
                 date=tx_date,
-                amount=price,
+                amount=-price,
                 transaction_type='online_purchase',
                 category=category,
                 description=f'Purchase from {merchant}',

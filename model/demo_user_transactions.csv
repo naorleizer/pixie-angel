@@ -1,0 +1,159 @@
+Transaction Date,Description,Amount,Currency,Balance After Transaction,Account Type,Account Name,Institution,Card Last 4,Transaction Type,Merchant Name,Merchant Country,Is Recurring
+2025-10-27,Salary - Employer Ltd.,18500.0,ILS,33500.0,checking,Main Checking,Hapoalim (mock),1023,salary,,,True
+2025-10-28,Transfer from Checking,2500.0,ILS,12500.0,savings,Savings,Hapoalim (mock),7781,transfer_in,,,True
+2025-10-28,WALGREENS #2456,-107.02,ILS,-107.02,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
+2025-10-28,Transfer to Savings,-2500.0,ILS,31000.0,checking,Main Checking,Hapoalim (mock),1023,transfer_out,,,True
+2025-10-28,OFFICE DEPOT #3867,-124.56,ILS,-231.58,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,OFFICE DEPOT #3867,IL,False
+2025-10-30,STARBUCKS COFFEE #1234,-32.50,ILS,-264.08,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-10-30,IKEA ONLINE CENTER,-958.39,ILS,-1222.47,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
+2025-10-31,NESPRESSO CAFE,-28.75,ILS,-1251.22,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-11-02,Rent - Apartment,-6200.0,ILS,24800.0,checking,Main Checking,Hapoalim (mock),1023,bill_payment,,,True
+2025-11-02,Government License,-94.97,ILS,-1346.19,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,LICENSING #8843 - CANADA,IL,False
+2025-11-02,Phone Company,-29.41,ILS,-1375.6,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2025-11-03,Netflix,-38.22,ILS,-1413.82,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
+2025-11-03,CAFE AROMA,-35.20,ILS,-1449.02,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2025-11-05,ATM cash withdrawal,-612.65,ILS,24187.35,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
+2025-11-06,Netflix.com,-55.9,ILS,-1504.92,credit_card,MAX Platinum,MAX (mock),4420,subscription,Netflix,US,True
+2025-11-06,STARBUCKS COFFEE #4567,-31.85,ILS,-1536.77,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-11-06,Taxi Ride,-256.25,ILS,-1793.02,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-11-08,COFFEE BEANS SHOP,-29.50,ILS,-1822.52,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE BEANS SHOP,IL,False
+2025-11-09,Electric Company - direct debit,-420.5,ILS,23766.85,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Electric Company,IL,True
+2025-11-09,Walgreens,-171.15,ILS,-1993.67,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
+2025-11-09,CAFE ITALIA,-33.75,ILS,-2027.42,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE ITALIA,IL,False
+2025-11-09,Chipotle,-102.27,ILS,-2129.69,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CHIPOTLE,IL,False
+2025-11-11,Amazon,-652.94,ILS,-2782.63,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Amazon,US,False
+2025-11-11,NESPRESSO CAFE,-27.30,ILS,-2809.93,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-11-12,Taxi Ride,-172.36,ILS,-2982.29,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-11-12,WINDSTREAM - internet,-119.9,ILS,23646.95,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WINDSTREAM,IL,True
+2025-11-12,STARBUCKS COFFEE #2890,-32.10,ILS,-3014.39,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-11-12,Health Clinic,-101.51,ILS,-3115.9,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2025-11-14,COFFEE CORNER,-25.95,ILS,-3141.85,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE CORNER,IL,False
+2025-11-15,Phone Company - mobile,-89.9,ILS,23557.05,checking,Main Checking,Hapoalim (mock),1023,bill_payment,PHONE COMPANY,IL,True
+2025-11-15,CAFE AROMA,-34.65,ILS,-3176.5,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2025-11-17,Popeyes,-45.59,ILS,-3222.09,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
+2025-11-17,STARBUCKS COFFEE #5678,-33.40,ILS,-3255.49,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-11-18,Phone Company,-12.29,ILS,-3267.78,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2025-11-18,NESPRESSO CAFE,-28.50,ILS,-3296.28,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-11-20,Costco,-177.75,ILS,-3474.03,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COSTCO - CANADA CENTER - WEEKDAY,IL,False
+2025-11-20,COFFEE BEANS SHOP,-30.25,ILS,-3504.28,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE BEANS SHOP,IL,False
+2025-11-21,Amazon,-426.2,ILS,-3930.48,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Amazon,US,False
+2025-11-21,CAFE ITALIA,-32.85,ILS,-3963.33,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE ITALIA,IL,False
+2025-11-21,Spotify,-21.9,ILS,-3985.23,credit_card,MAX Platinum,MAX (mock),4420,subscription,Spotify,SE,True
+2025-11-21,Taxi Service,-118.59,ILS,-4103.82,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-11-23,STARBUCKS COFFEE #3421,-31.75,ILS,-4135.57,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-11-23,Shake Shack,-100.22,ILS,-4235.79,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHAKE SHACK - WEEKEND,IL,False
+2025-11-23,Phone Company,-47.98,ILS,-4283.77,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2025-11-24,Netflix,-191.97,ILS,-4475.74,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
+2025-11-24,COFFEE CORNER,-26.40,ILS,-4502.14,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE CORNER,IL,False
+2025-11-24,Water Company,-145.3,ILS,23411.75,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WATER COMPANY SHOPPING CENTER,IL,True
+2025-11-24,Windstream,-144.22,ILS,-4646.36,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2025-11-26,NESPRESSO CAFE,-29.10,ILS,-4675.46,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-11-28,CAFE AROMA,-35.50,ILS,-4710.96,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2025-11-28,Windstream,-108.5,ILS,-4819.46,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2025-11-29,STARBUCKS COFFEE #6789,-32.20,ILS,-4851.66,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-11-29,IKEA Online,-262.33,ILS,-5113.99,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
+2025-12-01,COFFEE BEANS SHOP,-28.85,ILS,-5142.84,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE BEANS SHOP,IL,False
+2025-12-01,Health Clinic,-79.18,ILS,-5222.02,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2025-12-02,Payment to credit card (stmt_cc_01_2020),-6015.18,ILS,17396.57,checking,Main Checking,Hapoalim (mock),1023,credit_card_payment,,,True
+2025-12-02,CAFE ITALIA,-33.10,ILS,-5255.12,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE ITALIA,IL,False
+2025-12-02,Potbelly,-46.25,ILS,-5301.37,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POTBELLY,IL,False
+2025-12-02,Payment received (stmt_cc_01_2020),6015.18,ILS,713.81,credit_card,MAX Platinum,MAX (mock),4420,credit_card_payment,,,True
+2025-12-04,STARBUCKS COFFEE #7654,-31.45,ILS,682.36,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-12-04,Phone Company,-194.62,ILS,487.74,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2025-12-05,NESPRESSO CAFE,-29.75,ILS,457.99,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-12-05,Taxi Service,-190.1,ILS,267.89,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-12-05,Taxi Service,-209.41,ILS,58.48,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-12-07,COFFEE CORNER,-27.20,ILS,31.28,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE CORNER,IL,False
+2025-12-07,Popeyes,-113.83,ILS,-82.55,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
+2025-12-07,Popeyes,-116.69,ILS,-199.24,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
+2025-12-07,Monthly interest,12.35,ILS,12512.35,savings,Savings,Hapoalim (mock),7781,interest,,,True
+2025-12-07,Monthly account fee,-15.0,ILS,17381.57,checking,Main Checking,Hapoalim (mock),1023,fee,,,True
+2025-12-07,ATM cash withdrawal,-233.24,ILS,17148.33,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
+2025-12-08,CAFE AROMA,-34.30,ILS,-233.54,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2025-12-08,ATM cash withdrawal,-593.91,ILS,16554.42,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
+2025-12-08,Health Clinic,-176.92,ILS,-410.46,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2025-12-10,STARBUCKS COFFEE #8765,-32.60,ILS,-443.06,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-12-10,Electric Company,-132.95,ILS,-576.01,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Electric Company,IL,False
+2025-12-11,COFFEE BEANS SHOP,-30.40,ILS,-606.41,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE BEANS SHOP,IL,False
+2025-12-11,Health Clinic,-215.72,ILS,-822.13,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2025-12-11,Windstream,-17.02,ILS,-839.15,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2025-12-13,Salary - Employer Ltd.,18500.0,ILS,35054.42,checking,Main Checking,Hapoalim (mock),1023,salary,,,True
+2025-12-13,NESPRESSO CAFE,-28.95,ILS,-868.1,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-12-13,Health Clinic,-203.26,ILS,-1071.36,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2025-12-14,STARBUCKS COFFEE #9012,-31.50,ILS,-1102.86,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-12-14,Taxi Service,-218.0,ILS,-1320.86,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-12-14,Chipotle,-66.76,ILS,-1387.62,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CHIPOTLE,IL,False
+2025-12-14,Transfer to Savings,-2500.0,ILS,32554.42,checking,Main Checking,Hapoalim (mock),1023,transfer_out,,,True
+2025-12-14,Transfer from Checking,2500.0,ILS,15012.35,savings,Savings,Hapoalim (mock),7781,transfer_in,,,True
+2025-12-16,CAFE AROMA,-33.85,ILS,-1421.47,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2025-12-16,Mr Sub,-70.67,ILS,-1492.14,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,MR. SUB #7652,IL,False
+2025-12-17,COFFEE CORNER,-26.70,ILS,-1518.84,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE CORNER,IL,False
+2025-12-17,Shell Station,-147.34,ILS,-1666.18,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHELL STORE TXN240495,IL,False
+2025-12-17,Shake Shack,-35.58,ILS,-1701.76,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHAKE SHACK - WEEKEND,IL,False
+2025-12-19,STARBUCKS COFFEE #3456,-32.75,ILS,-1734.51,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-12-19,Phone Company,-91.38,ILS,-1825.89,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False
+2025-12-19,Rent - Apartment,-6200.0,ILS,26354.42,checking,Main Checking,Hapoalim (mock),1023,bill_payment,,,True
+2025-12-20,NESPRESSO CAFE,-29.40,ILS,-1855.29,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-12-20,Shell Station,-35.3,ILS,-1890.59,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHELL STORE TXN240495,IL,False
+2025-12-22,CAFE ITALIA,-34.50,ILS,-1925.09,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE ITALIA,IL,False
+2025-12-22,Government License,-14.29,ILS,-1939.38,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,LICENSING #8843 - CANADA,IL,False
+2025-12-23,STARBUCKS COFFEE #5432,-31.20,ILS,-1970.58,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-12-23,Netflix.com,-55.9,ILS,-2026.48,credit_card,MAX Platinum,MAX (mock),4420,subscription,Netflix,US,True
+2025-12-23,Costco,-212.78,ILS,-2239.26,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COSTCO - CANADA CENTER - WEEKDAY,IL,False
+2025-12-25,COFFEE BEANS SHOP,-29.65,ILS,-2268.91,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE BEANS SHOP,IL,False
+2025-12-25,Taxi Service,-73.17,ILS,-2342.08,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-12-25,Water Company,-198.92,ILS,-2541.0,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WATER COMPANY SHOPPING CENTER,IL,False
+2025-12-27,NESPRESSO CAFE,-28.30,ILS,-2569.3,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-12-27,Electric Company - direct debit,-420.5,ILS,25933.92,checking,Main Checking,Hapoalim (mock),1023,bill_payment,Electric Company,IL,True
+2025-12-27,Popeyes,-22.41,ILS,-2591.71,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POPEYES,IL,False
+2025-12-28,CAFE AROMA,-35.15,ILS,-2626.86,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2025-12-28,Windstream,-185.33,ILS,-2812.19,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2025-12-28,ATM cash withdrawal,-575.27,ILS,25358.65,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
+2025-12-28,Chipotle,-60.5,ILS,-2872.69,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CHIPOTLE,IL,False
+2025-12-30,STARBUCKS COFFEE #2143,-32.40,ILS,-2905.09,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2025-12-30,Windstream,-87.13,ILS,-2992.22,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WINDSTREAM,IL,False
+2025-12-30,Taxi Service,-76.88,ILS,-3069.1,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2025-12-30,ATM cash withdrawal,-699.37,ILS,24659.28,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
+2025-12-30,COFFEE CORNER,-27.55,ILS,-3096.65,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE CORNER,IL,False
+2025-12-30,WINDSTREAM - internet,-119.9,ILS,24539.38,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WINDSTREAM,IL,True
+2025-12-31,NESPRESSO CAFE,-30.10,ILS,-3126.75,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2025-12-31,Health Clinic,-50.54,ILS,-3177.29,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALK-IN CLINIC #8882 - CANADA,IL,False
+2025-12-31,IKEA Online,-816.14,ILS,-3993.43,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
+2026-01-02,CAFE ITALIA,-33.45,ILS,-4026.88,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE ITALIA,IL,False
+2026-01-02,Netflix,-21.83,ILS,-4048.71,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,Netflix,US,False
+2026-01-02,Phone Company - mobile,-89.9,ILS,24449.48,checking,Main Checking,Hapoalim (mock),1023,bill_payment,PHONE COMPANY,IL,True
+2026-01-03,STARBUCKS COFFEE #6789,-31.85,ILS,-4080.56,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2026-01-05,COFFEE BEANS SHOP,-29.20,ILS,-4109.76,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE BEANS SHOP,IL,False
+2026-01-05,Government License,-13.7,ILS,-4123.46,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,LICENSING #8843 - CANADA,IL,False
+2026-01-06,CAFE AROMA,-34.75,ILS,-4158.21,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2026-01-06,Potbelly,-24.21,ILS,-4182.42,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,POTBELLY,IL,False
+2026-01-08,NESPRESSO CAFE,-28.65,ILS,-4211.07,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2026-01-08,Spotify,-21.9,ILS,-4232.97,credit_card,MAX Platinum,MAX (mock),4420,subscription,Spotify,SE,True
+2026-01-09,STARBUCKS COFFEE #4321,-32.30,ILS,-4265.27,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2026-01-09,Water Company,-124.14,ILS,-4389.41,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WATER COMPANY SHOPPING CENTER,IL,False
+2026-01-11,COFFEE CORNER,-26.85,ILS,-4416.26,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE CORNER,IL,False
+2026-01-11,Water Company,-145.3,ILS,24304.18,checking,Main Checking,Hapoalim (mock),1023,bill_payment,WATER COMPANY SHOPPING CENTER,IL,True
+2026-01-11,Spotify,-111.57,ILS,-4527.83,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SPOTIFY,SE,False
+2026-01-12,CAFE ITALIA,-33.60,ILS,-4561.43,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE ITALIA,IL,False
+2026-01-12,Walgreens,-71.91,ILS,-4633.34,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
+2026-01-14,NESPRESSO CAFE,-29.95,ILS,-4663.29,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2026-01-14,ATM cash withdrawal,-789.13,ILS,23515.05,checking,Main Checking,Hapoalim (mock),1023,atm_withdrawal,,,False
+2026-01-14,Walgreens,-103.74,ILS,-4767.03,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WALGREENS #2456,IL,False
+2026-01-15,STARBUCKS COFFEE #8901,-31.65,ILS,-4798.68,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2026-01-15,Water Company,-108.31,ILS,-4906.99,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,WATER COMPANY SHOPPING CENTER,IL,False
+2026-01-17,COFFEE BEANS SHOP,-30.50,ILS,-4937.49,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE BEANS SHOP,IL,False
+2026-01-17,Shell Station,-247.03,ILS,-5184.52,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHELL STORE TXN240495,IL,False
+2026-01-18,CAFE AROMA,-34.20,ILS,-5218.72,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,CAFE AROMA,IL,False
+2026-01-18,Taxi Service,-42.61,ILS,-5261.33,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,TAXI - USA,IL,False
+2026-01-20,NESPRESSO CAFE,-28.40,ILS,-5289.73,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2026-01-20,Payment received (stmt_cc_02_2020),3931.02,ILS,-1358.71,credit_card,MAX Platinum,MAX (mock),4420,credit_card_payment,,,True
+2026-01-20,Shake Shack,-47.58,ILS,-1406.29,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,SHAKE SHACK - WEEKEND,IL,False
+2026-01-20,Payment to credit card (stmt_cc_02_2020),-3931.02,ILS,19584.03,checking,Main Checking,Hapoalim (mock),1023,credit_card_payment,,,True
+2026-01-21,STARBUCKS COFFEE #7654,-32.05,ILS,-1438.34,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,STARBUCKS COFFEE,IL,False
+2026-01-21,KFC,-38.58,ILS,-1476.92,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,KFC - UK STRIP MALL,IL,False
+2026-01-23,COFFEE CORNER,-27.30,ILS,-1504.22,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,COFFEE CORNER,IL,False
+2026-01-23,Monthly account fee,-15.0,ILS,19569.03,checking,Main Checking,Hapoalim (mock),1023,fee,,,True
+2026-01-23,Monthly interest,12.35,ILS,15024.7,savings,Savings,Hapoalim (mock),7781,interest,,,True
+2026-01-25,NESPRESSO CAFE,-29.50,ILS,-1533.72,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,NESPRESSO CAFE,IL,False
+2026-01-25,IKEA Online,-146.03,ILS,-1679.75,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,IKEA ONLINE CENTER,IL,False
+2026-01-25,Phone Company,-85.6,ILS,-1765.35,credit_card,MAX Platinum,MAX (mock),4420,card_purchase,PHONE COMPANY,IL,False

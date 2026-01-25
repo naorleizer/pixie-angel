@@ -258,8 +258,13 @@ class LLMService:
         self.temperature = float(os.getenv('LLM_TEMPERATURE', temperature))
         self.max_tokens = int(os.getenv('LLM_MAX_TOKENS', max_tokens))
 
-    def chat_with_session(self, session_id: int, user_message: str, system_prompt: Optional[str] = None, use_tools: bool = True, **kwargs) -> str:
-        """Chat using a database session for history, with tool calling support."""
+    def chat_with_session(self, session_id: int, user_message: str, system_prompt: Optional[str] = None, use_tools: bool = True, **kwargs) -> Dict[str, Any]:
+        """Chat using a database session for history, with tool calling support.
+        
+        Returns:
+            Dict with 'response' (str) and optional 'metadata' dict containing:
+            - 'challenges_created': List of challenge IDs created during this conversation
+        """
         session = ChatSession.query.get(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
@@ -271,7 +276,15 @@ class LLMService:
 
         history = session.messages.order_by(ChatMessage.timestamp.asc()).limit(self.CONTEXT_MESSAGES).all()
         for msg in history:
-            if msg.role == 'tool': continue
+            # Skip tool messages - they'll be added dynamically as we process tool calls
+            if msg.role == 'tool': 
+                continue
+            
+            # Skip assistant messages with no content (these are tool call responses that were processed)
+            # They're not needed in the next iteration since the tool results are included
+            if msg.role == 'assistant' and not msg.content:
+                continue
+            
             messages.append({"role": msg.role, "content": msg.content})
 
         messages.append({"role": "user", "content": user_message})
@@ -285,11 +298,32 @@ class LLMService:
         max_iterations = 5
         iteration = 0
         
+        # Track challenges created during tool execution
+        challenges_created = []
+        
+        # Track widget tags from tool results to append to final response
+        widget_tags = []
+        
         logger.info(f"[Session {session_id}] Starting chat loop - use_tools={use_tools}")
+        logger.info(f"[Session {session_id}] Model: {self.model}")
+        logger.info(f"[Session {session_id}] Temperature: {self.temperature}, Max tokens: {self.max_tokens}")
+        logger.info(f"[Session {session_id}] Initial message count: {len(messages)}")
+        if use_tools:
+            tool_names = [t['function']['name'] for t in TOOLS_REGISTRY.values()]
+            logger.info(f"[Session {session_id}] Available tools: {tool_names}")
         
         while iteration < max_iterations:
             iteration += 1
             logger.info(f"[Session {session_id}] Iteration {iteration}/{max_iterations}")
+            logger.debug(f"[Session {session_id}] Sending {len(messages)} messages to LLM")
+            logger.debug(f"[Session {session_id}] Last message: role={messages[-1]['role']}, content_length={len(messages[-1].get('content', ''))}")
+            
+            # Log all messages for debugging
+            for i, msg in enumerate(messages):
+                role = msg.get('role', 'unknown')
+                content_preview = str(msg.get('content', ''))[:200] if msg.get('content') else '[NO CONTENT]'
+                has_tool_calls = bool(msg.get('tool_calls'))
+                logger.debug(f"[Session {session_id}] Message {i}: role={role}, has_tool_calls={has_tool_calls}, content_preview={content_preview}")
             
             response = completion(
                 model=self.model,
@@ -302,7 +336,25 @@ class LLMService:
             )
             
             response_message = response.choices[0].message
+            finish_reason = response.choices[0].finish_reason if hasattr(response.choices[0], 'finish_reason') else 'unknown'
+            
             logger.info(f"[Session {session_id}] LLM response received - has_tool_calls={hasattr(response_message, 'tool_calls') and bool(response_message.tool_calls)}")
+            logger.info(f"[Session {session_id}] finish_reason: {finish_reason}")
+            logger.info(f"[Session {session_id}] response_message.content: {response_message.content if response_message.content else '[EMPTY/NULL]'}")
+            logger.debug(f"[Session {session_id}] Completion tokens: {response.usage.completion_tokens if hasattr(response, 'usage') else 'unknown'}")
+            
+            # Check for Vertex AI safety blocks
+            if hasattr(response, 'vertex_ai_safety_results') and response.vertex_ai_safety_results:
+                logger.warning(f"[Session {session_id}] SAFETY RESULTS DETECTED: {response.vertex_ai_safety_results}")
+            
+            # Log the raw response for debugging
+            if response_message.content is None or response_message.content == '':
+                logger.warning(f"[Session {session_id}] EMPTY RESPONSE CONTENT DETECTED!")
+                logger.error(f"[Session {session_id}] Model: {self.model} returned 0 tokens - this model may not support function calling properly")
+                logger.error(f"[Session {session_id}] Consider switching to: 'vertex_ai/gemini-1.5-flash-002' or 'gemini/gemini-2.0-flash-exp'")
+                logger.warning(f"[Session {session_id}] Response usage: {response.usage if hasattr(response, 'usage') else 'N/A'}")
+                logger.debug(f"[Session {session_id}] Full response object: {response}")
+                logger.debug(f"[Session {session_id}] Response message dict: {response_message.model_dump() if hasattr(response_message, 'model_dump') else str(response_message)}")
             
             if hasattr(response_message, 'tool_calls') and response_message.tool_calls:
                 logger.info(f"[Session {session_id}] Processing {len(response_message.tool_calls)} tool calls")
@@ -344,6 +396,21 @@ class LLMService:
                         tool_result = self._execute_tool_with_retry(tool_name, tool_args, session_id=session_id)
                         logger.info(f"[Session {session_id}] Tool '{tool_name}' returned status={tool_result.get('status')}")
                         
+                        # Track created challenges
+                        if tool_name == "challenge_manager" and tool_args.get("action") == "create" and tool_result.get("status") == "success":
+                            challenge_data = tool_result.get("result")
+                            if challenge_data and "id" in challenge_data:
+                                challenges_created.append(challenge_data["id"])
+                                logger.info(f"[Session {session_id}] Tracked challenge creation: ID {challenge_data['id']}")
+                        
+                        # Extract widget tags from tool result message
+                        if tool_result.get("message"):
+                            import re
+                            widget_match = re.search(r'<CHALLENGE_WIDGET>.*?</CHALLENGE_WIDGET>', tool_result.get("message"), re.DOTALL)
+                            if widget_match:
+                                widget_tags.append(widget_match.group(0))
+                                logger.info(f"[Session {session_id}] Extracted widget tag from {tool_name} result")
+                        
                         messages.append({
                             "role": "tool",
                             "tool_call_id": tool_id,
@@ -380,6 +447,12 @@ class LLMService:
                 logger.info(f"[Session {session_id}] No tool calls in response - using LLM content directly")
                 final_response = response_message.content
                 logger.debug(f"[Session {session_id}] Final response set from LLM (len={len(final_response) if final_response else 0})")
+                
+                if not final_response:
+                    logger.error(f"[Session {session_id}] ERROR: No tool calls AND no content in response!")
+                    logger.error(f"[Session {session_id}] This usually means the LLM returned an empty response.")
+                    logger.error(f"[Session {session_id}] Check if the model supports tool calling or if there's an API issue.")
+                
                 break
         
         # Determine which path we took to build the final response
@@ -392,6 +465,10 @@ class LLMService:
         else:
             logger.info(f"[Session {session_id}] Using final_response from LLM loop (len={len(final_response)})")
         
+        # Append widget tags to final response
+        if widget_tags:
+            final_response = final_response + "\n\n" + "\n".join(widget_tags)
+            logger.info(f"[Session {session_id}] Appended {len(widget_tags)} widget tag(s) to final response")
         # Persist final response
         logger.info(f"[Session {session_id}] Persisting final response (len={len(final_response)}) to database")
         final_msg = ChatMessage(session_id=session_id, role='assistant', content=final_response)
@@ -399,7 +476,14 @@ class LLMService:
         db.session.commit()
         
         logger.info(f"[Session {session_id}] Chat session complete - returning response to user")
-        return final_response
+        
+        # Return response with metadata
+        result = {"response": final_response}
+        if challenges_created:
+            result["metadata"] = {"challenges_created": challenges_created}
+            logger.info(f"[Session {session_id}] Returning {len(challenges_created)} created challenge(s): {challenges_created}")
+        
+        return result
 
     def _execute_tool_with_retry(self, tool_name: str, arguments: Dict[str, Any], session_id: Optional[int] = None) -> Dict[str, Any]:
         """Execute tool with defined retry logic."""

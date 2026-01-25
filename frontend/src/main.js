@@ -126,6 +126,7 @@ window.authorizeLocationAccess = authorizeLocationAccess;
 window.skipLocationAccess = skipLocationAccess;
 
 window.setChallengeSlide = setChallengeSlide;
+window.loadChallenges = loadChallenges;
 window.openChat = openChat;
 window.openChatHistory = openChatHistory;
 window.resetChatDemo = resetChatDemo;

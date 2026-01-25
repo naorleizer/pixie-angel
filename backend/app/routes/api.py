@@ -262,8 +262,27 @@ Example flow:
 
         db.session.commit()
         
+        # Extract challenges created during tool execution (if any)
+        challenges_created = None
+        if isinstance(response_content, dict):
+            # New format: {"response": str, "metadata": {...}}
+            metadata = response_content.get("metadata", {})
+            challenge_ids = metadata.get("challenges_created", [])
+            
+            if challenge_ids:
+                # Fetch the actual challenge data
+                created_challenges = Challenge.query.filter(
+                    Challenge.id.in_(challenge_ids),
+                    Challenge.user_id == user_id
+                ).all()
+                challenges_created = [c.to_dict() for c in created_challenges]
+            
+            # Extract the actual response text
+            response_content = response_content.get("response", "")
+        
         return jsonify({
-            'response': response_content
+            'response': response_content,
+            'challenges_created': challenges_created  # Notify frontend of new challenges
         }), 200
         
     except RateLimitError as e:
@@ -710,6 +729,9 @@ def create_challenge():
     end_date = None
     if data.get('end_date'):
         end_date = datetime.fromisoformat(data['end_date'])
+        # Make naive datetime for comparison
+        if end_date.tzinfo is not None:
+            end_date = end_date.replace(tzinfo=None)
         one_year_from_now = datetime.now().replace(year=datetime.now().year + 1)
         if end_date > one_year_from_now:
             return jsonify({"error": "Challenges cannot exceed 1 year in duration"}), 400

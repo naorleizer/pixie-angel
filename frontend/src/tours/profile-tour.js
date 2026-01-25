@@ -12,13 +12,7 @@ export const profileTour = {
       position: "bottom"
     },
     {
-      target: "button[onclick*='screen-privacy']",
-      title: "Privacy and Data",
-      description: "Your privacy, your rules. Adjust your data settings here.",
-      position: "bottom"
-    },
-    {
-      target: "button[onclick*='screen-account-management']",
+      target: "button[onclick*='screen-account-settings']",
       title: "Account Management",
       description: "Adjust your data settings. Customize your profile to fit your style.",
       position: "bottom"

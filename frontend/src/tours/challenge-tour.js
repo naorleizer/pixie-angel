@@ -8,19 +8,13 @@ export const challengeTour = {
     {
       target: "#create_challenge_form",
       title: "Create Your Challenge",
-      description: "TYour goal, your rules. Fill in these details to turn your goal into a real plan.",
+      description: "Your goal, your rules. Fill in these details to turn your goal into a real plan.",
       position: "bottom"
     },
     {
       target: "#challenge-title",
       title: "Challenge Title",
       description: "Give it a name. Choose a title that reminds you exactly why you’re doing this.",
-      position: "bottom"
-    },
-    {
-      target: "#challenge_type",
-      title: "Challenge Type",
-      description: "One-off or ongoing? Decide if this is a single goal or a habit you want to keep.",
       position: "bottom"
     },
     {

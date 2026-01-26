@@ -26,14 +26,6 @@
       </div>
 
       <div>
-        <label class="block text-xs text-slate-500 mb-1">Type *</label>
-        <div class="inline-flex rounded-full bg-slate-50 border border-slate-200 p-1 text-xs" id="challenge_type">
-          <button class="px-4 py-2 rounded-full bg-indigo-600 text-white font-semibold">Routine</button>
-          <button class="px-4 py-2 rounded-full text-slate-600">One-time</button>
-        </div>
-      </div>
-
-      <div>
         <label class="block text-xs text-slate-500 mb-1">Amount (₪) *</label>
         <input id="challenge-amount" type="number"
           class="w-full rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none"
@@ -44,20 +36,26 @@
         <label class="block text-xs text-slate-500 mb-1">Duration *</label>
 
         <div class="flex gap-2 text-xs">
-          <button class="flex-1 rounded-full bg-indigo-600 text-white py-2 font-semibold">For X</button>
-          <button class="flex-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200 py-2">Until
-            date</button>
+          <button class="flex-1 rounded-full bg-indigo-600 text-white py-2 font-semibold" onclick="setDurationType('for-x')">For X</button>
+          <button class="flex-1 rounded-full bg-slate-50 text-slate-600 border border-slate-200 py-2" onclick="setDurationType('until-date')">Until date</button>
         </div>
 
-        <div class="flex items-center gap-2">
-          <input id="challenge-duration-value" type="number"
-            class="w-20 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none" value="2" />
+        <!-- For X duration input -->
+        <div id="for-x-input" class="flex items-center gap-2">
+          <input id="challenge-duration-value" type="number" min="1" max="12"
+            class="w-20 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none" value="2" oninput="validateDurationValue()" />
           <select id="challenge-duration-unit"
-            class="flex-1 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none">
+            class="flex-1 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none" onchange="updateDurationMax()">
             <option value="months" selected>months</option>
             <option value="weeks">weeks</option>
             <option value="days">days</option>
           </select>
+        </div>
+
+        <!-- Until date input -->
+        <div id="until-date-input" class="hidden">
+          <input id="challenge-end-date" type="date" onfocus="setDateMax()"
+            class="w-full rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm outline-none" />
         </div>
       </div>
     </div>

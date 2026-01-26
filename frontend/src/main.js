@@ -19,11 +19,11 @@ import reportIssueHtml from "./screens/report-issue.html?raw";
 import aboutHtml from "./screens/about.html?raw";
 
 import { showScreen, goToScreen, goBack, navigate, initHistoryNavigation } from "./navigation.js";
-import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide, authorizeLocationAccess, skipLocationAccess } from "./onboarding.js";
+import { showOnboardingSlide, nextOnboardingSlide, prevOnboardingSlide, authorizeLocationAccess, skipLocationAccess, exitOnboarding } from "./onboarding.js";
 import { setChallengeSlide, viewChallengeOnDashboard, initChallengeSwipe, loadChallenges, loadRecentTransactions, navigateToChallengeDetail, showChallengeDetailOnDashboard } from "./dashboard.js";
-import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI, loadChatSession } from "./chat.js";
+import { openChat, resetChatDemo, advanceChatDemo, goToChallengeFormFromChat, openChatHistory, initChatUI, loadChatSession, cancelEdit, approveEdit } from "./chat.js";
 import { apiRequest, getChatSessions, getChatHistory, updateUserPreferences, getCurrentUser } from "./api.js";
-import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge } from "./challenge.js";
+import { createChallenge, deleteChallengeFromChat, undoDeleteChallenge, setDurationType, updateDurationMax, setDateMax, validateDurationValue } from "./challenge.js";
 import { initChallenges } from "./challenges.js";
 import { acceptBudgetAdjustment, declineBudgetAdjustment, updateChallengeBalance } from "./budget.js";
 import { openNotifications, openOverspendNotification, updateNotificationBadges, chooseAdjustment, loadNotifications } from "./notifications.js";
@@ -124,6 +124,7 @@ window.nextOnboardingSlide = nextOnboardingSlide;
 window.prevOnboardingSlide = prevOnboardingSlide;
 window.authorizeLocationAccess = authorizeLocationAccess;
 window.skipLocationAccess = skipLocationAccess;
+window.exitOnboarding = exitOnboarding;
 
 window.setChallengeSlide = setChallengeSlide;
 window.loadChallenges = loadChallenges;
@@ -131,9 +132,15 @@ window.openChat = openChat;
 window.openChatHistory = openChatHistory;
 window.resetChatDemo = resetChatDemo;
 window.advanceChatDemo = advanceChatDemo;
+window.cancelEdit = cancelEdit;
+window.approveEdit = approveEdit;
 
 window.goToChallengeFormFromChat = goToChallengeFormFromChat;
 window.createChallenge = createChallenge;
+window.setDurationType = setDurationType;
+window.updateDurationMax = updateDurationMax;
+window.setDateMax = setDateMax;
+window.validateDurationValue = validateDurationValue;
 window.deleteChallengeFromChat = deleteChallengeFromChat;
 window.undoDeleteChallenge = undoDeleteChallenge;
 window.viewChallengeOnDashboard = viewChallengeOnDashboard;
@@ -519,4 +526,10 @@ window.addEventListener("DOMContentLoaded", () => {
   } catch (e) {
     // ignore
   }
+
+  // Expose skipPersonaQuiz for HTML onclick handler
+  window.skipPersonaQuiz = async function() {
+    const { skipPersonaQuiz: skip } = await import('./persona-quiz.js');
+    skip();
+  };
 });

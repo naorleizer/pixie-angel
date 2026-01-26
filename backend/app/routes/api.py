@@ -304,6 +304,56 @@ Example flow:
             'error_id': error_id
         }), 500
 
+@bp.route('/chat/sessions/<int:session_id>/messages/<int:message_id>', methods=['DELETE'])
+@jwt_required()
+def delete_message(session_id, message_id):
+    """
+    Delete a specific message and its subsequent assistant response from a chat session.
+    Used when editing messages to remove the old exchange before regenerating.
+    """
+    user_id = get_jwt_identity()
+    session = ChatSession.query.filter_by(id=session_id, user_id=user_id).first_or_404()
+    
+    # Get the message to delete
+    message = ChatMessage.query.filter_by(id=message_id, session_id=session_id).first_or_404()
+    
+    # Get all messages in order
+    all_messages = session.messages.order_by(ChatMessage.timestamp.asc()).all()
+    
+    # Find the index of the message to delete
+    try:
+        msg_index = all_messages.index(message)
+    except ValueError:
+        return jsonify({'error': 'Message not found in session'}), 404
+    
+    # If this is a user message, also delete the next assistant message (if it exists)
+    messages_to_delete = [message]
+    if message.role == 'user' and msg_index + 1 < len(all_messages):
+        next_msg = all_messages[msg_index + 1]
+        if next_msg.role == 'assistant':
+            messages_to_delete.append(next_msg)
+            # Also delete any tool messages between user and assistant
+            # Check if there are tool messages between
+            if msg_index + 2 < len(all_messages):
+                for i in range(msg_index + 1, len(all_messages)):
+                    if all_messages[i].role == 'tool' and all_messages[i].timestamp < next_msg.timestamp:
+                        messages_to_delete.append(all_messages[i])
+                    else:
+                        break
+    
+    # Delete the messages
+    for msg in messages_to_delete:
+        db.session.delete(msg)
+    
+    # Update session timestamp
+    session.updated_at = datetime.utcnow()
+    db.session.commit()
+    
+    return jsonify({
+        'message': 'Messages deleted successfully',
+        'deleted_count': len(messages_to_delete)
+    }), 200
+
 # --- Transaction Endpoints ---
 
 @bp.route('/transactions', methods=['GET'])

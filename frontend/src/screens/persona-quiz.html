@@ -1,9 +1,12 @@
 <section id="screen-persona-quiz" class="hidden min-h-screen bg-slate-50">
   <div class="max-w-3xl mx-auto px-4 py-10">
-    <div class="mb-6">
-      <p class="text-sm uppercase tracking-wide text-indigo-500 font-semibold">Persona Match</p>
-      <h1 class="text-3xl font-bold text-slate-900 mt-1">Find your Pixie coaching style</h1>
-      <p class="text-slate-600 mt-2">Answer a few quick questions to tailor Pixie's tone. Takes under 2 minutes.</p>
+    <div class="mb-6 flex items-start justify-between">
+      <div>
+        <p class="text-sm uppercase tracking-wide text-indigo-500 font-semibold">Persona Match</p>
+        <h1 class="text-3xl font-bold text-slate-900 mt-1">Find your Pixie coaching style</h1>
+        <p class="text-slate-600 mt-2">Answer a few quick questions to tailor Pixie's tone. Takes under 2 minutes.</p>
+      </div>
+      <button id="persona-quiz-skip" class="text-slate-400 hover:text-slate-600 text-2xl font-light flex items-center justify-center w-8 h-8 hover:bg-slate-100 rounded transition" onclick="skipPersonaQuiz()" aria-label="Skip">✕</button>
     </div>
 
     <!-- Progress indicator -->

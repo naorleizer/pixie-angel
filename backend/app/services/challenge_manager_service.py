@@ -182,12 +182,13 @@ class ChallengeManagerService:
             f"Added update of {amount_val}₪ to '{result.get('title')}'. "
             f"Current progress: {result.get('current_amount')}₪ / {result.get('target_amount')}₪. Status: {result.get('status')}"
         )
-        # Embed challenge widget data
+        # Embed challenge widget data with update_id for reversion tracking
         import json
         widget_data = {
             "type": "challenge_widget",
             "action": "add_update",
-            "challenge": result
+            "challenge": result,
+            "update_id": update.id  # Include specific update ID for reversion
         }
         msg_with_widget = f"{msg}\n\n<CHALLENGE_WIDGET>{json.dumps(widget_data)}</CHALLENGE_WIDGET>"
         return {"status": "success", "result": result, "message": msg_with_widget, "error_message": None}

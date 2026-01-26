@@ -8,8 +8,11 @@ let isSendingMessage = false;
 let chatFormHandler = null;
 // Track the last user message DOM element to allow editing only that message
 let lastUserMessageEl = null;
+// Editing state: {messageEl, originalContent, nextAssistantEl, associatedOperations: [{type, data}]}
+let editingMessageData = null;
 let isEditingMessage = false;
-let editingMessageEl = null;
+// Track whether current session is new (editing allowed) vs past (editing disabled)
+let isNewSession = false;
 
 export async function openChatHistory() {
   showScreen("screen-chat-history", true);
@@ -50,12 +53,14 @@ export async function openChatHistory() {
 
 export async function loadChatSession(sessionId) {
   currentSessionId = sessionId;
+  isNewSession = false; // Past chat - editing disabled
   navigate("chat");
   
   const chatScroll = document.getElementById("chat-scroll");
   if (chatScroll) {
     chatScroll.innerHTML = ''; // Clear current
     chatScroll.onclick = null;
+    lastUserMessageEl = null; // Reset tracking for loaded session
     
     // Add loading indicator
     const loadingDiv = document.createElement('div');
@@ -67,12 +72,13 @@ export async function loadChatSession(sessionId) {
       const data = await getChatHistory(sessionId);
       chatScroll.innerHTML = ''; // Clear loading
       
+      // Always show welcome message first (consistent with new chats)
+      appendMessage('assistant', "Hi! I'm Pixie. How can I help you with your finances today?");
+      
       if (data.messages && data.messages.length > 0) {
         data.messages.forEach(msg => {
-          appendMessage(msg.role, msg.content);
+          appendMessage(msg.role, msg.content, msg.id);
         });
-      } else {
-        appendMessage('assistant', "This chat is empty.");
       }
       
     } catch (e) {
@@ -103,6 +109,8 @@ export async function openChat(arg, maybeReset = false) {
     // Clear demo content if it's the first time or reset requested
     if (!currentSessionId || maybeReset) {
       chatScroll.innerHTML = '';
+      lastUserMessageEl = null; // Reset tracking for new chat
+      isNewSession = true; // New chat - editing allowed
       // Add welcome message
       appendMessage('assistant', "Hi! I'm Pixie. How can I help you with your finances today?");
       
@@ -170,23 +178,8 @@ function setupChatInput() {
       const input = document.getElementById('chat-input');
       const message = input.value.trim();
 
-      if (!message || isSendingMessage) return;
-
-      if (isEditingMessage && editingMessageEl) {
-        // Finish editing the existing last message (client-side only)
-        const newContent = message;
-        // update DOM
-        editingMessageEl.innerHTML = escapeHtml(newContent);
-        // store updated content
-        editingMessageEl.dataset.content = newContent;
-        isEditingMessage = false;
-        editingMessageEl = null;
-        // clear input
-        input.value = '';
-        // hide any lingering edit button on the lastUserMessageEl
-        if (lastUserMessageEl && lastUserMessageEl._editBtn) lastUserMessageEl._editBtn.style.display = 'none';
-        return;
-      }
+      // Don't allow sending messages while editing
+      if (!message || isSendingMessage || isEditingMessage) return;
 
       // Normal new message
       input.value = '';
@@ -230,7 +223,289 @@ async function handleUserMessage(content) {
   }
 }
 
-function appendMessage(role, content) {
+// Start inline editing of a message
+function startEditingMessage(messageEl, originalContent) {
+  if (editingMessageData) return; // Already editing
+  
+  const bubble = messageEl._bubble;
+  if (!bubble) return;
+  
+  // Only allow editing the latest user message
+  if (messageEl !== lastUserMessageEl) {
+    window.showToast('You can only edit your most recent message', 'info');
+    return;
+  }
+  
+  // Set editing flag to disable form submission
+  isEditingMessage = true;
+  
+  // Find next assistant message (if exists)
+  let nextAssistantEl = messageEl.nextElementSibling;
+  while (nextAssistantEl && nextAssistantEl.classList.contains('justify-end')) {
+    nextAssistantEl = nextAssistantEl.nextElementSibling;
+  }
+  
+  // Get message ID from bubble dataset
+  const messageId = bubble.dataset.messageId || null;
+  
+  // Store editing state - operations will be reverted only on approve, not on start
+  editingMessageData = {
+    messageEl,
+    originalContent,
+    nextAssistantEl,
+    associatedOperations: [], // Will be populated on approve
+    messageId: messageId
+  };
+  
+  // Replace bubble with textarea
+  const textarea = document.createElement('textarea');
+  textarea.className = 'max-w-[82%] rounded-2xl px-3 py-2 shadow resize-none border border-slate-300 focus:outline-none focus:border-indigo-500';
+  textarea.style.backgroundColor = '#f8fafc';
+  textarea.style.color = '#1e293b';
+  textarea.value = originalContent;
+  textarea.rows = Math.max(2, originalContent.split('\n').length);
+  textarea.style.minHeight = bubble.offsetHeight + 'px';
+  
+  // Create action buttons
+  const buttonContainer = document.createElement('div');
+  buttonContainer.className = 'flex gap-1 ml-2';
+  
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.innerHTML = '✕';
+  cancelBtn.className = 'w-6 h-6 text-sm text-white bg-slate-500 hover:bg-slate-600 rounded-full flex items-center justify-center';
+  cancelBtn.onclick = () => cancelEdit();
+  
+  const approveBtn = document.createElement('button');
+  approveBtn.type = 'button';
+  approveBtn.innerHTML = '✓';
+  approveBtn.className = 'w-6 h-6 text-sm text-white bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center';
+  approveBtn.onclick = () => approveEdit();
+  
+  buttonContainer.appendChild(cancelBtn);
+  buttonContainer.appendChild(approveBtn);
+  
+  // Replace bubble with textarea
+  messageEl.replaceChild(textarea, bubble);
+  messageEl._bubble = textarea;
+  
+  // Replace edit button with action buttons
+  if (messageEl._editBtn) {
+    messageEl.replaceChild(buttonContainer, messageEl._editBtn);
+    messageEl._editBtn = buttonContainer;
+  } else {
+    messageEl.appendChild(buttonContainer);
+    messageEl._editBtn = buttonContainer;
+  }
+  
+  // Dim the assistant's response
+  if (nextAssistantEl) {
+    nextAssistantEl.style.opacity = '0.3';
+  }
+  
+  // Disable chat input while editing
+  const input = document.getElementById('chat-input');
+  const submitBtn = document.querySelector('#chat-form button[type=\"submit\"]');
+  if (input) input.disabled = true;
+  if (submitBtn) submitBtn.disabled = true;
+  
+  textarea.focus();
+  textarea.select();
+}
+
+// Detect and revert operations performed by the assistant
+function detectAndRevertOperations(assistantEl) {
+  const operations = [];
+  
+  // Find challenge widgets by data-challenge-id attribute
+  const widgets = assistantEl.querySelectorAll('[data-challenge-id]');
+  
+  if (DEBUG) console.log(`Found ${widgets.length} challenge widgets to potentially revert`);
+  
+  widgets.forEach(widget => {
+    const action = widget.dataset.action;
+    const challengeId = widget.dataset.challengeId;
+    
+    if (DEBUG) console.log(`Processing widget: action=${action}, challengeId=${challengeId}`);
+    
+    if (action === 'create' && challengeId) {
+      // Revert challenge creation by PURGING it (hard delete)
+      apiRequest(`/api/challenges/${challengeId}/purge`, {
+        method: 'DELETE'
+      }).then(() => {
+        if (DEBUG) console.log(`Purged (hard-deleted) challenge: ${challengeId}`);
+        window.showToast?.('Challenge creation reverted', 'info');
+      }).catch(err => {
+        console.error('Failed to purge challenge:', err);
+        window.showToast?.('Failed to revert challenge creation', 'error');
+      });
+      
+      operations.push({
+        type: 'challenge_create',
+        challengeId: challengeId
+      });
+    } else if (action === 'add_update' && challengeId) {
+      // Revert challenge update by deleting the specific update
+      const updateId = widget.dataset.updateId;
+      if (updateId) {
+        apiRequest(`/api/challenges/${challengeId}/updates/${updateId}`, {
+          method: 'DELETE'
+        }).then(() => {
+          if (DEBUG) console.log(`Reverted challenge update: ${updateId} on challenge ${challengeId}`);
+          window.showToast?.('Challenge update reverted', 'info');
+        }).catch(err => {
+          console.error('Failed to revert challenge update:', err);
+          window.showToast?.('Failed to revert challenge update', 'error');
+        });
+        
+        operations.push({
+          type: 'challenge_update',
+          challengeId: challengeId,
+          updateId: updateId
+        });
+      } else {
+        console.warn(`add_update widget missing updateId for challenge ${challengeId}`);
+      }
+    }
+  });
+  
+  return operations;
+}
+
+// Cancel editing and restore original state
+export function cancelEdit() {
+  if (!editingMessageData) return;
+  
+  const { messageEl, originalContent, nextAssistantEl } = editingMessageData;
+  const textarea = messageEl._bubble;
+  
+  // Restore original bubble
+  const bubble = document.createElement('div');
+  bubble.className = 'max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow';
+  bubble.innerHTML = escapeHtml(originalContent);
+  bubble.dataset.content = originalContent;
+  
+  // Restore edit button
+  const editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.textContent = 'Edit';
+  editBtn.className = 'ml-2 text-xs text-indigo-600 bg-white px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity';
+  editBtn.onclick = function(e) {
+    e.stopPropagation();
+    startEditingMessage(messageEl, originalContent);
+  };
+  
+  messageEl.replaceChild(bubble, textarea);
+  if (messageEl._editBtn) {
+    messageEl.replaceChild(editBtn, messageEl._editBtn);
+  }
+  messageEl._bubble = bubble;
+  messageEl._editBtn = editBtn;
+  
+  // Restore assistant response opacity
+  if (nextAssistantEl) {
+    nextAssistantEl.style.opacity = '1';
+  }
+  
+  // Re-enable chat input
+  const input = document.getElementById('chat-input');
+  const submitBtn = document.querySelector('#chat-form button[type="submit"]');
+  if (input) input.disabled = false;
+  if (submitBtn) submitBtn.disabled = false;
+  
+  editingMessageData = null;
+  isEditingMessage = false;
+}
+
+// Approve edit and regenerate response
+export async function approveEdit() {
+  if (!editingMessageData) return;
+  
+  const { messageEl, nextAssistantEl } = editingMessageData;
+  const textarea = messageEl._bubble;
+  const newContent = textarea.value.trim();
+  
+  if (!newContent) {
+    window.showToast('Message cannot be empty', 'error');
+    return;
+  }
+  
+  // NOW detect and revert operations in the assistant's response (only on confirm)
+  const associatedOperations = nextAssistantEl ? detectAndRevertOperations(nextAssistantEl) : [];
+  
+  // Update message bubble
+  const bubble = document.createElement('div');
+  bubble.className = 'max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow';
+  bubble.innerHTML = escapeHtml(newContent);
+  bubble.dataset.content = newContent;
+  
+  // Restore edit button
+  const editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.textContent = 'Edit';
+  editBtn.className = 'ml-2 text-xs text-indigo-600 bg-white px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity';
+  editBtn.onclick = function(e) {
+    e.stopPropagation();
+    startEditingMessage(messageEl, newContent);
+  };
+  
+  messageEl.replaceChild(bubble, textarea);
+  if (messageEl._editBtn) {
+    messageEl.replaceChild(editBtn, messageEl._editBtn);
+  }
+  messageEl._bubble = bubble;
+  messageEl._editBtn = editBtn;
+  
+  // Remove old assistant response from DOM
+  if (nextAssistantEl) {
+    nextAssistantEl.remove();
+  }
+  
+  const messageIdToDelete = editingMessageData.messageId;
+  editingMessageData = null;
+  isEditingMessage = false;
+  
+  // Delete old message from backend if we have the ID
+  if (messageIdToDelete) {
+    try {
+      await apiRequest(`/api/chat/sessions/${currentSessionId}/messages/${messageIdToDelete}`, {
+        method: 'DELETE'
+      });
+      if (DEBUG) console.log(`Deleted old message ${messageIdToDelete} from backend`);
+    } catch (err) {
+      console.error('Failed to delete old message from backend:', err);
+      // Continue anyway - frontend state is already updated
+    }
+  }
+  
+  // Re-enable chat input
+  const input = document.getElementById('chat-input');
+  const submitBtn = document.querySelector('#chat-form button[type="submit"]');
+  if (input) input.disabled = false;
+  if (submitBtn) submitBtn.disabled = false;
+  
+  // Send new message to LLM
+  showLoading();
+  try {
+    const response = await sendChatMessage(currentSessionId, newContent);
+    hideLoading();
+    appendMessage('assistant', response.response);
+    
+    // Reload challenges if operations were reverted
+    if (associatedOperations && associatedOperations.length > 0) {
+      // Refresh dashboard challenges if needed
+      if (typeof window.loadChallenges === 'function') {
+        window.loadChallenges();
+      }
+    }
+  } catch (err) {
+    hideLoading();
+    console.error('Failed to regenerate response:', err);
+    appendMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+  }
+}
+
+function appendMessage(role, content, messageId = null) {
   const container = document.getElementById("chat-scroll");
   if (!container) return;
 
@@ -239,37 +514,43 @@ function appendMessage(role, content) {
   div.className = `flex items-start gap-2 ${isUser ? 'justify-end' : ''} chat-appear`;
   
   if (isUser) {
-    // Create message bubble and an edit button (only visible for the last user message)
+    // Create message bubble and an edit button (visible on hover)
     const bubble = document.createElement('div');
     bubble.className = 'max-w-[82%] rounded-2xl bg-indigo-600 text-white px-3 py-2 shadow';
     bubble.innerHTML = escapeHtml(content);
     // store original content for editing
     bubble.dataset.content = content;
+    // store message ID if available
+    if (messageId) {
+      bubble.dataset.messageId = messageId;
+    }
 
-    const editBtn = document.createElement('button');
-    editBtn.type = 'button';
-    editBtn.textContent = 'Edit';
-    editBtn.className = 'ml-2 text-xs text-indigo-600 bg-white px-2 py-0.5 rounded-full';
-    editBtn.style.display = 'none';
-    editBtn.onclick = function(e) {
-      e.stopPropagation();
-      // start editing this message (only allowed for the last user message)
-      if (div !== lastUserMessageEl) return;
-      const input = document.getElementById('chat-input');
-      if (!input) return;
-      input.value = bubble.dataset.content || '';
-      input.focus();
-      isEditingMessage = true;
-      editingMessageEl = bubble;
-      // show visual state if desired
-    };
+    // Only create edit button for new sessions (editing disabled for past chats)
+    let editBtn = null;
+    if (isNewSession) {
+      editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.textContent = 'Edit';
+      editBtn.className = 'ml-2 text-xs text-indigo-600 bg-white px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity';
+      editBtn.onclick = function(e) {
+        e.stopPropagation();
+        startEditingMessage(div, bubble.dataset.content || '');
+      };
+    }
 
-    // attach references so we can hide/show later
+    // Make div a group for hover effects (only if edit button exists)
+    if (editBtn) {
+      div.className += ' group';
+    }
+
+    // attach references
     div._bubble = bubble;
     div._editBtn = editBtn;
 
     div.appendChild(bubble);
-    div.appendChild(editBtn);
+    if (editBtn) {
+      div.appendChild(editBtn);
+    }
   } else {
     // Check if message contains a challenge widget
     const widgetMatch = content.match(/<CHALLENGE_WIDGET>(.*?)<\/CHALLENGE_WIDGET>/s);
@@ -318,16 +599,16 @@ function appendMessage(role, content) {
   // Append message
   container.appendChild(div);
 
-  // If this is a user message, ensure only this last user message shows the edit button
+  // Track last user message and hide edit buttons on previous messages
   if (isUser) {
-    // hide previous last
+    // Hide edit button on previous last message
     if (lastUserMessageEl && lastUserMessageEl._editBtn) {
       lastUserMessageEl._editBtn.style.display = 'none';
     }
-    // show this message's edit button
+    // Set this as the new last message
     lastUserMessageEl = div;
-    if (div._editBtn) div._editBtn.style.display = 'inline-block';
   }
+  
   scrollChatToBottom();
 }
 
@@ -406,6 +687,16 @@ function createChallengeCard(widgetData) {
   // Create unique ID for this action (for undo/redo tracking)
   const actionId = `${action}_${Math.random().toString(36).substr(2, 9)}`;
   card.dataset.actionId = actionId;
+  
+  // Add data attributes for operation reversion detection during message editing
+  if (challenge.id) {
+    card.dataset.challengeId = challenge.id;
+    card.dataset.action = action;
+    // For add_update, store the update_id so we can revert just that update
+    if (action === 'add_update' && widgetData.update_id) {
+      card.dataset.updateId = widgetData.update_id;
+    }
+  }
   
   // Build undo/redo button
   const undoBtn = document.createElement('button');

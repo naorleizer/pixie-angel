@@ -62,23 +62,25 @@ export async function apiRequest(endpoint, options = {}) {
         // Optional: Redirect to login
         // window.location.href = '/login'; 
       }
+      
+      // Try to parse error response, but only read body once
       let errorData = null;
-      let errorText = null;
-
+      const contentType = response.headers.get('content-type');
+      
       try {
-        errorData = await response.json();
-      } catch (parseError) {
-        console.error('Failed to parse error response as JSON:', parseError);
-        try {
-          errorText = await response.text();
-        } catch (textError) {
-          console.error('Failed to read error response as text:', textError);
+        if (contentType && contentType.includes('application/json')) {
+          errorData = await response.json();
+        } else {
+          // For non-JSON responses, just use status text
+          errorData = { message: response.statusText };
         }
+      } catch (parseError) {
+        // Failed to parse, use generic message
+        errorData = { message: response.statusText };
       }
 
       const message =
         (errorData && errorData.message) ||
-        errorText ||
         `API error: ${response.status} ${response.statusText}`;
 
       const error = new Error(message);

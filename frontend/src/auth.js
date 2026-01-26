@@ -243,6 +243,10 @@ export async function initAccountManagement() {
       motivationsContainer.appendChild(pill);
     });
     
+    // Update summary displays
+    updateInterestsSummaryFromArray(selectedInterests);
+    updateMotivationsSummaryFromArray(selectedMotivations);
+    
   } catch (error) {
     console.error('Failed to load account management:', error);
   }
@@ -308,24 +312,96 @@ function getSelectedMotivations() {
   return Array.from(selectedPills).map(pill => pill.dataset.motivation);
 }
 
+// Update summary text for interests/motivations cards (from DOM)
+function updateInterestsSummary() {
+  updateInterestsSummaryFromArray(getSelectedInterests());
+}
+
+function updateMotivationsSummary() {
+  updateMotivationsSummaryFromArray(getSelectedMotivations());
+}
+
+// Update summary from array (used during init and after save)
+function updateInterestsSummaryFromArray(selected) {
+  const summaryEl = document.getElementById('acct-interests-summary');
+  if (!summaryEl) return;
+  if (selected.length === 0) {
+    summaryEl.textContent = 'No interests selected';
+  } else if (selected.length <= 3) {
+    summaryEl.textContent = selected.map(formatLabel).join(', ');
+  } else {
+    summaryEl.textContent = `${selected.slice(0, 2).map(formatLabel).join(', ')} +${selected.length - 2} more`;
+  }
+}
+
+function updateMotivationsSummaryFromArray(selected) {
+  const summaryEl = document.getElementById('acct-motivations-summary');
+  if (!summaryEl) return;
+  if (selected.length === 0) {
+    summaryEl.textContent = 'No motivations selected';
+  } else if (selected.length <= 3) {
+    summaryEl.textContent = selected.map(formatLabel).join(', ');
+  } else {
+    summaryEl.textContent = `${selected.slice(0, 2).map(formatLabel).join(', ')} +${selected.length - 2} more`;
+  }
+}
+
+// Modal open/close functions
+export function openInterestsModal() {
+  const modal = document.getElementById('interests-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
+
+export function closeInterestsModal() {
+  const modal = document.getElementById('interests-modal');
+  const messageEl = document.getElementById('acct-interests-message');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  if (messageEl) {
+    messageEl.textContent = '';
+  }
+}
+
+export function openMotivationsModal() {
+  const modal = document.getElementById('motivations-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+  }
+}
+
+export function closeMotivationsModal() {
+  const modal = document.getElementById('motivations-modal');
+  const messageEl = document.getElementById('acct-motivations-message');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  if (messageEl) {
+    messageEl.textContent = '';
+  }
+}
+
 export async function saveInterests() {
   const messageEl = document.getElementById('acct-interests-message');
   const selectedInterests = getSelectedInterests();
   
   messageEl.textContent = 'Saving...';
-  messageEl.className = 'mt-2 text-sm text-slate-500';
+  messageEl.className = 'px-4 pb-3 text-sm text-slate-500';
   
   try {
     const updatedUser = await updateUserPreferences({ interests: selectedInterests });
     messageEl.textContent = `✓ Interests saved`;
-    messageEl.className = 'mt-2 text-sm text-green-600';
+    messageEl.className = 'px-4 pb-3 text-sm text-green-600';
+    updateInterestsSummary();
     setTimeout(() => {
-      messageEl.textContent = '';
-    }, 3000);
+      closeInterestsModal();
+    }, 1000);
   } catch (error) {
     console.error('Failed to save interests:', error);
     messageEl.textContent = `✗ Error: ${error.message}`;
-    messageEl.className = 'mt-2 text-sm text-red-600';
+    messageEl.className = 'px-4 pb-3 text-sm text-red-600';
   }
 }
 
@@ -334,19 +410,20 @@ export async function saveMotivations() {
   const selectedMotivations = getSelectedMotivations();
   
   messageEl.textContent = 'Saving...';
-  messageEl.className = 'mt-2 text-sm text-slate-500';
+  messageEl.className = 'px-4 pb-3 text-sm text-slate-500';
   
   try {
     const updatedUser = await updateUserPreferences({ motivations: selectedMotivations });
     messageEl.textContent = `✓ Motivations saved`;
-    messageEl.className = 'mt-2 text-sm text-green-600';
+    messageEl.className = 'px-4 pb-3 text-sm text-green-600';
+    updateMotivationsSummary();
     setTimeout(() => {
-      messageEl.textContent = '';
-    }, 3000);
+      closeMotivationsModal();
+    }, 1000);
   } catch (error) {
     console.error('Failed to save motivations:', error);
     messageEl.textContent = `✗ Error: ${error.message}`;
-    messageEl.className = 'mt-2 text-sm text-red-600';
+    messageEl.className = 'px-4 pb-3 text-sm text-red-600';
   }
 }
 
@@ -354,3 +431,7 @@ export async function saveMotivations() {
 window.initAccountManagement = initAccountManagement;
 window.saveInterests = saveInterests;
 window.saveMotivations = saveMotivations;
+window.openInterestsModal = openInterestsModal;
+window.closeInterestsModal = closeInterestsModal;
+window.openMotivationsModal = openMotivationsModal;
+window.closeMotivationsModal = closeMotivationsModal;

@@ -12,9 +12,17 @@ This file provides essential context for AI coding agents working on the Pixie m
 
 ---
 
-## Current Project Status (Jan 24, 2026)
+## Current Project Status (Jan 26, 2026)
 
-### ✅ Recently Completed (Jan 24 Session - Chat & Dashboard UX Polish)
+### ✅ Recently Completed (Jan 26 Session - Persona Quiz Skip Button + Onboarding Defaults)
+- **Persona Quiz Skip Button**: Added X button (✕) in persona quiz header allowing users to skip quiz entirely
+- **Quiz to Dashboard Navigation**: Skip button navigates directly to dashboard with default communication style ("The Supportive")
+- **Onboarding Restoration**: Reverted onboarding slides 1-3 to original state (no exit buttons) per user preference
+- **Communication Style Default**: Verified User model has `preferred_persona='the_supportive'` as default; loads correctly in account-settings dropdown
+- **Empty Interests/Motivations by Default**: Confirmed User model initializes `interests=[]` and `motivations=[]`; account-settings displays empty pill containers for new users
+- **Preference Toggle Defaults**: Verified all user preference toggles default to `False` in User model (`interests_enabled`, `motivations_enabled`, `location_enabled`, `communication_style`); toggles display OFF state on first visit
+
+### ✅ Previously Completed (Jan 24 Session - Chat & Dashboard UX Polish)
 - **LLM Service Logging**: Added comprehensive logging throughout tool-calling pipeline to diagnose response building issues
 - **Debug Output Removal**: Eliminated `last_tool_success_message` fallback that was leaking tool execution output to user responses
 - **Safeguard Response**: Implemented clean fallback response instead of tool artifacts when iteration limit reached
@@ -64,9 +72,10 @@ This file provides essential context for AI coding agents working on the Pixie m
 1. **End-to-End Testing**: Full workflow test - login → dashboard → create challenge → add update → view in all challenges screen → return to dashboard (verify real-time update)
 2. **Chat Tool Usage Validation**: Verify tools are called proactively on first message (transaction_history for spending questions, challenge_manager for goal questions)
 3. **Settings Screen Cross-Browser**: Verify account-settings screen loads and saves correctly on mobile and desktop
-4. **Performance Monitoring**: Monitor LLM logging output for response building patterns (check backend logs for any safeguard fallback usage)
-5. **Data Quality Verification**: Confirm merchant standardization is reflected accurately in transaction lists and categorization
-6. **Navigation Edge Cases**: Test back button behavior with new unified settings screen
+4. **Onboarding Exit Flow Testing**: Test exit buttons on slides 1-3 navigate to dashboard correctly, bypassing persona quiz; verify default values are applied correctly for new users
+5. **Performance Monitoring**: Monitor LLM logging output for response building patterns (check backend logs for any safeguard fallback usage)
+6. **Data Quality Verification**: Confirm merchant standardization is reflected accurately in transaction lists and categorization
+7. **Navigation Edge Cases**: Test back button behavior with new unified settings screen
 
 
 ---

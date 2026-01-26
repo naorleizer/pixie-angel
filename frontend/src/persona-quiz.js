@@ -424,3 +424,9 @@ export async function initPersonaQuiz() {
   const modal = document.getElementById('persona-quiz-result-modal');
   if (modal) modal.classList.add('hidden');
 }
+
+export function skipPersonaQuiz() {
+  // User skipped quiz - just go to dashboard with default persona (the_supportive)
+  // The User model already has this as default
+  resetTo('dashboard');
+}

@@ -1,5 +1,6 @@
 import { state } from "./state.js";
 import { requestLocationPermission, saveLocationPreference } from "./services/location-service.js";
+import { navigate } from "./navigation.js";
 
 export function showOnboardingSlide(n) {
   state.currentOnboardingSlide = n;
@@ -169,5 +170,19 @@ export async function skipLocationAccess() {
   } finally {
     // Always advance even if save fails
     nextOnboardingSlide(true); // Bypass location check
+  }
+}
+
+export async function exitOnboarding() {
+  try {
+    // Save location preference if on location slide
+    if (state.currentOnboardingSlide === 5) {
+      await saveLocationPreference(false);
+    }
+  } catch (err) {
+    console.error("Failed to save preferences during exit", err);
+  } finally {
+    // Navigate to dashboard, skipping persona quiz
+    navigate('dashboard');
   }
 }

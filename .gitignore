@@ -4,6 +4,7 @@ dist
 *.log
 .DS_Store
 backend/instance/
+# Database
 
 # Python
 __pycache__/

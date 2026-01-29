@@ -36,3 +36,10 @@ wheels/
 # OS
 .DS_Store
 Thumbs.db
+
+# Test outputs
+*.log
+tests/results/
+
+# Database
+instance/

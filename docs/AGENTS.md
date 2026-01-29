@@ -5,16 +5,30 @@ This file provides essential context for AI coding agents working on the Pixie m
 ## Quick Facts
 - **Type**: Full-stack Web App (Frontend + Backend)
 - **Frontend**: Vanilla JS (ES Modules), Vite, Tailwind CSS
-- **Backend**: Python Flask, SQLAlchemy, LiteLLM (Gemini Flash 2.0)
-- **Database**: SQLite (Dev), PostgreSQL (Prod ready)
+- **Backend**: Python Flask, SQLAlchemy, LiteLLM (Multi-provider: Gemini, OpenAI, Anthropic)
+- **Database**: SQLite (Dev), PostgreSQL (Docker/Prod)
+- **Deployment**: Docker Compose (recommended) or manual setup
 - **Frontend Dev Server**: Port 5173 (`npm run dev`)
-- **Backend API Server**: Port 35000 (`uv run run.py`)
+- **Backend API Server**: Port 35000 (`uv run run.py` or `docker compose up`)
 
 ---
 
-## Current Project Status (Jan 26, 2026)
+## Current Project Status (Jan 27, 2026)
 
-### ✅ Recently Completed (Jan 26 Session - Persona Quiz Skip Button + Onboarding Defaults)
+### ✅ Recently Completed (Jan 27 Session - Docker & Repo Restructuring)
+- **Docker Compose Setup**: Full containerization with 3 services (PostgreSQL, Flask+gunicorn, nginx)
+- **Repo Reorganization**: 
+  - Moved docs to `docs/` folder (AGENTS.md, agent.md, personality_prompts.md, contract.json, enums.json)
+  - Moved utility scripts to `backend/scripts/` (seed.py, clear_db.py, seed_test_users.py)
+  - Moved test files to `backend/tests/` (all test_*.py files)
+- **Multi-Provider LLM Support**: LiteLLM configured to support Google AI Studio, Vertex AI, OpenAI, Anthropic, Azure
+- **PostgreSQL Migrations Fixed**: Boolean defaults changed from `sa.text('0')` to `sa.text('FALSE')` for PostgreSQL compatibility
+- **Password Hash Column**: Increased from 128 to 256 chars (Werkzeug scrypt hashes are longer)
+- **Frontend Assets**: Moved `assets/` to `public/assets/` for proper Vite static file handling
+- **README Rewritten**: Comprehensive setup docs for Docker Compose, pip, and uv workflows
+- **Environment Files**: Updated `.env.example` files with multi-provider LLM documentation
+
+### ✅ Previously Completed (Jan 26 Session - Persona Quiz Skip Button + Onboarding Defaults)
 - **Persona Quiz Skip Button**: Added X button (✕) in persona quiz header allowing users to skip quiz entirely
 - **Quiz to Dashboard Navigation**: Skip button navigates directly to dashboard with default communication style ("The Supportive")
 - **Onboarding Restoration**: Reverted onboarding slides 1-3 to original state (no exit buttons) per user preference
@@ -66,23 +80,40 @@ This file provides essential context for AI coding agents working on the Pixie m
 - **Account Model**: Normalization of financial accounts with composite key matching
 
 ### 🚧 In Progress / Blockers
-- None currently - all recent features are complete and tested
+- **LLM Provider Configuration**: Ensure `LLM_MODEL` env var has correct provider prefix (e.g., `gemini/gemini-2.0-flash` for Google AI Studio)
 
 ### 📋 Next Priority Tasks
-1. **End-to-End Testing**: Full workflow test - login → dashboard → create challenge → add update → view in all challenges screen → return to dashboard (verify real-time update)
-2. **Chat Tool Usage Validation**: Verify tools are called proactively on first message (transaction_history for spending questions, challenge_manager for goal questions)
-3. **Settings Screen Cross-Browser**: Verify account-settings screen loads and saves correctly on mobile and desktop
-4. **Onboarding Exit Flow Testing**: Test exit buttons on slides 1-3 navigate to dashboard correctly, bypassing persona quiz; verify default values are applied correctly for new users
-5. **Performance Monitoring**: Monitor LLM logging output for response building patterns (check backend logs for any safeguard fallback usage)
-6. **Data Quality Verification**: Confirm merchant standardization is reflected accurately in transaction lists and categorization
-7. **Navigation Edge Cases**: Test back button behavior with new unified settings screen
+1. **Docker Deployment Testing**: Full end-to-end test with `docker compose up --build`
+2. **LLM Configuration Verification**: Test chat with various LLM providers (Gemini, OpenAI)
+3. **Demo User Validation**: Verify seed data works correctly in Docker environment
+4. **Performance Monitoring**: Monitor gunicorn logs for any issues under load
 
 
 ---
 
 ## Development Server Usage
 
-### Frontend
+### Docker Compose (Recommended for Demo)
+```bash
+# From project root
+docker compose up --build -d
+
+# Access:
+# - Frontend: http://localhost:8080
+# - Backend API: http://localhost:35000
+# - Database: PostgreSQL on localhost:5432
+
+# View logs
+docker compose logs -f backend
+
+# Stop containers
+docker compose down
+
+# Reset database (removes volume)
+docker compose down -v
+```
+
+### Local Development (Frontend)
 ```bash
 cd frontend
 npm install              # First time only
@@ -90,7 +121,7 @@ npm run dev             # Starts at http://localhost:5173
 ```
 **Hot Module Reload (HMR) enabled** — changes reflect instantly without refresh.
 
-### Backend
+### Local Development (Backend)
 ```bash
 cd backend
 uv run run.py           # Starts at http://localhost:35000
@@ -135,12 +166,14 @@ jupyter notebook classifier.ipynb
 
 | Task | Command | Notes |
 |------|---------|-------|
+| **Docker start** | `docker compose up --build -d` | Full stack at localhost:8080 |
+| **Docker logs** | `docker compose logs -f backend` | Watch backend output |
+| **Docker stop** | `docker compose down` | Stop all containers |
+| **Docker reset** | `docker compose down -v` | Stop + delete database |
 | **Dev frontend** | `npm run dev` (in `/frontend`) | Keep running; HMR enabled |
 | **Dev backend** | `uv run run.py` (in `/backend`) | Restart after model/route changes |
-| **Run tests** | `npm run test` | Frontend (not yet; manual testing) |
-| **Lint frontend** | `npm run lint` | ESLint on JS files |
-| **Seed test data** | `uv run seed.py` | Populates DB with demo users/chats |
-| **Clear DB** | `uv run clear_db.py` | Wipe all data (dev only) |
+| **Seed test data** | `uv run scripts/seed.py` | Populates DB with demo users/chats |
+| **Clear DB** | `uv run scripts/clear_db.py` | Wipe all data (dev only) |
 | **DB upgrade** | `uv run flask db upgrade` | Apply pending migrations |
 | **Train ML model** | `jupyter notebook model/classifier.ipynb` | Generates artifacts in backend/app/ml_models/ |
 

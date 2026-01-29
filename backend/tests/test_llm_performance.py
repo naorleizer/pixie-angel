@@ -10,8 +10,8 @@ import csv
 from datetime import datetime, timezone
 from typing import List, Dict, Any
 
-# Add backend directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add backend directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
 from app.extensions import db

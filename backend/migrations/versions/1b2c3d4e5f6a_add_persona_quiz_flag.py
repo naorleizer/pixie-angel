@@ -19,10 +19,10 @@ depends_on = None
 def upgrade():
     op.add_column(
         'users',
-        sa.Column('has_completed_persona_quiz', sa.Boolean(), server_default=sa.text('0'), nullable=False)
+        sa.Column('has_completed_persona_quiz', sa.Boolean(), server_default=sa.text('FALSE'), nullable=False)
     )
     # Backfill explicit False for existing rows (safety for databases that ignore server_default on add_column)
-    op.execute("UPDATE users SET has_completed_persona_quiz = 0 WHERE has_completed_persona_quiz IS NULL")
+    op.execute("UPDATE users SET has_completed_persona_quiz = FALSE WHERE has_completed_persona_quiz IS NULL")
 
 
 def downgrade():

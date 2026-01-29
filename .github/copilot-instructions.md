@@ -5,9 +5,10 @@ You are an expert AI programming assistant working on **Pixie**, an AI-powered f
 ## Project Overview
 - **Type**: Full-stack Web Application
 - **Frontend**: Vanilla JavaScript (ES Modules), Vite 5.4+, Tailwind CSS 3.4+
-- **Backend**: Python Flask 3.1+, SQLAlchemy 3.1+, LiteLLM (Gemini Flash 2.0)
-- **Database**: SQLite (Development), PostgreSQL (Production ready)
-- **Status**: Production-ready features include: user auth, AI chat with 3 tools, challenges (create/update/filter), transaction import with ML categorization, account settings, real-time dashboard widgets. Frontend fully wired to backend APIs.
+- **Backend**: Python Flask 3.1+, SQLAlchemy 3.1+, LiteLLM (Multi-provider: Gemini, OpenAI, Anthropic)
+- **Database**: SQLite (Local Dev), PostgreSQL 15 (Docker/Production)
+- **Deployment**: Docker Compose (recommended) or manual setup with uv/pip
+- **Status**: Demo-ready. Features include: user auth, AI chat with 3 tools, challenges (create/update/filter), transaction import with ML categorization, account settings, real-time dashboard widgets. Fully containerized with Docker Compose.
 
 ## Tech Stack & Key Conventions
 
@@ -41,16 +42,25 @@ You are an expert AI programming assistant working on **Pixie**, an AI-powered f
 
 | Task | Command | Notes |
 |------|---------|-------|
+| Docker start | `docker compose up --build -d` (in root) | Full stack at http://localhost:8080 |
+| Docker logs | `docker compose logs -f backend` | Watch backend output |
+| Docker stop | `docker compose down` | Stop all containers |
+| Docker reset | `docker compose down -v` | Stop + delete database volume |
 | Frontend dev | `npm run dev` (in `frontend/`) | Vite @ http://localhost:5173; HMR enabled |
 | Backend dev | `uv run run.py` (in `backend/`) | Flask @ http://localhost:35000; restart on route/model changes |
 | DB upgrade | `uv run flask db upgrade` | Apply pending migrations after model changes |
-| Seed test data | `uv run seed.py` | Populate with demo users, chats, challenges |
-| Reset DB | `uv run clear_db.py` | Wipe all data (dev only) |
+| Seed test data | `uv run scripts/seed.py` | Populate with demo users, chats, challenges |
+| Reset DB | `uv run scripts/clear_db.py` | Wipe all data (dev only) |
 | Frontend build | `npm run build` | Output in `frontend/dist/` |
 
-**Setup Before First Run**:
-- Backend: Copy `backend/.env.example` → `.env`; add GEMINI_API_KEY + JWT_SECRET_KEY; run `uv run flask db upgrade`
+**Setup Before First Run (Manual)**:
+- Backend: Copy `backend/.env.example` → `.env`; add GEMINI_API_KEY (or other LLM key) + JWT_SECRET_KEY; run `uv run flask db upgrade`
 - Frontend: `npm install` (once)
+
+**Setup with Docker** (simplest):
+- Copy `backend/.env.example` → `backend/.env`; add API keys
+- Run `docker compose up --build -d`
+- Access at http://localhost:8080
 
 ## Critical Patterns & Examples
 
@@ -139,9 +149,13 @@ def send_message(session_id):
 
 5. **Sidebar Injection**: Sidebar HTML injected in `main.js`, persists across screens. Chat sessions load from `/api/chat/sessions`. If adding new chat endpoints, update sidebar loader.
 
-6. **LLM Model Config**: Set in `app/services/llm_service.py` (currently `gemini-2.0-flash`). Change via `LLM_MODEL` env var if needed.
+6. **LLM Model Config**: Set via `LLM_MODEL` env var. **Important**: Use provider prefix for LiteLLM:
+   - Google AI Studio: `gemini/gemini-2.0-flash` (simple API key)
+   - Vertex AI: `vertex_ai/gemini-2.0-flash` (requires GCP setup)
+   - OpenAI: `gpt-4o` or `gpt-4o-mini`
+   - Anthropic: `claude-sonnet-4-20250514`
 
-7. **Database API Port**: Backend uses `http://localhost:5000` (hardcoded in `config.py`), not 5173. Frontend's `api.js` uses `VITE_API_URL` env var or defaults to 5000.
+7. **Backend API Port**: Backend runs on port 35000 (not 5000). Frontend's `api.js` uses `VITE_API_URL` env var or defaults to 35000.
 
 8. **Transactions Import**: Async background job via `/api/transactions/import`. Uses threading + in-memory progress store (`_upload_progress` dict in api.py).
 
@@ -152,11 +166,24 @@ def send_message(session_id):
    - Dashboard modal opens on card click (doesn't navigate); all challenges screen has separate modal
    - Balance widget shows total: "Saved: X₪" (green) when positive, "Overspent: X₪" (red) when negative
 
+10. **Docker PostgreSQL vs Local SQLite**: Migrations must use `sa.text('FALSE')` for boolean defaults (not `'0'`) for PostgreSQL compatibility.
+
+11. **Static Assets in Docker**: Frontend assets must be in `public/assets/` for Vite to copy them to the build output.
+   - `status` computed based on `end_date`: active before deadline, completed/failed after
+   - Dashboard modal opens on card click (doesn't navigate); all challenges screen has separate modal
+   - Balance widget shows total: "Saved: X₪" (green) when positive, "Overspent: X₪" (red) when negative
+
 ## Project File Structure
 
 ```
 mockup/
+├── docker-compose.yml              # Full stack deployment (PostgreSQL, backend, frontend)
+├── .dockerignore                   # Exclude files from Docker build context
 ├── frontend/
+│   ├── Dockerfile                  # Multi-stage build (Node → nginx)
+│   ├── nginx.conf                  # Serves SPA, proxies /api/ to backend
+│   ├── public/
+│   │   └── assets/                 # Static images (db/, images/)
 │   ├── src/
 │   │   ├── screens/                # HTML templates: login.html, dashboard.html, chat.html, etc.
 │   │   ├── main.js                 # Entry point; DOM setup, screen injection, window function exports
@@ -179,6 +206,7 @@ mockup/
 │   ├── tailwind.config.js          # Tailwind setup
 │   └── package.json                # Dependencies (Vite, Tailwind, PostCSS)
 ├── backend/
+│   ├── Dockerfile                  # Python 3.11 + gunicorn
 │   ├── app/
 │   │   ├── __init__.py             # Flask factory, extension init, blueprint registration
 │   │   ├── extensions.py           # db, jwt, cors, migrate instances
@@ -195,20 +223,31 @@ mockup/
 │   │   │   ├── notification.py     # Notification model
 │   │   │   └── feedback.py         # Feedback model
 │   │   ├── services/
-│   │   │   ├── llm_service.py      # LiteLLM wrapper, chat_with_session(), Gemini calls
+│   │   │   ├── llm_service.py      # LiteLLM wrapper, chat_with_session(), multi-provider support
 │   │   │   └── categorization_service.py # Transaction categorization logic
-│   │   └── ml_models/              # Pre-trained models (unused currently)
+│   │   └── ml_models/              # Pre-trained models (Word2Vec, RandomForest)
+│   ├── scripts/                    # Utility scripts
+│   │   ├── seed.py                 # Populate test data
+│   │   ├── clear_db.py             # Reset database
+│   │   └── seed_test_users.py      # Create test users
+│   ├── tests/                      # Test files
+│   │   ├── test_llm.py
+│   │   ├── test_tool_calling.py
+│   │   └── ...
 │   ├── migrations/                 # Alembic DB schema versions
-│   ├── instance/                   # Runtime data (pixie.db, logs, etc.)
+│   ├── instance/                   # Runtime data (pixie.db for local dev)
 │   ├── run.py                      # Server entry: `uv run run.py`
-│   ├── requirements.txt            # Python dependencies (Flask, SQLAlchemy, LiteLLM, etc.)
+│   ├── requirements.txt            # Python dependencies (Flask, SQLAlchemy, LiteLLM, gunicorn, etc.)
 │   ├── config.py                   # Database + JWT config (from env or defaults)
-│   ├── seed.py                     # Populate test data
-│   ├── clear_db.py                 # Reset database
 │   └── README.md
+├── docs/                           # Project documentation
+│   ├── AGENTS.md                   # Real-time status, blockers, next tasks
+│   ├── agent.md                    # Quick reference for agents
+│   ├── personality_prompts.md      # LLM persona prompts
+│   ├── contract.json               # API contract definitions
+│   └── enums.json                  # Enum definitions
 ├── model/                          # ML classifier notebook & data (separate project)
-├── AGENTS.md                       # Real-time status, blockers, next tasks
-├── README.md                       # Project overview
+├── README.md                       # Project overview, setup instructions
 └── .github/instructions/           # Detailed instructions (frontend.md, backend.md)
 ```
 
@@ -216,8 +255,9 @@ mockup/
 - **This file** — High-level architecture, commands, patterns, gotchas
 - **`.github/instructions/frontend.instructions.md`** — Frontend-specific patterns, screen creation, state management
 - **`.github/instructions/backend.instructions.md`** — Backend API design, model patterns, LLM service details
-- **`AGENTS.md`** — Project status, blockers, recent changes, next priorities
-- **`README.md`** — User-facing overview, quick start
+- **`docs/AGENTS.md`** — Project status, blockers, recent changes, next priorities
+- **`docs/agent.md`** — Quick reference for agents
+- **`README.md`** — User-facing overview, setup instructions (Docker + manual)
 - **Backend `README.md`** — Detailed backend setup, migration docs
 
 ## Error Handling Patterns
@@ -266,8 +306,8 @@ except Exception as e:
 - When clarifying patterns that caused confusion during development
 
 **Which Files to Update (in order):**
-1. **AGENTS.md** — Update "Recently Completed" section, move tasks between "In Progress" and "Next Priority"
-2. **agent.md** — Update "Current Features" and "Known Issues & Workarounds" sections
+1. **docs/AGENTS.md** — Update "Recently Completed" section, move tasks between "In Progress" and "Next Priority"
+2. **docs/agent.md** — Update "Current Features" and "Known Issues & Workarounds" sections
 3. **.github/copilot-instructions.md** — Update project status, add/remove gotchas, update patterns if changed
 4. **.github/instructions/backend.instructions.md** — Only update if backend patterns/conventions changed
 5. **.github/instructions/frontend.instructions.md** — Only update if frontend patterns/conventions changed
@@ -284,5 +324,5 @@ Never let documentation fall out of sync. Spend 5 minutes updating docs after ea
 
 ---
 
-**Last Updated**: January 24, 2026  
-**Authority**: Primary source of truth for Pixie development. Use alongside `AGENTS.md` for current status and `agent.md` for quick reference.
+**Last Updated**: January 27, 2026  
+**Authority**: Primary source of truth for Pixie development. Use alongside `docs/AGENTS.md` for current status and `docs/agent.md` for quick reference.

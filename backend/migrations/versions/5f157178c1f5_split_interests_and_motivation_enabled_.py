@@ -28,7 +28,7 @@ def upgrade():
         batch_op.alter_column('has_completed_persona_quiz',
                existing_type=sa.BOOLEAN(),
                nullable=True,
-               existing_server_default=sa.text('0'))
+               existing_server_default=sa.text('FALSE'))
 
     # ### end Alembic commands ###
 
@@ -45,6 +45,6 @@ def downgrade():
         batch_op.alter_column('has_completed_persona_quiz',
                existing_type=sa.BOOLEAN(),
                nullable=False,
-               existing_server_default=sa.text('0'))
+               existing_server_default=sa.text('FALSE'))
 
     # ### end Alembic commands ###

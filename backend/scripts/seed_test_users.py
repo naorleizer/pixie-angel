@@ -3,9 +3,14 @@ Seed script for creating dedicated LLM test users with synthetic transaction dat
 Creates three test users with specific spending patterns to test LLM capabilities.
 """
 
+import os
 import sys
 import random
 from datetime import datetime, timedelta, timezone
+
+# Add backend to path for imports (allows running from any directory)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import create_app
 from app.extensions import db
 from app.models.user import User

@@ -1,6 +1,11 @@
 import os
+import sys
 import random
 from datetime import datetime, timedelta
+
+# Add backend to path for imports (allows running from any directory)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import create_app, db
 from app.models.user import User
 from app.models.transaction import Transaction

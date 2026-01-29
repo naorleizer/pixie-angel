@@ -2,8 +2,8 @@
 import sys
 import os
 
-# Add backend to path
-sys.path.insert(0, os.path.dirname(__file__))
+# Add backend to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.services.llm_service import llm
 

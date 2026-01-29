@@ -8,7 +8,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(256))
     preferred_persona = db.Column(db.String(50), default='the_supportive')
     interests = db.Column(db.JSON, nullable=False, default=list)
     motivations = db.Column(db.JSON, nullable=False, default=list)

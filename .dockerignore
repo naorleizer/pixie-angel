@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+.env
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Backend specific
+backend/instance/
+backend/tests/
+backend/.env
+backend/*.log
+
+# Frontend specific
+frontend/node_modules/
+frontend/.env
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large training data files (not needed for runtime)
+model/credit_card_transactions-ibm_v2.csv
+model/sd254_cards.csv
+model/sd254_users.csv
+model/test_data.csv
+model/User0_credit_card_transactions.csv
+model/user0_Jan_Feb_2020.csv
+model/user_upload_financial_activity_sample.csv
+
+# Jupyter checkpoints
+.ipynb_checkpoints/

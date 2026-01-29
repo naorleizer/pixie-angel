@@ -6,7 +6,7 @@ Compatible with requirements.txt:
 - gensim>=4.4.0
 - scikit-learn (via litellm dependencies)
 
-Uses train_data.csv and test_data.csv from the model directory.
+Uses test_data.csv and test_data.csv from the model directory.
 Outputs models to backend/app/ml_models/
 
 Features:
@@ -86,8 +86,8 @@ def main():
     print(f"Checkpoints every {CHECKPOINT_INTERVAL:,} samples with accuracy evaluation")
 
     # Check for required files
-    if not os.path.exists("train_data.csv"):
-        print("ERROR: train_data.csv not found in current directory")
+    if not os.path.exists("test_data.csv"):
+        print("ERROR: test_data.csv not found in current directory")
         print("Run this script from the mockup/model directory")
         sys.exit(1)
 
@@ -99,7 +99,7 @@ def main():
     print("=" * 70)
     
     print("Loading training data...")
-    train_df = pd.read_csv("train_data.csv")
+    train_df = pd.read_csv("test_data.csv")
     print(f"  Loaded {len(train_df):,} rows")
     
     test_df = None

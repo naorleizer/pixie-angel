@@ -11,42 +11,54 @@ These instructions apply to all work in the `frontend/` directory.
 
 ### File Organization
 ```
-frontend/src/
-├── screens/              # HTML templates (one per view)
-│   ├── login.html
-│   ├── dashboard.html
-│   ├── chat.html
-│   ├── challenge.html      # Challenge creation form
-│   ├── challenges.html     # All challenges list with filters
-│   ├── account-settings.html # Combined settings (privacy + account mgmt)
-│   ├── transactions.html
-│   ├── import-transactions.html
-│   └── ...
-├── services/             # Shared services
-│   ├── tour-manager.js   # Shepherd.js wrapper for interactive tours
-│   ├── tour-service.js   # Tour registry + help button handler
-│   └── location-service.js # Geolocation permissions
-├── tours/                # Tour configurations (one per screen)
-│   ├── dashboard-tour.js
-│   ├── chat-tour.js
-│   ├── challenges-tour.js
-│   └── transactions-tour.js
-├── main.js              # App initialization & screen injection
-├── navigation.js        # URL routing & back button support
-├── api.js               # Backend API client wrapper
-├── state.js             # Global app state
-├── chat.js              # Chat UI logic & message handling
-├── dashboard.js         # Dashboard carousel, challenge cards, modal
-├── challenge.js         # Challenge creation form logic
-├── challenges.js        # Challenges list, filters, detail modal (REAL-TIME UPDATES)
-├── auth.js              # Login/register/auth logic + account settings init
-├── transactions.js      # Transactions UI & filtering
-├── import-transactions.js # Import flow UI
-├── budget.js            # Budget adjustment logic
-├── notifications.js     # Notification handling
-├── onboarding.js        # Onboarding flow
-└── styles.css           # Minimal custom CSS (use Tailwind mostly)
+frontend/
+├── Dockerfile            # Multi-stage build (Node 20 → nginx:alpine)
+├── nginx.conf            # Serves SPA, proxies /api/ to backend
+├── public/
+│   └── assets/           # Static images (db/, images/) - copied by Vite to dist/
+├── src/
+│   ├── screens/          # HTML templates (one per view)
+│   │   ├── login.html
+│   │   ├── dashboard.html
+│   │   ├── chat.html
+│   │   ├── challenge.html      # Challenge creation form
+│   │   ├── challenges.html     # All challenges list with filters
+│   │   ├── account-settings.html # Combined settings (privacy + account mgmt)
+│   │   ├── transactions.html
+│   │   ├── import-transactions.html
+│   │   └── ...
+│   ├── services/         # Shared services
+│   │   ├── tour-manager.js   # Shepherd.js wrapper for interactive tours
+│   │   ├── tour-service.js   # Tour registry + help button handler
+│   │   └── location-service.js # Geolocation permissions
+│   ├── tours/            # Tour configurations (one per screen)
+│   │   ├── dashboard-tour.js
+│   │   ├── chat-tour.js
+│   │   ├── challenges-tour.js
+│   │   └── transactions-tour.js
+│   ├── main.js           # App initialization & screen injection
+│   ├── navigation.js     # URL routing & back button support
+│   ├── api.js            # Backend API client wrapper
+│   ├── state.js          # Global app state
+│   ├── chat.js           # Chat UI logic & message handling
+│   ├── dashboard.js      # Dashboard carousel, challenge cards, modal
+│   ├── challenge.js      # Challenge creation form logic
+│   ├── challenges.js     # Challenges list, filters, detail modal (REAL-TIME UPDATES)
+│   ├── auth.js           # Login/register/auth logic + account settings init
+│   ├── transactions.js   # Transactions UI & filtering
+│   ├── import-transactions.js # Import flow UI
+│   ├── budget.js         # Budget adjustment logic
+│   ├── notifications.js  # Notification handling
+│   ├── onboarding.js     # Onboarding flow
+│   └── styles.css        # Minimal custom CSS (use Tailwind mostly)
+├── index.html            # Root div shell only
+├── vite.config.js        # Vite config (HMR, build)
+├── tailwind.config.js    # Tailwind setup
+├── package.json          # Dependencies (Vite, Tailwind, PostCSS)
+└── .env.example          # Example env vars (VITE_API_URL)
 ```
+
+**Static Assets Note**: All static assets (images, etc.) must be in `public/assets/` for Vite to copy them to the build output. Reference them with `/assets/...` paths in HTML/CSS.
 
 ### How Screens Work
 1. HTML templates are stored in `src/screens/` as plain HTML files

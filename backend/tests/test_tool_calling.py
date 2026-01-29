@@ -6,8 +6,8 @@ import sys
 import os
 import json
 
-# Add backend to path
-sys.path.insert(0, os.path.dirname(__file__))
+# Add backend to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
 from app.extensions import db

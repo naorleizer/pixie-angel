@@ -2,7 +2,10 @@
 Test script for calculator service
 """
 import sys
-sys.path.insert(0, 'c:\\Users\\naor0\\OneDrive - Technion\\Technion\\Semester I\\mockup\\backend')
+import os
+
+# Add backend to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.services.calculator_service import calculator
 

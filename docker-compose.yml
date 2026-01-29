@@ -1,0 +1,50 @@
+# Pixie - Docker Compose Configuration
+# Usage: docker compose up --build
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pixie
+      POSTGRES_PASSWORD: pixie_secret
+      POSTGRES_DB: pixie
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pixie"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Flask Backend API
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    environment:
+      # Database connection (override to use Docker service name)
+      DATABASE_URL: postgresql://pixie:pixie_secret@db:5432/pixie
+      # Flask settings for production (override any .env values)
+      FLASK_APP: app:create_app
+      FLASK_ENV: production
+      FLASK_DEBUG: "false"
+    ports:
+      - "35000:35000"
+
+  # Nginx Frontend (serves built React app)
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:

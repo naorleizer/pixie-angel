@@ -15,7 +15,7 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build for production
+# Build for production (no env vars needed - runtime detection in api.js)
 RUN npm run build
 
 # Stage 2: Serve with nginx

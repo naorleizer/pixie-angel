@@ -359,17 +359,129 @@ def delete_message(session_id, message_id):
 @bp.route('/transactions', methods=['GET'])
 @jwt_required()
 def get_transactions():
+    """
+    Get paginated list of user's transactions.
+    Query params:
+      - page: Page number (default 1)
+      - limit: Items per page (default 50, max 100)
+      - category: Filter by category (optional)
+    """
     user_id = get_jwt_identity()
-    transactions = Transaction.query.filter_by(user_id=user_id).order_by(Transaction.date.desc()).limit(50).all()
+    
+    # Pagination params
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', 50, type=int)
+    limit = min(limit, 100)  # Cap at 100
+    
+    # Optional category filter
+    category_filter = request.args.get('category', None)
+    
+    # Build query
+    query = Transaction.query.filter_by(user_id=user_id)
+    if category_filter:
+        query = query.filter_by(category=category_filter)
+    query = query.order_by(Transaction.date.desc())
+    
+    # Paginate
+    pagination = query.paginate(page=page, per_page=limit, error_out=False)
+    
     result = []
-    for t in transactions:
+    for t in pagination.items:
         tx_dict = t.to_dict()
         if t.account:
             tx_dict['account_name'] = t.account.account_name
             tx_dict['account_type'] = t.account.account_type
             tx_dict['card_last_4'] = t.account.card_last_4
         result.append(tx_dict)
-    return jsonify(result), 200
+    
+    return jsonify({
+        'transactions': result,
+        'total': pagination.total,
+        'page': pagination.page,
+        'pages': pagination.pages,
+        'has_next': pagination.has_next,
+        'has_prev': pagination.has_prev
+    }), 200
+
+
+@bp.route('/transactions', methods=['POST'])
+@jwt_required()
+def create_transaction():
+    """
+    Manually create a single transaction.
+    Auto-categorizes via ML if category not provided.
+    """
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    # Required fields
+    amount = data.get('amount')
+    if amount is None:
+        return jsonify({'error': 'Amount is required'}), 400
+    
+    try:
+        amount = float(amount)
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid amount'}), 400
+    
+    # Parse date (default to now)
+    date_str = data.get('date')
+    if date_str:
+        try:
+            tx_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)'}), 400
+    else:
+        tx_date = datetime.utcnow()
+    
+    # Optional fields
+    description = data.get('description', '')
+    merchant = data.get('merchant', description)  # Default merchant to description
+    category = data.get('category')
+    transaction_type = data.get('transaction_type', 'card_purchase')
+    is_essential = data.get('is_essential', True)
+    is_recurring = data.get('is_recurring', False)
+    account_id = data.get('account_id')
+    
+    # Auto-categorize via ML if no category provided
+    categorization_source = 'manual'
+    categorization_confidence = 1.0
+    
+    if not category and merchant:
+        # Use ML batch categorization (single item)
+        ml_results = categorize_batch_ml([merchant], threshold=0.5)
+        if ml_results and ml_results[0][0]:
+            category = ml_results[0][0]
+            categorization_confidence = ml_results[0][1]
+            categorization_source = 'ml'
+    
+    # Create transaction
+    transaction = Transaction(
+        user_id=user_id,
+        account_id=account_id,
+        date=tx_date,
+        amount=amount,
+        description=description,
+        merchant=merchant,
+        category=category,
+        categorization_source=categorization_source,
+        categorization_confidence=categorization_confidence,
+        transaction_type=transaction_type,
+        is_essential=is_essential,
+        is_recurring=is_recurring,
+        import_source='Manual'
+    )
+    
+    db.session.add(transaction)
+    db.session.commit()
+    
+    tx_dict = transaction.to_dict()
+    if transaction.account:
+        tx_dict['account_name'] = transaction.account.account_name
+        tx_dict['account_type'] = transaction.account.account_type
+        tx_dict['card_last_4'] = transaction.account.card_last_4
+    
+    return jsonify(tx_dict), 201
 
 @bp.route('/transactions/<int:transaction_id>', methods=['PATCH'])
 @jwt_required()
@@ -401,6 +513,83 @@ def update_transaction(transaction_id):
     db.session.commit()
     
     return jsonify(transaction.to_dict()), 200
+
+
+@bp.route('/transactions/<int:transaction_id>', methods=['PUT'])
+@jwt_required()
+def update_transaction_full(transaction_id):
+    """
+    Full update of transaction fields.
+    Allows editing: amount, description, date, category, merchant, transaction_type, is_essential, is_recurring.
+    """
+    user_id = get_jwt_identity()
+    transaction = Transaction.query.filter_by(id=transaction_id, user_id=user_id).first_or_404()
+    
+    data = request.get_json()
+    
+    # Update amount if provided
+    if 'amount' in data:
+        try:
+            transaction.amount = float(data['amount'])
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid amount'}), 400
+    
+    # Update date if provided
+    if 'date' in data and data['date']:
+        try:
+            transaction.date = datetime.fromisoformat(data['date'].replace('Z', '+00:00'))
+        except ValueError:
+            return jsonify({'error': 'Invalid date format'}), 400
+    
+    # Update simple string/boolean fields
+    if 'description' in data:
+        transaction.description = data['description']
+    if 'merchant' in data:
+        transaction.merchant = data['merchant']
+    if 'transaction_type' in data:
+        transaction.transaction_type = data['transaction_type']
+    if 'is_essential' in data:
+        transaction.is_essential = bool(data['is_essential'])
+    if 'is_recurring' in data:
+        transaction.is_recurring = bool(data['is_recurring'])
+    
+    # Update category (tracks manual override)
+    if 'category' in data:
+        new_category = data['category']
+        if transaction.categorization_source != 'manual' and transaction.category != new_category:
+            current_app.logger.info(
+                f"Manual category correction: Transaction {transaction_id} "
+                f"changed from '{transaction.category}' (source: {transaction.categorization_source}) "
+                f"to '{new_category}' by user {user_id}"
+            )
+        transaction.category = new_category
+        transaction.categorization_source = 'manual'
+        transaction.categorization_confidence = 1.0
+    
+    db.session.commit()
+    
+    tx_dict = transaction.to_dict()
+    if transaction.account:
+        tx_dict['account_name'] = transaction.account.account_name
+        tx_dict['account_type'] = transaction.account.account_type
+        tx_dict['card_last_4'] = transaction.account.card_last_4
+    
+    return jsonify(tx_dict), 200
+
+
+@bp.route('/transactions/<int:transaction_id>', methods=['DELETE'])
+@jwt_required()
+def delete_transaction(transaction_id):
+    """
+    Permanently delete a transaction.
+    """
+    user_id = get_jwt_identity()
+    transaction = Transaction.query.filter_by(id=transaction_id, user_id=user_id).first_or_404()
+    
+    db.session.delete(transaction)
+    db.session.commit()
+    
+    return jsonify({'message': 'Transaction deleted successfully'}), 200
 
 @bp.route('/transactions/upload/<upload_id>/status', methods=['GET'])
 @jwt_required()

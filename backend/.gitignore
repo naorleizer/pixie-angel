@@ -26,6 +26,11 @@ wheels/
 # Environment variables
 .env
 
+# GCP Service Account credentials (NEVER commit these!)
+**/gen-lang-client*.json
+**/service_account*.json
+**/credentials*.json
+
 # IDE
 .vscode/
 .idea/

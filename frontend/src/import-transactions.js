@@ -4,7 +4,6 @@ import { navigate } from './navigation.js';
 import { loadTransactions } from './transactions.js';
 
 let selectedFile = null;
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export function initImportTransactions() {
   const dropZone = document.getElementById('drop-zone');

@@ -49,7 +49,9 @@ export async function loadRecentTransactions() {
   if (!list || !emptyState) return;
 
   try {
-    const transactions = await apiRequest("/api/transactions");
+    const response = await apiRequest("/api/transactions?limit=5");
+    // Handle new paginated response format
+    const transactions = response.transactions || response;
     
     if (!transactions || transactions.length === 0) {
       emptyState.classList.remove("hidden");
@@ -57,7 +59,7 @@ export async function loadRecentTransactions() {
       return;
     }
 
-    // Show only first 5 recent transactions
+    // Show only first 5 recent transactions (already limited by API)
     const recent = transactions.slice(0, 5);
     
     emptyState.classList.add("hidden");

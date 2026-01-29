@@ -1,5 +1,6 @@
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Always use relative URLs - the web server (nginx in Docker, or Flask in dev) will handle routing
+const API_BASE_URL = '';
 const DEBUG = (import.meta.env.VITE_DEBUG === 'true') || (localStorage.getItem('pixie_debug') === 'true');
 
 // Auth Token Management
@@ -176,8 +177,32 @@ export async function sendChatMessage(sessionId, message, systemPrompt = null) {
 
 // --- Data API ---
 
-export async function getTransactions() {
-  return apiRequest('/api/transactions');
+export async function getTransactions(page = 1, limit = 50, category = null) {
+  let url = `/api/transactions?page=${page}&limit=${limit}`;
+  if (category) {
+    url += `&category=${encodeURIComponent(category)}`;
+  }
+  return apiRequest(url);
+}
+
+export async function createTransaction(data) {
+  return apiRequest('/api/transactions', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+export async function updateTransaction(id, data) {
+  return apiRequest(`/api/transactions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+}
+
+export async function deleteTransaction(id) {
+  return apiRequest(`/api/transactions/${id}`, {
+    method: 'DELETE'
+  });
 }
 
 export async function getCategories() {

@@ -1,5 +1,6 @@
 # Pixie - Docker Compose Configuration
 # Usage: docker compose up --build
+# Access via http://<server-ip>:33380
 
 services:
   # PostgreSQL Database
@@ -11,12 +12,13 @@ services:
       POSTGRES_PASSWORD: pixie_secret
       POSTGRES_DB: pixie
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./database_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pixie"]
       interval: 5s
       timeout: 5s
       retries: 5
+    # No external port - only accessible within Docker network
 
   # Flask Backend API
   backend:
@@ -34,17 +36,24 @@ services:
       FLASK_APP: app:create_app
       FLASK_ENV: production
       FLASK_DEBUG: "false"
-    ports:
-      - "35000:35000"
+      # Vertex AI credentials (mount your service account JSON)
+      GOOGLE_APPLICATION_CREDENTIALS: /app/credentials/service_account.json
+      VERTEXAI_PROJECT: ${VERTEXAI_PROJECT:-gen-lang-client-0618054432}
+      VERTEXAI_LOCATION: ${VERTEXAI_LOCATION:-us-central1}
+    volumes:
+      - ./backend/gen-lang-client-0618054432-7bcb63cb06ee.json:/app/credentials/service_account.json:ro
+    # No external port - nginx proxies /api/ requests
+    expose:
+      - "35000"
 
-  # Nginx Frontend (serves built React app)
+  # Nginx Frontend (serves SPA + proxies API)
   frontend:
     build: ./frontend
     restart: unless-stopped
+    environment:
+      VITE_API_URL: ''
     depends_on:
       - backend
     ports:
-      - "80:80"
-
-volumes:
-  postgres_data:
+      # Change this port to whatever you want to access the app on
+      - "33380:80"

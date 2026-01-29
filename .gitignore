@@ -5,6 +5,7 @@ dist
 .DS_Store
 backend/instance/
 # Database
+database_data/
 
 # Python
 __pycache__/

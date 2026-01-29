@@ -2,7 +2,8 @@
 
 Pixie is an AI-powered financial guardian angel application. It helps users track their finances, set savings challenges, and get personalized advice through an AI chat interface.
 
-![Pixie Demo](docs/demo-screenshot.png)
+![Pixie Demo](https://pixie.naorleizer.live/)
+Access credentials are available to authorized users.
 
 ## 🚀 Quick Start
 
@@ -192,6 +193,3 @@ docker compose down
 docker compose down -v
 ```
 
-## 📜 License
-
-[MIT](LICENSE)

@@ -8,6 +8,7 @@ import { importTransactionsTour } from '../tours/import-transactions-tour.js';
 import { profileTour } from '../tours/profile-tour.js';
 import { privacyTour } from '../tours/privacy-tour.js';
 import { accountManagementTour } from '../tours/account-management-tour.js';
+import { accountSettingsTour } from '../tours/account-settings-tour.js';
 import { reportIssueTour } from '../tours/report-issue-tour.js';
 
 /**
@@ -23,6 +24,7 @@ const tourRegistry = {
   'import-transactions-screen': importTransactionsTour,
   'screen-profile': profileTour,
   'screen-account-management': accountManagementTour,
+  'screen-account-settings': accountSettingsTour,
   'screen-privacy': privacyTour,
   'screen-report-issue': reportIssueTour,
   'screen-notifications': null
